@@ -1627,9 +1627,11 @@ const CBC_STORAGE = {
 };
 
 
-/* ---------------------------------------------------------
+/* 
+---------------------------------------------------------
    SAFE JSON
---------------------------------------------------------- */
+--------------------------------------------------------- 
+*/
 
 function getStorage(key, fallback){
 
@@ -2177,8 +2179,1501 @@ loadCurrentGrade();
 
 updateStatistics();
 
+      /*
+      =========================================================
+   PART 2 — SUBJECT RESULTS
+   ========================================================= */
+
+const CBC_SUBJECTS = {
+
+  "Grade 1": [
+    "English",
+    "Kiswahili",
+    "Mathematics",
+    "Environmental Activities",
+    "Creative Activities",
+    "Religious Education"
+  ],
+
+  "Grade 2": [
+    "English",
+    "Kiswahili",
+    "Mathematics",
+    "Environmental Activities",
+    "Creative Activities",
+    "Religious Education"
+  ],
+
+  "Grade 3": [
+    "English",
+    "Kiswahili",
+    "Mathematics",
+    "Environmental Activities",
+    "Creative Activities",
+    "Religious Education"
+  ],
+
+  "Grade 4": [
+    "English",
+    "Kiswahili",
+    "Mathematics",
+    "Science and Technology",
+    "Social Studies",
+    "Agriculture",
+    "Creative Arts",
+    "Religious Education"
+  ],
+
+  "Grade 5": [
+    "English",
+    "Kiswahili",
+    "Mathematics",
+    "Science and Technology",
+    "Social Studies",
+    "Agriculture",
+    "Creative Arts",
+    "Religious Education"
+  ],
+
+  "Grade 6": [
+    "English",
+    "Kiswahili",
+    "Mathematics",
+    "Science and Technology",
+    "Social Studies",
+    "Agriculture",
+    "Creative Arts",
+    "Religious Education"
+  ],
+
+  "Grade 7": [
+    "English",
+    "Kiswahili",
+    "Mathematics",
+    "Integrated Science",
+    "Social Studies",
+    "Agriculture and Nutrition",
+    "Creative Arts and Sports",
+    "Pre-Technical Studies",
+    "Religious Education"
+  ],
+
+  "Grade 8": [
+    "English",
+    "Kiswahili",
+    "Mathematics",
+    "Integrated Science",
+    "Social Studies",
+    "Agriculture and Nutrition",
+    "Creative Arts and Sports",
+    "Pre-Technical Studies",
+    "Religious Education"
+  ],
+
+  "Grade 9": [
+    "English",
+    "Kiswahili",
+    "Mathematics",
+    "Integrated Science",
+    "Social Studies",
+    "Agriculture and Nutrition",
+    "Creative Arts and Sports",
+    "Pre-Technical Studies",
+    "Religious Education"
+  ],
+
+  "Grade 10": [
+    "English",
+    "Kiswahili",
+    "Mathematics",
+    "Biology",
+    "Chemistry",
+    "Physics",
+    "Computer Studies",
+    "Business Studies",
+    "Geography",
+    "History and Government"
+  ],
+
+  "Grade 11": [
+    "English",
+    "Kiswahili",
+    "Mathematics",
+    "Biology",
+    "Chemistry",
+    "Physics",
+    "Computer Studies",
+    "Business Studies",
+    "Geography",
+    "History and Government"
+  ],
+
+  "Grade 12": [
+    "English",
+    "Kiswahili",
+    "Mathematics",
+    "Biology",
+    "Chemistry",
+    "Physics",
+    "Computer Studies",
+    "Business Studies",
+    "Geography",
+    "History and Government"
+  ]
+
+};
+
+      /* =========================================================
+   PART 2 — SUBJECT RESULTS
+   CODE 2/5 — STATE, GRADE & SUBJECT RENDERING
+   ========================================================= */
+
+let reportPart2Subjects = [];
+
+let reportPart2Results = {};
+
 
 /* ---------------------------------------------------------
+   GET CURRENT REPORT GRADE
+--------------------------------------------------------- */
+
+function getReportGrade(){
+
+  const selectors = [
+    "#rGrade",
+    "#reportGrade",
+    "#grade",
+    "#currentGrade"
+  ];
+
+  for(
+    let i = 0;
+    i < selectors.length;
+    i++
+  ){
+
+    const element =
+      document.querySelector(
+        selectors[i]
+      );
+
+    if(
+      element &&
+      element.value
+    ){
+
+      return element.value.trim();
+
+    }
+
+  }
+
+  return getStorage(
+    "cbc_current_grade",
+    ""
+  );
+
+}
+
+
+/* ---------------------------------------------------------
+   NORMALIZE GRADE
+--------------------------------------------------------- */
+
+function normalizeReportGrade(
+  grade
+){
+
+  if(!grade){
+
+    return "";
+
+  }
+
+  grade =
+    String(grade).trim();
+
+  if(
+    CBC_SUBJECTS[grade]
+  ){
+
+    return grade;
+
+  }
+
+  const match =
+    grade.match(/\d+/);
+
+  if(match){
+
+    const normalized =
+      "Grade " + match[0];
+
+    if(
+      CBC_SUBJECTS[normalized]
+    ){
+
+      return normalized;
+
+    }
+
+  }
+
+  return grade;
+
+}
+
+
+/* ---------------------------------------------------------
+   GET SUBJECTS FOR GRADE
+--------------------------------------------------------- */
+
+function getSubjectsForGrade(
+  grade
+){
+
+  const normalized =
+    normalizeReportGrade(
+      grade
+    );
+
+  if(
+    CBC_SUBJECTS[normalized]
+  ){
+
+    return CBC_SUBJECTS[
+      normalized
+    ].slice();
+
+  }
+
+  return [
+    "English",
+    "Kiswahili",
+    "Mathematics",
+    "Science",
+    "Social Studies"
+  ];
+
+}
+
+
+/* ---------------------------------------------------------
+   CBC PERFORMANCE LEVEL
+--------------------------------------------------------- */
+
+function getCBCLevel(
+  mark
+){
+
+  mark =
+    Number(mark);
+
+  if(
+    isNaN(mark)
+  ){
+
+    return {
+      level: "-",
+      label: "-"
+    };
+
+  }
+
+  if(mark >= 80){
+
+    return {
+      level: "EE",
+      label: "Exceeding Expectations"
+    };
+
+  }
+
+  if(mark >= 60){
+
+    return {
+      level: "ME",
+      label: "Meeting Expectations"
+    };
+
+  }
+
+  if(mark >= 40){
+
+    return {
+      level: "AE",
+      label: "Approaching Expectations"
+    };
+
+  }
+
+  return {
+    level: "BE",
+    label: "Below Expectations"
+  };
+
+}
+
+
+/* ---------------------------------------------------------
+   PERFORMANCE LEVEL COLOR
+--------------------------------------------------------- */
+
+function getLevelColor(
+  mark
+){
+
+  mark =
+    Number(mark);
+
+  if(mark >= 80){
+
+    return "var(--teal)";
+
+  }
+
+  if(mark >= 60){
+
+    return "#2563EB";
+
+  }
+
+  if(mark >= 40){
+
+    return "#D97706";
+
+  }
+
+  return "#DC2626";
+
+}
+
+
+/* ---------------------------------------------------------
+   CREATE SUBJECT ROW
+--------------------------------------------------------- */
+
+function createSubjectRow(
+  subject,
+  index,
+  existingMark
+){
+
+  const row =
+    document.createElement(
+      "div"
+    );
+
+  row.className =
+    "report-subject-row";
+
+  row.style.cssText =
+    "display:grid;" +
+    "grid-template-columns:1fr 90px 50px;" +
+    "gap:8px;" +
+    "align-items:center;" +
+    "padding:10px;" +
+    "margin-bottom:8px;" +
+    "background:#fff;" +
+    "border:1px solid #E2E8F0;" +
+    "border-radius:10px;";
+
+  const name =
+    document.createElement(
+      "div"
+    );
+
+  name.textContent =
+    subject;
+
+  name.style.cssText =
+    "font-weight:600;font-size:14px;";
+
+  const input =
+    document.createElement(
+      "input"
+    );
+
+  input.type =
+    "number";
+
+  input.min =
+    "0";
+
+  input.max =
+    "100";
+
+  input.step =
+    "1";
+
+  input.inputMode =
+    "numeric";
+
+  input.placeholder =
+    "0–100";
+
+  input.className =
+    "report-mark-input";
+
+  input.dataset.subject =
+    subject;
+
+  input.dataset.index =
+    index;
+
+  input.style.cssText =
+    "width:100%;" +
+    "box-sizing:border-box;" +
+    "padding:9px;" +
+    "border:1px solid #CBD5E1;" +
+    "border-radius:8px;" +
+    "font-size:14px;" +
+    "text-align:center;";
+
+  if(
+    existingMark !== undefined &&
+    existingMark !== null
+  ){
+
+    input.value =
+      existingMark;
+
+  }
+
+  const level =
+    document.createElement(
+      "strong"
+    );
+
+  level.className =
+    "report-mark-level";
+
+  level.textContent =
+    "-";
+
+  level.style.cssText =
+    "font-size:12px;text-align:center;";
+
+  if(
+    input.value !== ""
+  ){
+
+    const result =
+      getCBCLevel(
+        input.value
+      );
+
+    level.textContent =
+      result.level;
+
+    level.style.color =
+      getLevelColor(
+        input.value
+      );
+
+  }
+
+  input.addEventListener(
+    "input",
+    function(){
+
+      let value =
+        this.value;
+
+      if(value !== ""){
+
+        value =
+          Number(value);
+
+        if(value < 0){
+
+          value = 0;
+
+        }
+
+        if(value > 100){
+
+          value = 100;
+
+        }
+
+        this.value =
+          value;
+
+      }
+
+      updatePart2Level(
+        this,
+        level
+      );
+
+      calculatePart2Totals();
+
+    }
+  );
+
+  row.appendChild(
+    name
+  );
+
+  row.appendChild(
+    input
+  );
+
+  row.appendChild(
+    level
+  );
+
+  return row;
+
+}
+
+
+/* ---------------------------------------------------------
+   UPDATE SUBJECT LEVEL
+--------------------------------------------------------- */
+
+function updatePart2Level(
+  input,
+  levelElement
+){
+
+  if(
+    input.value === ""
+  ){
+
+    levelElement.textContent =
+      "-";
+
+    levelElement.style.color =
+      "";
+
+    return;
+
+  }
+
+  const result =
+    getCBCLevel(
+      Number(input.value)
+    );
+
+  levelElement.textContent =
+    result.level;
+
+  levelElement.style.color =
+    getLevelColor(
+      Number(input.value)
+    );
+
+}
+
+
+/* ---------------------------------------------------------
+   RENDER SUBJECTS
+--------------------------------------------------------- */
+
+function renderPart2Subjects(
+  grade,
+  existingResults
+){
+
+  const container =
+    document.getElementById(
+      "subjectsList"
+    );
+
+  if(!container){
+
+    return;
+
+  }
+
+  container.innerHTML =
+    "";
+
+  reportPart2Subjects =
+    getSubjectsForGrade(
+      grade
+    );
+
+  reportPart2Results =
+    existingResults || {};
+
+  reportPart2Subjects.forEach(
+    function(subject,index){
+
+      const existingMark =
+        reportPart2Results[
+          subject
+        ];
+
+      const row =
+        createSubjectRow(
+          subject,
+          index,
+          existingMark
+        );
+
+      container.appendChild(
+        row
+      );
+
+    }
+  );
+
+  calculatePart2Totals();
+
+}
+
+
+/* 
+=========================================================
+   END CODE 2/5
+   ========================================================= 
+   */
+
+      /* 
+      =========================================================
+   PART 2 — SUBJECT RESULTS
+   CODE 3/5 — CALCULATIONS & VALIDATION
+   ========================================================= 
+   */
+
+
+/*
+---------------------------------------------------------
+   CALCULATE TOTAL, AVERAGE & PERFORMANCE
+--------------------------------------------------------- 
+*/
+
+function calculatePart2Totals(){
+
+  const inputs =
+    document.querySelectorAll(
+      "#subjectsList .report-mark-input"
+    );
+
+  let total = 0;
+
+  let count = 0;
+
+
+  inputs.forEach(
+    function(input){
+
+      if(
+        input.value !== ""
+      ){
+
+        const mark =
+          Number(input.value);
+
+        if(
+          !isNaN(mark)
+        ){
+
+          total += mark;
+
+          count++;
+
+        }
+
+      }
+
+    }
+  );
+
+
+  const average =
+    count > 0
+      ? total / count
+      : 0;
+
+
+  /*
+  -------------------------------------------------------
+     UPDATE TOTAL
+  -------------------------------------------------------
+  */
+
+  const totalElement =
+    document.getElementById(
+      "rTotal"
+    );
+
+  if(totalElement){
+
+    totalElement.textContent =
+      total;
+
+  }
+
+
+  /* -------------------------------------------------------
+     UPDATE AVERAGE
+  ------------------------------------------------------- */
+
+  const averageElement =
+    document.getElementById(
+      "rAverage"
+    );
+
+  if(averageElement){
+
+    averageElement.textContent =
+      average.toFixed(1) +
+      "%";
+
+  }
+
+
+  /* -------------------------------------------------------
+     UPDATE PERFORMANCE
+  ------------------------------------------------------- */
+
+  const levelElement =
+    document.getElementById(
+      "rLevel"
+    );
+
+  if(levelElement){
+
+    if(count === 0){
+
+      levelElement.textContent =
+        "-";
+
+      levelElement.style.color =
+        "var(--teal)";
+
+    }else{
+
+      const result =
+        getCBCLevel(
+          average
+        );
+
+      levelElement.textContent =
+        result.level +
+        " — " +
+        result.label;
+
+      levelElement.style.color =
+        getLevelColor(
+          average
+        );
+
+    }
+
+  }
+
+
+  return {
+    total: total,
+    average: average,
+    count: count
+  };
+
+}
+
+
+/* ---------------------------------------------------------
+   COLLECT SUBJECT RESULTS
+--------------------------------------------------------- */
+
+function collectPart2Results(){
+
+  const inputs =
+    document.querySelectorAll(
+      "#subjectsList .report-mark-input"
+    );
+
+  const results = {};
+
+  let valid = true;
+
+  let message = "";
+
+
+  inputs.forEach(
+    function(input){
+
+      const subject =
+        input.dataset.subject;
+
+      const value =
+        input.value.trim();
+
+
+      /* Empty mark */
+
+      if(
+        value === ""
+      ){
+
+        results[subject] =
+          null;
+
+        return;
+
+      }
+
+
+      const mark =
+        Number(value);
+
+
+      /* Invalid mark */
+
+      if(
+        isNaN(mark) ||
+        mark < 0 ||
+        mark > 100
+      ){
+
+        valid = false;
+
+        message =
+          subject +
+          " must be between 0 and 100.";
+
+        return;
+
+      }
+
+
+      results[subject] =
+        mark;
+
+    }
+  );
+
+
+  return {
+
+    valid: valid,
+
+    results: results,
+
+    message: message
+
+  };
+
+}
+
+
+/* ---------------------------------------------------------
+   CHECK WHETHER AT LEAST ONE MARK EXISTS
+--------------------------------------------------------- */
+
+function hasPart2Marks(){
+
+  const inputs =
+    document.querySelectorAll(
+      "#subjectsList .report-mark-input"
+    );
+
+  for(
+    let i = 0;
+    i < inputs.length;
+    i++
+  ){
+
+    if(
+      inputs[i].value.trim() !== ""
+    ){
+
+      return true;
+
+    }
+
+  }
+
+  return false;
+
+}
+
+
+/* ---------------------------------------------------------
+   SHOW PART 2 ERROR
+--------------------------------------------------------- */
+
+function showPart2Error(
+  message
+){
+
+  if(
+    typeof showToast ===
+    "function"
+  ){
+
+    showToast(
+      message,
+      "error"
+    );
+
+  }else{
+
+    alert(
+      message
+    );
+
+  }
+
+}
+
+
+/* ---------------------------------------------------------
+   VALIDATE PART 2
+--------------------------------------------------------- */
+
+function validatePart2(){
+
+  const collected =
+    collectPart2Results();
+
+
+  if(
+    !collected.valid
+  ){
+
+    showPart2Error(
+      collected.message
+    );
+
+    return false;
+
+  }
+
+
+  if(
+    !hasPart2Marks()
+  ){
+
+    showPart2Error(
+      "Enter at least one subject mark."
+    );
+
+    return false;
+
+  }
+
+
+  return true;
+
+}
+
+
+/* 
+=========================================================
+   END CODE 3/5
+   ========================================================= 
+  */
+
+/*
+=========================================================
+   PART 2 — SUBJECT RESULTS
+   CODE 4/5 — REPORT DATA & SAVE
+   =========================================================
+   */
+
+
+/* 
+---------------------------------------------------------
+   GET PART 1 REPORT DATA
+---------------------------------------------------------
+*/
+
+function getReportPart1Data(){
+
+  const data = {
+
+    grade: "",
+
+    className: "",
+
+    term: "",
+
+    studentName: "",
+
+    admissionNumber: ""
+
+  };
+
+
+  const fields = {
+
+    grade: [
+      "#rGrade",
+      "#reportGrade",
+      "#grade"
+    ],
+
+    className: [
+      "#rClass",
+      "#reportClass",
+      "#className",
+      "#class"
+    ],
+
+    term: [
+      "#rTerm",
+      "#reportTerm",
+      "#term"
+    ],
+
+    studentName: [
+      "#rStudentName",
+      "#reportStudentName",
+      "#studentName",
+      "#learnerName"
+    ],
+
+    admissionNumber: [
+      "#rAdm",
+      "#reportAdm",
+      "#admNumber",
+      "#admissionNumber"
+    ]
+
+  };
+
+
+  Object.keys(fields).forEach(
+    function(field){
+
+      const selectors =
+        fields[field];
+
+
+      for(
+        let i = 0;
+        i < selectors.length;
+        i++
+      ){
+
+        const element =
+          document.querySelector(
+            selectors[i]
+          );
+
+
+        if(
+          element &&
+          element.value
+        ){
+
+          data[field] =
+            element.value.trim();
+
+          break;
+
+        }
+
+      }
+
+    }
+  );
+
+
+  return data;
+
+}
+
+
+/*
+---------------------------------------------------------
+   CREATE REPORT OBJECT
+---------------------------------------------------------
+*/
+
+function createPart2Report(){
+
+  const collected =
+    collectPart2Results();
+
+
+  if(
+    !collected.valid
+  ){
+
+    showPart2Error(
+      collected.message
+    );
+
+    return null;
+
+  }
+
+
+  if(
+    !hasPart2Marks()
+  ){
+
+    showPart2Error(
+      "Enter at least one subject mark."
+    );
+
+    return null;
+
+  }
+
+
+  const part1 =
+    getReportPart1Data();
+
+
+  const totals =
+    calculatePart2Totals();
+
+
+  const performance =
+    getCBCLevel(
+      totals.average
+    );
+
+
+  const report = {
+
+    id:
+      "RPT-" +
+      Date.now(),
+
+    createdAt:
+      new Date().toISOString(),
+
+    updatedAt:
+      new Date().toISOString(),
+
+    grade:
+      part1.grade ||
+      getReportGrade(),
+
+    className:
+      part1.className,
+
+    term:
+      part1.term,
+
+    studentName:
+      part1.studentName,
+
+    admissionNumber:
+      part1.admissionNumber,
+
+    subjects:
+      collected.results,
+
+    total:
+      totals.total,
+
+    average:
+      Number(
+        totals.average.toFixed(2)
+      ),
+
+    performance:
+      performance,
+
+    comments:
+      "",
+
+    status:
+      "draft"
+
+  };
+
+
+  return report;
+
+}
+
+
+/* ---------------------------------------------------------
+   SAVE REPORT TO LOCAL STORAGE
+--------------------------------------------------------- */
+
+function savePart2Report(){
+
+  const report =
+    createPart2Report();
+
+
+  if(!report){
+
+    return null;
+
+  }
+
+
+  let reports =
+    getStorage(
+      "cbc_reports",
+      []
+    );
+
+
+  if(
+    !Array.isArray(reports)
+  ){
+
+    reports =
+      [];
+
+  }
+
+
+  reports.push(
+    report
+  );
+
+
+  setStorage(
+    "cbc_reports",
+    reports
+  );
+
+
+  /* -------------------------------------------------------
+     SAVE CURRENT REPORT
+  ------------------------------------------------------- */
+
+  setStorage(
+    "cbc_current_report",
+    report
+  );
+
+
+  /* -------------------------------------------------------
+     SUCCESS MESSAGE
+  ------------------------------------------------------- */
+
+  if(
+    typeof showToast ===
+    "function"
+  ){
+
+    showToast(
+      "Report saved successfully.",
+      "success"
+    );
+
+  }
+
+
+  return report;
+
+}
+
+
+/* =========================================================
+   END CODE 4/5
+   =========================================================
+*/
+
+ /* =========================================================
+   PART 2 — SUBJECT RESULTS
+   CODE 5/5 — INITIALIZATION & PART 3 CONNECTION
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   OPEN PART 2
+--------------------------------------------------------- */
+
+function openReportPart2(
+  existingReport
+){
+
+  const section =
+    document.getElementById(
+      "rPart2Section"
+    );
+
+  if(!section){
+
+    console.warn(
+      "CBC MASTER: Part 2 section not found."
+    );
+
+    return;
+
+  }
+
+
+  section.style.display =
+    "block";
+
+
+  let grade = "";
+
+  let results = {};
+
+
+  if(
+    existingReport &&
+    existingReport.grade
+  ){
+
+    grade =
+      existingReport.grade;
+
+  }else{
+
+    grade =
+      getReportGrade();
+
+  }
+
+
+  if(
+    existingReport &&
+    existingReport.subjects
+  ){
+
+    results =
+      existingReport.subjects;
+
+  }
+
+
+  renderPart2Subjects(
+    grade,
+    results
+  );
+
+
+  section.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+
+}
+
+
+/* ---------------------------------------------------------
+   SAVE BUTTON
+--------------------------------------------------------- */
+
+function initializePart2(){
+
+  const saveButton =
+    document.getElementById(
+      "rSaveReportBtn"
+    );
+
+
+  if(
+    saveButton &&
+    !saveButton.dataset.part2Ready
+  ){
+
+    saveButton.dataset.part2Ready =
+      "true";
+
+
+    saveButton.addEventListener(
+      "click",
+      function(){
+
+        const report =
+          savePart2Report();
+
+
+        if(
+          !report
+        ){
+
+          return;
+
+        }
+
+
+        /*
+           Part 3 can use the current report
+           from localStorage.
+        */
+
+        if(
+          typeof openReportPart3 ===
+          "function"
+        ){
+
+          openReportPart3(
+            report
+          );
+
+          return;
+
+        }
+
+
+        /*
+           If Part 3 has not been created yet,
+           simply keep the saved report ready.
+        */
+
+        const part3 =
+          document.getElementById(
+            "rPart3Section"
+          );
+
+
+        if(part3){
+
+          part3.style.display =
+            "block";
+
+
+          part3.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+          });
+
+        }
+
+      }
+    );
+
+  }
+
+}
+
+
+/* ---------------------------------------------------------
+   INITIALIZE WHEN PAGE LOADS
+--------------------------------------------------------- */
+
+if(
+  document.readyState ===
+  "loading"
+){
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    function(){
+
+      initializePart2();
+
+    }
+  );
+
+}else{
+
+  initializePart2();
+
+}
+
+
+/* 
+=========================================================
+   END PART 2 — SUBJECT RESULTS
+   =========================================================
+   */     
+
+      
+/*
+---------------------------------------------------------
    SERVICE WORKER
 --------------------------------------------------------- */
 
