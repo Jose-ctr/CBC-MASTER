@@ -2021,47 +2021,234 @@ document.addEventListener(
    PAGE NAVIGATION
 --------------------------------------------------------- */
 
-function navigateTo(page){
+      function navigateTo(page){
 
   closeSidebar();
-
 
   if(page === "dashboard"){
 
     window.scrollTo({
-      top:0,
-      behavior:"smooth"
+      top: 0,
+      behavior: "smooth"
     });
 
-    return;
+    setTimeout(
+      () => location.reload(),
+      200
+    );
 
+    return;
   }
 
 
-  /*
-    These modules are implemented
-    in the next parts.
+  const main =
+    document.querySelector(".main");
 
-    For now we identify which
-    module the teacher selected.
-  */
+  if(!main) return;
+
+
+  /* -------------------------------------------------
+     REPORT BOOKS
+  ------------------------------------------------- */
+
+  if(page === "reports"){
+
+    main.innerHTML = `
+
+      <section class="page-heading">
+
+        <h1>📊 Report Books</h1>
+
+        <p>Complete CBC Report</p>
+
+      </section>
+
+
+      <div class="grade-card">
+
+        <input
+          id="rName"
+          class="grade-select"
+          placeholder="Learner Name"
+          style="margin-bottom:10px"
+        >
+
+        <input
+          id="rAdm"
+          class="grade-select"
+          placeholder="Admission No"
+          style="margin-bottom:10px"
+        >
+
+
+        <select
+          id="rGrade"
+          class="grade-select"
+          style="margin-bottom:10px"
+        >
+
+          ${
+            Object.keys(CBC_SUBJECTS)
+              .map(
+                g => `<option>${g}</option>`
+              )
+              .join("")
+          }
+
+        </select>
+
+
+        <select
+          id="rTerm"
+          class="grade-select"
+          style="margin-bottom:14px"
+        >
+
+          <option>Term 1</option>
+          <option>Term 2</option>
+          <option>Term 3</option>
+
+        </select>
+
+
+        <div id="rPart2Section"></div>
+
+      </div>
+
+
+      <button
+        class="primary-btn"
+        style="
+          margin-top:12px;
+          background:#fff;
+          border:1px solid #CBD5E1
+        "
+        onclick="location.reload()"
+      >
+
+        ← Dashboard
+
+      </button>
+
+    `;
+
+
+    /* -------------------------------------------------
+       LOAD REPORT DATA
+    ------------------------------------------------- */
+
+    const load = () => {
+
+      let g =
+        document.getElementById("rGrade")?.value || "";
+
+
+      if(
+        typeof getReportGrade === "function"
+      ){
+
+        g = getReportGrade();
+
+      }
+
+
+      if(
+        typeof renderPart2Subjects === "function"
+      ){
+
+        let saved =
+          getStorage(
+            CBC_STORAGE.reports,
+            []
+          );
+
+
+        let adm =
+          document.getElementById("rAdm")
+            ?.value
+            ?.trim() || "";
+
+
+        let found =
+          saved.find(
+            r =>
+              String(r.adm || "").trim()
+              === adm
+          );
+
+
+        renderPart2Subjects(
+          g,
+          found
+            ? found.subjects
+            : {}
+        );
+
+      }
+
+    };
+
+
+    /* Initial load */
+
+    load();
+
+
+    /* Grade change */
+
+    const gradeSelect =
+      document.getElementById("rGrade");
+
+    if(gradeSelect){
+
+      gradeSelect.addEventListener(
+        "change",
+        load
+      );
+
+    }
+
+
+    /* Admission number change */
+
+    const admInput =
+      document.getElementById("rAdm");
+
+    if(admInput){
+
+      admInput.addEventListener(
+        "input",
+        load
+      );
+
+    }
+
+
+    main.scrollIntoView({
+      behavior: "smooth"
+    });
+
+    return;
+  }
+
+
+  /* -------------------------------------------------
+     OTHER MODULES
+  ------------------------------------------------- */
 
   const names = {
 
-    reports:
-      "📊 Report Books",
-
     schemes:
-      "📚 Schemes of Work",
+      "📚 Schemes of Work - Coming V2",
 
     lessons:
-      "📝 Lesson Plans",
+      "📝 Lesson Plans - Coming V2",
 
     rubrics:
-      "🎯 Assessment Rubrics",
+      "🎯 Assessment Rubrics - Coming V2",
 
     students:
-      "👨‍🎓 Students",
+      "👨‍🎓 Students - Coming V2",
 
     saved:
       "📁 Saved Documents",
@@ -2070,16 +2257,37 @@ function navigateTo(page){
       "👤 Teacher Profile",
 
     explore:
-      "◈ Explore"
+      "✨ Explore"
 
   };
 
 
-  showToast(
-    names[page] ||
-    "CBC MASTER"
-  );
+  main.innerHTML = `
 
+    <section class="page-heading">
+
+      <h1>
+        ${names[page] || page}
+      </h1>
+
+    </section>
+
+
+    <button
+      class="primary-btn"
+      style="
+        background:#fff;
+        border:1px solid #CBD5E1;
+        margin-top:12px
+      "
+      onclick="location.reload()"
+    >
+
+      ← Back
+
+    </button>
+
+  `;
 }
 
 
