@@ -24040,5 +24040,2138 @@ else {
 <!-- =========================================================
      END PART 8A — ASSESSMENT DATA ENGINE V2
      ========================================================= -->
+ <!-- =========================================================
+     CBC MASTER V2
+     PART 8B — ASSESSMENT ANALYTICS UI + REPORTING DASHBOARD
+     ========================================================= -->
+
+<style>
+
+/* =========================================================
+   PART 8B — ANALYTICS PAGE
+   ========================================================= */
+
+.assessment-analytics-page{
+  width:100%;
+}
+
+.analytics-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:20px;
+  margin-bottom:22px;
+}
+
+.analytics-title h1{
+  margin:0;
+  color:var(--text);
+  font-size:clamp(24px,4vw,32px);
+  font-weight:800;
+}
+
+.analytics-title p{
+  margin:7px 0 0;
+  color:var(--text-secondary);
+  font-size:13px;
+  line-height:1.5;
+}
+
+.analytics-actions{
+  display:flex;
+  gap:9px;
+}
+
+/* ---------------------------------------------------------
+   FILTERS
+   --------------------------------------------------------- */
+
+.analytics-filters{
+  display:grid;
+  grid-template-columns:
+    repeat(3,minmax(0,1fr))
+    minmax(180px,1.4fr);
+  gap:12px;
+  margin-bottom:20px;
+  padding:16px;
+  background:linear-gradient(145deg,#102943,#0C2035);
+  border:1px solid var(--border);
+  border-radius:var(--radius-md);
+}
+
+.analytics-field{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.analytics-field label{
+  color:var(--text-muted);
+  font-size:10px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.7px;
+}
+
+.analytics-field select{
+  width:100%;
+  min-height:42px;
+  padding:0 12px;
+  color:var(--text);
+  background:#0B1F33;
+  border:1px solid var(--border);
+  border-radius:10px;
+  outline:none;
+}
+
+.analytics-field select:focus{
+  border-color:var(--gold-border);
+}
+
+/* ---------------------------------------------------------
+   STAT CARDS
+   --------------------------------------------------------- */
+
+.analytics-stats{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:13px;
+  margin-bottom:22px;
+}
+
+.analytics-stat{
+  position:relative;
+  padding:18px;
+  background:rgba(255,255,255,.025);
+  border:1px solid var(--border);
+  border-radius:var(--radius-md);
+  overflow:hidden;
+}
+
+.analytics-stat::after{
+  content:"";
+  position:absolute;
+  right:-25px;
+  bottom:-35px;
+  width:90px;
+  height:90px;
+  border-radius:50%;
+  background:var(--gold-soft);
+}
+
+.analytics-stat-label{
+  color:var(--text-muted);
+  font-size:10px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+}
+
+.analytics-stat-value{
+  position:relative;
+  z-index:1;
+  margin-top:7px;
+  color:var(--text);
+  font-size:25px;
+  font-weight:800;
+}
+
+.analytics-stat-sub{
+  margin-top:5px;
+  color:var(--text-secondary);
+  font-size:10px;
+}
+
+/* ---------------------------------------------------------
+   GRID
+   --------------------------------------------------------- */
+
+.analytics-grid{
+  display:grid;
+  grid-template-columns:
+    minmax(0,1.35fr)
+    minmax(300px,.65fr);
+  gap:16px;
+  margin-bottom:18px;
+}
+
+.analytics-panel{
+  overflow:hidden;
+  background:linear-gradient(145deg,#102943,#0C2035);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+}
+
+.analytics-panel-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:17px 20px;
+  border-bottom:1px solid var(--border);
+}
+
+.analytics-panel-header h2{
+  margin:0;
+  color:var(--text);
+  font-size:15px;
+}
+
+.analytics-panel-header p{
+  margin:4px 0 0;
+  color:var(--text-muted);
+  font-size:10px;
+}
+
+/* ---------------------------------------------------------
+   PERFORMANCE
+   --------------------------------------------------------- */
+
+.performance-content{
+  padding:20px;
+}
+
+.performance-item{
+  margin-bottom:17px;
+}
+
+.performance-item:last-child{
+  margin-bottom:0;
+}
+
+.performance-top{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:7px;
+}
+
+.performance-name{
+  color:var(--text-secondary);
+  font-size:11px;
+  font-weight:700;
+}
+
+.performance-value{
+  color:var(--text);
+  font-size:11px;
+  font-weight:800;
+}
+
+.performance-bar{
+  height:10px;
+  overflow:hidden;
+  background:rgba(255,255,255,.06);
+  border-radius:99px;
+}
+
+.performance-fill{
+  height:100%;
+  background:linear-gradient(
+    90deg,
+    var(--gold),
+    var(--gold-light)
+  );
+  border-radius:99px;
+}
+
+/* ---------------------------------------------------------
+   LEVEL CARDS
+   --------------------------------------------------------- */
+
+.level-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  padding:18px;
+}
+
+.level-card{
+  padding:15px;
+  background:rgba(255,255,255,.025);
+  border:1px solid var(--border);
+  border-radius:12px;
+}
+
+.level-code{
+  color:var(--gold-light);
+  font-size:17px;
+  font-weight:900;
+}
+
+.level-label{
+  margin-top:4px;
+  color:var(--text-secondary);
+  font-size:10px;
+  line-height:1.4;
+}
+
+.level-count{
+  margin-top:9px;
+  color:var(--text);
+  font-size:20px;
+  font-weight:800;
+}
+
+/* ---------------------------------------------------------
+   TABLE
+   --------------------------------------------------------- */
+
+.analytics-table-wrap{
+  width:100%;
+  overflow-x:auto;
+}
+
+.analytics-table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+.analytics-table th{
+  padding:12px 16px;
+  color:var(--text-muted);
+  background:rgba(255,255,255,.02);
+  border-bottom:1px solid var(--border);
+  font-size:9px;
+  text-align:left;
+  text-transform:uppercase;
+  letter-spacing:.6px;
+  white-space:nowrap;
+}
+
+.analytics-table td{
+  padding:13px 16px;
+  color:var(--text-secondary);
+  border-bottom:1px solid var(--border);
+  font-size:11px;
+}
+
+.analytics-table tr:last-child td{
+  border-bottom:0;
+}
+
+.analytics-table strong{
+  color:var(--text);
+}
+
+.analytics-table .number{
+  text-align:right;
+  font-weight:700;
+}
+
+/* ---------------------------------------------------------
+   BADGES
+   --------------------------------------------------------- */
+
+.analytics-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:34px;
+  padding:5px 8px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  font-size:9px;
+  font-weight:800;
+}
+
+.analytics-badge.ee{
+  color:#7EF29A;
+}
+
+.analytics-badge.me{
+  color:#75D9FF;
+}
+
+.analytics-badge.ae{
+  color:var(--gold-light);
+}
+
+.analytics-badge.be{
+  color:#FF8C8C;
+}
+
+/* ---------------------------------------------------------
+   EMPTY
+   --------------------------------------------------------- */
+
+.analytics-empty{
+  padding:45px 25px;
+  text-align:center;
+}
+
+.analytics-empty-icon{
+  width:60px;
+  height:60px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0 auto 15px;
+  color:var(--gold-light);
+  background:var(--gold-soft);
+  border:1px solid var(--gold-border);
+  border-radius:17px;
+  font-size:26px;
+}
+
+.analytics-empty h3{
+  margin:0;
+  color:var(--text);
+  font-size:17px;
+}
+
+.analytics-empty p{
+  max-width:430px;
+  margin:8px auto 0;
+  color:var(--text-secondary);
+  font-size:11px;
+  line-height:1.6;
+}
+
+/* ---------------------------------------------------------
+   REPORT CARD
+   --------------------------------------------------------- */
+
+.analytics-report{
+  padding:20px;
+}
+
+.report-header{
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  margin-bottom:18px;
+  padding-bottom:15px;
+  border-bottom:1px solid var(--border);
+}
+
+.report-title{
+  color:var(--text);
+  font-size:16px;
+  font-weight:800;
+}
+
+.report-meta{
+  margin-top:5px;
+  color:var(--text-muted);
+  font-size:10px;
+}
+
+.report-average{
+  color:var(--gold-light);
+  font-size:25px;
+  font-weight:900;
+  text-align:right;
+}
+
+.report-average span{
+  display:block;
+  color:var(--text-muted);
+  font-size:9px;
+  font-weight:700;
+  text-transform:uppercase;
+}
+
+/* ---------------------------------------------------------
+   RESPONSIVE
+   --------------------------------------------------------- */
+
+@media(max-width:900px){
+
+  .analytics-grid{
+    grid-template-columns:1fr;
+  }
+
+}
+
+@media(max-width:800px){
+
+  .analytics-header{
+    flex-direction:column;
+  }
+
+  .analytics-actions{
+    width:100%;
+  }
+
+  .analytics-actions .cbc-btn{
+    flex:1;
+  }
+
+  .analytics-filters{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .analytics-stats{
+    grid-template-columns:1fr 1fr;
+  }
+
+}
+
+@media(max-width:520px){
+
+  .analytics-filters{
+    grid-template-columns:1fr;
+  }
+
+  .analytics-stats{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .analytics-grid{
+    grid-template-columns:1fr;
+  }
+
+  .report-header{
+    flex-direction:column;
+  }
+
+  .report-average{
+    text-align:left;
+  }
+
+}
+
+</style>
+
+
+<script>
+
+/* =========================================================
+   PART 8B — ASSESSMENT ANALYTICS UI
+   ========================================================= */
+
+(function(){
+
+  "use strict";
+
+
+  /* =======================================================
+     STATE
+     ======================================================= */
+
+  let analyticsUIState = {
+
+    grade:"Grade 5",
+
+    term:"Term 1",
+
+    subject:"All Subjects"
+
+  };
+
+
+  /* =======================================================
+     API
+     ======================================================= */
+
+  function getAPI(){
+
+    return window.CBC_ASSESSMENTS_V2 || null;
+
+  }
+
+
+  /* =======================================================
+     SUBJECTS
+     ======================================================= */
+
+  function getSubjects(){
+
+    const api =
+      getAPI();
+
+    if(
+      api &&
+      typeof api.subjects === "function"
+    ){
+
+      return api.subjects(
+        analyticsUIState.grade
+      ) || [];
+
+    }
+
+    return [];
+
+  }
+
+
+  /* =======================================================
+     SUMMARY
+     ======================================================= */
+
+  function getSummary(){
+
+    const api =
+      getAPI();
+
+    if(
+      !api ||
+      typeof api.summary !== "function"
+    ){
+
+      return {
+
+        totalAssessments:0,
+        totalLearners:0,
+        averagePercentage:0,
+        exceeding:0,
+        meeting:0,
+        approaching:0,
+        below:0,
+        completionRate:0
+
+      };
+
+    }
+
+    return api.summary({
+
+      grade:
+        analyticsUIState.grade,
+
+      term:
+        analyticsUIState.term,
+
+      subject:
+        analyticsUIState.subject
+
+    });
+
+  }
+
+
+  /* =======================================================
+     RENDER
+     ======================================================= */
+
+  function renderAssessmentAnalytics(){
+
+    const container =
+      document.getElementById(
+        "pageContainer"
+      );
+
+    if(!container){
+
+      return;
+
+    }
+
+
+    const summary =
+      getSummary();
+
+
+    const api =
+      getAPI();
+
+
+    let gradeSummary = [];
+
+    let distribution = {
+
+      EE:0,
+      ME:0,
+      AE:0,
+      BE:0
+
+    };
+
+
+    let topLearners = [];
+
+    let supportLearners = [];
+
+
+    if(api){
+
+      if(
+        typeof api.gradeSummary ===
+        "function"
+      ){
+
+        gradeSummary =
+          api.gradeSummary(
+            analyticsUIState.grade,
+            analyticsUIState.term
+          ) || [];
+
+      }
+
+
+      if(
+        typeof api.distribution ===
+        "function"
+      ){
+
+        distribution =
+          api.distribution({
+
+            grade:
+              analyticsUIState.grade,
+
+            term:
+              analyticsUIState.term,
+
+            subject:
+              analyticsUIState.subject
+
+          }) || distribution;
+
+      }
+
+
+      if(
+        typeof api.topLearners ===
+        "function"
+      ){
+
+        topLearners =
+          api.topLearners(
+            10,
+            {
+
+              grade:
+                analyticsUIState.grade,
+
+              term:
+                analyticsUIState.term,
+
+              subject:
+                analyticsUIState.subject
+
+            }
+          ) || [];
+
+      }
+
+
+      if(
+        typeof api.supportLearners ===
+        "function"
+      ){
+
+        supportLearners =
+          api.supportLearners({
+
+            grade:
+              analyticsUIState.grade,
+
+            term:
+              analyticsUIState.term,
+
+            subject:
+              analyticsUIState.subject
+
+          }) || [];
+
+      }
+
+    }
+
+
+    container.innerHTML = `
+
+      <div class="assessment-analytics-page">
+
+        <div class="analytics-header">
+
+          <div class="analytics-title">
+
+            <h1>
+              Assessment Analytics
+            </h1>
+
+            <p>
+              Monitor CBC learner performance,
+              achievement levels and learning support needs.
+            </p>
+
+          </div>
+
+          <div class="analytics-actions">
+
+            <button
+              type="button"
+              class="cbc-btn cbc-btn-secondary"
+              id="refreshAnalyticsBtn">
+
+              ↻ Refresh
+
+            </button>
+
+            <button
+              type="button"
+              class="cbc-btn cbc-btn-primary"
+              id="snapshotAnalyticsBtn">
+
+              ◉ Snapshot
+
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <!-- FILTERS -->
+
+        <div class="analytics-filters">
+
+          <div class="analytics-field">
+
+            <label>
+              Grade
+            </label>
+
+            <select id="analyticsGrade">
+
+              ${renderGrades()}
+
+            </select>
+
+          </div>
+
+
+          <div class="analytics-field">
+
+            <label>
+              Term
+            </label>
+
+            <select id="analyticsTerm">
+
+              ${renderTerms()}
+
+            </select>
+
+          </div>
+
+
+          <div class="analytics-field">
+
+            <label>
+              Subject
+            </label>
+
+            <select id="analyticsSubject">
+
+              ${renderSubjects()}
+
+            </select>
+
+          </div>
+
+        </div>
+
+
+        <!-- STATS -->
+
+        <div class="analytics-stats">
+
+          <div class="analytics-stat">
+
+            <div class="analytics-stat-label">
+              Assessments
+            </div>
+
+            <div class="analytics-stat-value">
+              ${summary.totalAssessments}
+            </div>
+
+            <div class="analytics-stat-sub">
+              Recorded assessments
+            </div>
+
+          </div>
+
+
+          <div class="analytics-stat">
+
+            <div class="analytics-stat-label">
+              Learners
+            </div>
+
+            <div class="analytics-stat-value">
+              ${summary.totalLearners}
+            </div>
+
+            <div class="analytics-stat-sub">
+              Assessed learners
+            </div>
+
+          </div>
+
+
+          <div class="analytics-stat">
+
+            <div class="analytics-stat-label">
+              Average
+            </div>
+
+            <div class="analytics-stat-value">
+              ${formatPercent(
+                summary.averagePercentage
+              )}
+            </div>
+
+            <div class="analytics-stat-sub">
+              Overall achievement
+            </div>
+
+          </div>
+
+
+          <div class="analytics-stat">
+
+            <div class="analytics-stat-label">
+              Meeting+
+            </div>
+
+            <div class="analytics-stat-value">
+              ${formatPercent(
+                summary.completionRate
+              )}
+            </div>
+
+            <div class="analytics-stat-sub">
+              ME and EE
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- PERFORMANCE -->
+
+        <div class="analytics-grid">
+
+
+          <section class="analytics-panel">
+
+            <div class="analytics-panel-header">
+
+              <div>
+
+                <h2>
+                  Performance Distribution
+                </h2>
+
+                <p>
+                  CBC achievement levels
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <div class="performance-content">
+
+              ${renderPerformanceItem(
+                "Exceeding Expectations",
+                distribution.EE,
+                summary.totalAssessments
+              )}
+
+              ${renderPerformanceItem(
+                "Meeting Expectations",
+                distribution.ME,
+                summary.totalAssessments
+              )}
+
+              ${renderPerformanceItem(
+                "Approaching Expectations",
+                distribution.AE,
+                summary.totalAssessments
+              )}
+
+              ${renderPerformanceItem(
+                "Below Expectations",
+                distribution.BE,
+                summary.totalAssessments
+              )}
+
+            </div>
+
+          </section>
+
+
+          <section class="analytics-panel">
+
+            <div class="analytics-panel-header">
+
+              <div>
+
+                <h2>
+                  Achievement Levels
+                </h2>
+
+                <p>
+                  Learner distribution
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <div class="level-grid">
+
+              ${renderLevelCard(
+                "EE",
+                "Exceeding Expectations",
+                distribution.EE
+              )}
+
+              ${renderLevelCard(
+                "ME",
+                "Meeting Expectations",
+                distribution.ME
+              )}
+
+              ${renderLevelCard(
+                "AE",
+                "Approaching Expectations",
+                distribution.AE
+              )}
+
+              ${renderLevelCard(
+                "BE",
+                "Below Expectations",
+                distribution.BE
+              )}
+
+            </div>
+
+          </section>
+
+        </div>
+
+
+        <!-- SUBJECT PERFORMANCE -->
+
+        <section class="analytics-panel"
+                 style="margin-bottom:18px;">
+
+          <div class="analytics-panel-header">
+
+            <div>
+
+              <h2>
+                Subject Performance
+              </h2>
+
+              <p>
+                ${escapeHTML(
+                  analyticsUIState.grade
+                )}
+                •
+                ${escapeHTML(
+                  analyticsUIState.term
+                )}
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <div class="analytics-table-wrap">
+
+            ${
+              gradeSummary.length
+              ? renderSubjectTable(
+                  gradeSummary
+                )
+              : renderAnalyticsEmpty(
+                  "No subject data",
+                  "Assessment records will appear here once learners have been assessed."
+                )
+            }
+
+          </div>
+
+        </section>
+
+
+        <!-- TOP LEARNERS -->
+
+        <div class="analytics-grid">
+
+
+          <section class="analytics-panel">
+
+            <div class="analytics-panel-header">
+
+              <div>
+
+                <h2>
+                  Top Learners
+                </h2>
+
+                <p>
+                  Highest average achievement
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <div class="analytics-table-wrap">
+
+              ${
+                topLearners.length
+                ? renderLearnerTable(
+                    topLearners
+                  )
+                : renderAnalyticsEmpty(
+                    "No learner rankings",
+                    "Learner performance will appear here after assessments are recorded."
+                  )
+              }
+
+            </div>
+
+          </section>
+
+
+          <section class="analytics-panel">
+
+            <div class="analytics-panel-header">
+
+              <div>
+
+                <h2>
+                  Learning Support
+                </h2>
+
+                <p>
+                  Learners requiring attention
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <div class="analytics-table-wrap">
+
+              ${
+                supportLearners.length
+                ? renderSupportTable(
+                    supportLearners
+                  )
+                : renderAnalyticsEmpty(
+                    "No support alerts",
+                    "No learners are currently flagged below or approaching expectations."
+                  )
+              }
+
+            </div>
+
+          </section>
+
+
+        </div>
+
+
+        <!-- REPORT SUMMARY -->
+
+        <section class="analytics-panel">
+
+          <div class="analytics-report">
+
+            <div class="report-header">
+
+              <div>
+
+                <div class="report-title">
+                  Assessment Report Summary
+                </div>
+
+                <div class="report-meta">
+
+                  ${escapeHTML(
+                    analyticsUIState.grade
+                  )}
+                  •
+                  ${escapeHTML(
+                    analyticsUIState.term
+                  )}
+                  •
+                  ${escapeHTML(
+                    analyticsUIState.subject
+                  )}
+
+                </div>
+
+              </div>
+
+
+              <div class="report-average">
+
+                ${formatPercent(
+                  summary.averagePercentage
+                )}
+
+                <span>
+                  Average Achievement
+                </span>
+
+              </div>
+
+            </div>
+
+
+            <div class="performance-content">
+
+              ${renderReportMetric(
+                "Exceeding Expectations",
+                summary.exceeding,
+                summary.totalAssessments
+              )}
+
+              ${renderReportMetric(
+                "Meeting Expectations",
+                summary.meeting,
+                summary.totalAssessments
+              )}
+
+              ${renderReportMetric(
+                "Approaching Expectations",
+                summary.approaching,
+                summary.totalAssessments
+              )}
+
+              ${renderReportMetric(
+                "Below Expectations",
+                summary.below,
+                summary.totalAssessments
+              )}
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+      </div>
+
+    `;
+
+
+    bindAnalyticsEvents();
+
+  }
+
+
+  /* =======================================================
+     GRADES
+     ======================================================= */
+
+  function renderGrades(){
+
+    const api =
+      getAPI();
+
+
+    const grades =
+      api &&
+      Array.isArray(api.grades)
+      ? api.grades
+      : [
+          "PP1",
+          "PP2",
+          "Grade 1",
+          "Grade 2",
+          "Grade 3",
+          "Grade 4",
+          "Grade 5",
+          "Grade 6",
+          "Grade 7",
+          "Grade 8",
+          "Grade 9",
+          "Grade 10",
+          "Grade 11",
+          "Grade 12"
+        ];
+
+
+    return grades
+      .map(
+        grade => `
+
+          <option
+            value="${escapeHTML(grade)}"
+            ${
+              grade ===
+              analyticsUIState.grade
+              ? "selected"
+              : ""
+            }>
+
+            ${escapeHTML(grade)}
+
+          </option>
+
+        `
+      )
+      .join("");
+
+  }
+
+
+  /* =======================================================
+     TERMS
+     ======================================================= */
+
+  function renderTerms(){
+
+    const api =
+      getAPI();
+
+
+    const terms =
+      api &&
+      Array.isArray(api.terms)
+      ? api.terms
+      : [
+          "Term 1",
+          "Term 2",
+          "Term 3"
+        ];
+
+
+    return terms
+      .map(
+        term => `
+
+          <option
+            value="${escapeHTML(term)}"
+            ${
+              term ===
+              analyticsUIState.term
+              ? "selected"
+              : ""
+            }>
+
+            ${escapeHTML(term)}
+
+          </option>
+
+        `
+      )
+      .join("");
+
+  }
+
+
+  /* =======================================================
+     SUBJECTS
+     ======================================================= */
+
+  function renderSubjects(){
+
+    const subjects =
+      getSubjects();
+
+
+    return [
+
+      `<option value="All Subjects">
+        All Subjects
+      </option>`,
+
+      ...subjects.map(
+        subject => `
+
+          <option
+            value="${escapeHTML(subject)}"
+            ${
+              subject ===
+              analyticsUIState.subject
+              ? "selected"
+              : ""
+            }>
+
+            ${escapeHTML(subject)}
+
+          </option>
+
+        `
+      )
+
+    ].join("");
+
+  }
+
+
+  /* =======================================================
+     PERFORMANCE ITEM
+     ======================================================= */
+
+  function renderPerformanceItem(
+    name,
+    count,
+    total
+  ){
+
+    const percent =
+      total > 0
+      ? (count / total) * 100
+      : 0;
+
+
+    return `
+
+      <div class="performance-item">
+
+        <div class="performance-top">
+
+          <div class="performance-name">
+            ${escapeHTML(name)}
+          </div>
+
+          <div class="performance-value">
+            ${count}
+            •
+            ${formatPercent(percent)}
+          </div>
+
+        </div>
+
+        <div class="performance-bar">
+
+          <div
+            class="performance-fill"
+            style="width:${Math.min(
+              100,
+              Math.max(
+                0,
+                percent
+              )
+            )}%;">
+          </div>
+
+        </div>
+
+      </div>
+
+    `;
+
+  }
+
+
+  /* =======================================================
+     LEVEL CARD
+     ======================================================= */
+
+  function renderLevelCard(
+    code,
+    label,
+    count
+  ){
+
+    return `
+
+      <div class="level-card">
+
+        <div class="level-code">
+          ${code}
+        </div>
+
+        <div class="level-label">
+          ${escapeHTML(label)}
+        </div>
+
+        <div class="level-count">
+          ${count}
+        </div>
+
+      </div>
+
+    `;
+
+  }
+
+
+  /* =======================================================
+     SUBJECT TABLE
+     ======================================================= */
+
+  function renderSubjectTable(
+    rows
+  ){
+
+    return `
+
+      <table class="analytics-table">
+
+        <thead>
+
+          <tr>
+
+            <th>
+              Subject
+            </th>
+
+            <th>
+              Assessments
+            </th>
+
+            <th>
+              Learners
+            </th>
+
+            <th>
+              Average
+            </th>
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          ${rows.map(
+            row => `
+
+              <tr>
+
+                <td>
+                  <strong>
+                    ${escapeHTML(
+                      row.subject
+                    )}
+                  </strong>
+                </td>
+
+                <td>
+                  ${row.assessments || 0}
+                </td>
+
+                <td>
+                  ${row.learners || 0}
+                </td>
+
+                <td class="number">
+                  ${formatPercent(
+                    row.averagePercentage
+                  )}
+                </td>
+
+              </tr>
+
+            `
+          ).join("")}
+
+        </tbody>
+
+      </table>
+
+    `;
+
+  }
+
+
+  /* =======================================================
+     LEARNER TABLE
+     ======================================================= */
+
+  function renderLearnerTable(
+    learners
+  ){
+
+    return `
+
+      <table class="analytics-table">
+
+        <thead>
+
+          <tr>
+
+            <th>
+              Learner
+            </th>
+
+            <th>
+              Average
+            </th>
+
+            <th>
+              Level
+            </th>
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          ${learners.map(
+            learner => `
+
+              <tr>
+
+                <td>
+                  <strong>
+                    ${escapeHTML(
+                      learner.studentName
+                    )}
+                  </strong>
+                </td>
+
+                <td class="number">
+                  ${formatPercent(
+                    learner.averagePercentage
+                  )}
+                </td>
+
+                <td>
+
+                  ${renderBadge(
+                    learner.performance
+                    ? learner.performance.code
+                    : ""
+                  )}
+
+                </td>
+
+              </tr>
+
+            `
+          ).join("")}
+
+        </tbody>
+
+      </table>
+
+    `;
+
+  }
+
+
+  /* =======================================================
+     SUPPORT TABLE
+     ======================================================= */
+
+  function renderSupportTable(
+    learners
+  ){
+
+    return `
+
+      <table class="analytics-table">
+
+        <thead>
+
+          <tr>
+
+            <th>
+              Learner
+            </th>
+
+            <th>
+              Average
+            </th>
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          ${learners.slice(
+            0,
+            10
+          ).map(
+            learner => `
+
+              <tr>
+
+                <td>
+                  <strong>
+                    ${escapeHTML(
+                      learner.studentName
+                    )}
+                  </strong>
+                </td>
+
+                <td class="number">
+
+                  ${formatPercent(
+                    learner.averagePercentage
+                  )}
+
+                </td>
+
+              </tr>
+
+            `
+          ).join("")}
+
+        </tbody>
+
+      </table>
+
+    `;
+
+  }
+
+
+  /* =======================================================
+     BADGE
+     ======================================================= */
+
+  function renderBadge(
+    code
+  ){
+
+    const safe =
+      String(
+        code || ""
+      ).toUpperCase();
+
+
+    const css =
+      safe === "EE"
+      ? "ee"
+      : safe === "ME"
+      ? "me"
+      : safe === "AE"
+      ? "ae"
+      : "be";
+
+
+    return `
+
+      <span class="analytics-badge ${css}">
+        ${escapeHTML(safe || "—")}
+      </span>
+
+    `;
+
+  }
+
+
+  /* =======================================================
+     REPORT METRIC
+     ======================================================= */
+
+  function renderReportMetric(
+    label,
+    count,
+    total
+  ){
+
+    const percent =
+      total > 0
+      ? (count / total) * 100
+      : 0;
+
+
+    return renderPerformanceItem(
+      label,
+      count,
+      total
+    );
+
+  }
+
+
+  /* =======================================================
+     EMPTY
+     ======================================================= */
+
+  function renderAnalyticsEmpty(
+    title,
+    message
+  ){
+
+    return `
+
+      <div class="analytics-empty">
+
+        <div class="analytics-empty-icon">
+          📊
+        </div>
+
+        <h3>
+          ${escapeHTML(title)}
+        </h3>
+
+        <p>
+          ${escapeHTML(message)}
+        </p>
+
+      </div>
+
+    `;
+
+  }
+
+
+  /* =======================================================
+     EVENTS
+     ======================================================= */
+
+  function bindAnalyticsEvents(){
+
+    const grade =
+      document.getElementById(
+        "analyticsGrade"
+      );
+
+
+    if(grade){
+
+      grade.addEventListener(
+        "change",
+        function(){
+
+          analyticsUIState.grade =
+            this.value;
+
+          analyticsUIState.subject =
+            "All Subjects";
+
+          renderAssessmentAnalytics();
+
+        }
+      );
+
+    }
+
+
+    const term =
+      document.getElementById(
+        "analyticsTerm"
+      );
+
+
+    if(term){
+
+      term.addEventListener(
+        "change",
+        function(){
+
+          analyticsUIState.term =
+            this.value;
+
+          renderAssessmentAnalytics();
+
+        }
+      );
+
+    }
+
+
+    const subject =
+      document.getElementById(
+        "analyticsSubject"
+      );
+
+
+    if(subject){
+
+      subject.addEventListener(
+        "change",
+        function(){
+
+          analyticsUIState.subject =
+            this.value;
+
+          renderAssessmentAnalytics();
+
+        }
+      );
+
+    }
+
+
+    const refresh =
+      document.getElementById(
+        "refreshAnalyticsBtn"
+      );
+
+
+    if(refresh){
+
+      refresh.addEventListener(
+        "click",
+        function(){
+
+          const api =
+            getAPI();
+
+          if(
+            api &&
+            typeof api.refresh ===
+            "function"
+          ){
+
+            api.refresh();
+
+          }
+
+          renderAssessmentAnalytics();
+
+
+          analyticsNotify(
+            "Assessment Analytics",
+            "Analytics refreshed successfully."
+          );
+
+        }
+      );
+
+    }
+
+
+    const snapshot =
+      document.getElementById(
+        "snapshotAnalyticsBtn"
+      );
+
+
+    if(snapshot){
+
+      snapshot.addEventListener(
+        "click",
+        function(){
+
+          const api =
+            getAPI();
+
+
+          if(
+            api &&
+            typeof api.snapshot ===
+            "function"
+          ){
+
+            const result =
+              api.snapshot({
+
+                grade:
+                  analyticsUIState.grade,
+
+                term:
+                  analyticsUIState.term,
+
+                subject:
+                  analyticsUIState.subject
+
+              });
+
+
+            analyticsNotify(
+              "Analytics Snapshot",
+              "Snapshot created successfully."
+            );
+
+
+            console.log(
+              "CBC MASTER V2 Analytics Snapshot:",
+              result
+            );
+
+          }
+
+        }
+      );
+
+    }
+
+  }
+
+
+  /* =======================================================
+     NOTIFICATION
+     ======================================================= */
+
+  function analyticsNotify(
+    title,
+    message
+  ){
+
+    if(
+      window.CBC_MASTER &&
+      typeof CBC_MASTER.notify ===
+      "function"
+    ){
+
+      CBC_MASTER.notify(
+        title,
+        message
+      );
+
+      return;
+
+    }
+
+
+    console.log(
+      title +
+      ": " +
+      message
+    );
+
+  }
+
+
+  /* =======================================================
+     ESCAPE
+     ======================================================= */
+
+  function escapeHTML(
+    value
+  ){
+
+    return String(
+      value ?? ""
+    )
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /'/g,
+      "&#039;"
+    );
+
+  }
+
+
+  /* =======================================================
+     PERCENT
+     ======================================================= */
+
+  function formatPercent(
+    value
+  ){
+
+    const number =
+      Number(value);
+
+
+    if(
+      !Number.isFinite(number)
+    ){
+
+      return "0%";
+
+    }
+
+
+    return (
+      number.toFixed(1) +
+      "%"
+    );
+
+  }
+
+
+  /* =======================================================
+     PUBLIC API
+     ======================================================= */
+
+  window.CBC_ASSESSMENT_ANALYTICS_UI = {
+
+    state:function(){
+
+      return analyticsUIState;
+
+    },
+
+
+    render:
+      renderAssessmentAnalytics,
+
+
+    refresh:
+      renderAssessmentAnalytics
+
+  };
+
+
+  /* =======================================================
+     INITIALIZE
+     ======================================================= */
+
+  function initializeAssessmentAnalyticsUI(){
+
+    if(
+      !window.CBC_ASSESSMENTS_V2
+    ){
+
+      console.warn(
+        "CBC MASTER V2: CBC_ASSESSMENTS_V2 not available yet."
+      );
+
+    }
+
+
+    console.log(
+      "CBC MASTER V2: Assessment Analytics UI ready."
+    );
+
+
+    /*
+       We intentionally do not automatically
+       replace pageContainer here.
+
+       The existing navigation system can call:
+
+       CBC_ASSESSMENT_ANALYTICS_UI.render()
+
+       when the Analytics page is opened.
+    */
+
+  }
+
+
+  if(
+    document.readyState ===
+    "loading"
+  ){
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      initializeAssessmentAnalyticsUI
+    );
+
+  }else{
+
+    initializeAssessmentAnalyticsUI();
+
+  }
+
+
+})();
+
+</script>
+
+<!-- =========================================================
+     END PART 8B
+     ========================================================= --> 
 </body>
 </html>
