@@ -22218,8 +22218,1827 @@ else {
 
 <!-- =========================================================
      END PART 7B
-          
-         
-           
+
+<!-- =========================================================
+     CBC MASTER V2
+     PART 8A — ASSESSMENT DATA ENGINE V2
+     
+     IMPORTANT:
+     - Works alongside existing PART 7A + 7B
+     - Does NOT overwrite window.CBC_ASSESSMENTS
+     - Uses separate CBC_ASSESSMENTS_V2 namespace
+     - LocalStorage based
+     - Ready for PART 8B UI
+     ========================================================= -->
+
+<script>
+
+(function(){
+
+  "use strict";
+
+
+  /* =========================================================
+     STORAGE
+     ========================================================= */
+
+  const STORAGE_KEY =
+    "cbc_master_assessments_v2_engine";
+
+
+  const STORAGE_VERSION = 2;
+
+
+  /* =========================================================
+     GRADES
+     ========================================================= */
+
+  const ASSESSMENT_GRADES = [
+
+    "PP1",
+    "PP2",
+
+    "Grade 1",
+    "Grade 2",
+    "Grade 3",
+
+    "Grade 4",
+    "Grade 5",
+    "Grade 6",
+
+    "Grade 7",
+    "Grade 8",
+    "Grade 9",
+
+    "Grade 10",
+    "Grade 11",
+    "Grade 12"
+
+  ];
+
+
+  /* =========================================================
+     TERMS
+     ========================================================= */
+
+  const ASSESSMENT_TERMS = [
+
+    "Term 1",
+    "Term 2",
+    "Term 3"
+
+  ];
+
+
+  /* =========================================================
+     ASSESSMENT TYPES
+     ========================================================= */
+
+  const ASSESSMENT_TYPES = [
+
+    "Formative Assessment",
+    "Summative Assessment",
+    "Diagnostic Assessment",
+    "Continuous Assessment",
+    "Project",
+    "Practical",
+    "Oral Assessment",
+    "Written Assessment",
+    "Observation",
+    "Portfolio",
+    "End of Term Assessment",
+    "Other"
+
+  ];
+
+
+  /* =========================================================
+     PERFORMANCE LEVELS
+     ========================================================= */
+
+  const PERFORMANCE_LEVELS = [
+
+    "Exceeding Expectations",
+    "Meeting Expectations",
+    "Approaching Expectations",
+    "Below Expectations",
+    "Not Assessed"
+
+  ];
+
+
+  /* =========================================================
+     CBC COMPETENCIES
+     ========================================================= */
+
+  const CBC_COMPETENCIES = [
+
+    "Communication and Collaboration",
+    "Critical Thinking and Problem Solving",
+    "Creativity and Imagination",
+    "Citizenship",
+    "Self-Efficacy",
+    "Digital Literacy",
+    "Learning to Learn"
+
+  ];
+
+
+  /* =========================================================
+     VALUES
+     ========================================================= */
+
+  const CBC_VALUES = [
+
+    "Love",
+    "Responsibility",
+    "Respect",
+    "Unity",
+    "Peace",
+    "Patriotism",
+    "Integrity",
+    "Care and Compassion"
+
+  ];
+
+
+  /* =========================================================
+     STATE
+     ========================================================= */
+
+  let assessmentState = {
+
+    version:
+      STORAGE_VERSION,
+
+    assessments: [],
+
+    grade:
+      "Grade 5",
+
+    term:
+      "Term 1",
+
+    subject:
+      "All Subjects",
+
+    type:
+      "All Types",
+
+    search:
+      "",
+
+    year:
+      new Date().getFullYear()
+
+  };
+
+
+  /* =========================================================
+     SAFE ARRAY
+     ========================================================= */
+
+  function safeArray(value){
+
+    return Array.isArray(value)
+      ? value
+      : [];
+
+  }
+
+
+  /* =========================================================
+     LOAD
+     ========================================================= */
+
+  function loadAssessments(){
+
+    try{
+
+      const saved =
+        localStorage.getItem(
+          STORAGE_KEY
+        );
+
+
+      if(!saved){
+
+        saveAssessments();
+
+        return;
+
+      }
+
+
+      const parsed =
+        JSON.parse(saved);
+
+
+      if(
+        parsed &&
+        typeof parsed === "object"
+      ){
+
+        assessmentState =
+          Object.assign(
+            {},
+            assessmentState,
+            parsed
+          );
+
+
+        assessmentState.assessments =
+          safeArray(
+            assessmentState.assessments
+          );
+
+      }
+
+    }catch(error){
+
+      console.warn(
+        "CBC MASTER V2: Assessment V2 data could not be loaded.",
+        error
+      );
+
+    }
+
+  }
+
+
+  /* =========================================================
+     SAVE
+     ========================================================= */
+
+  function saveAssessments(){
+
+    try{
+
+      localStorage.setItem(
+
+        STORAGE_KEY,
+
+        JSON.stringify(
+          assessmentState
+        )
+
+      );
+
+
+      return true;
+
+    }catch(error){
+
+      console.warn(
+        "CBC MASTER V2: Assessment V2 data could not be saved.",
+        error
+      );
+
+
+      return false;
+
+    }
+
+  }
+
+
+  /* =========================================================
+     SUBJECTS
+     
+     Prefer existing CBC_SUBJECTS when available.
+     Otherwise use built-in fallback.
+     ========================================================= */
+
+  const FALLBACK_SUBJECTS = {
+
+    "PP1":[
+      "Language Activities",
+      "Mathematical Activities",
+      "Environmental Activities",
+      "Psychomotor Activities",
+      "Creative Activities",
+      "Religious Activities"
+    ],
+
+    "PP2":[
+      "Language Activities",
+      "Mathematical Activities",
+      "Environmental Activities",
+      "Psychomotor Activities",
+      "Creative Activities",
+      "Religious Activities"
+    ],
+
+    "Grade 1":[
+      "English",
+      "Kiswahili",
+      "Mathematics",
+      "Environmental Activities",
+      "Creative Activities",
+      "Religious Education"
+    ],
+
+    "Grade 2":[
+      "English",
+      "Kiswahili",
+      "Mathematics",
+      "Environmental Activities",
+      "Creative Activities",
+      "Religious Education"
+    ],
+
+    "Grade 3":[
+      "English",
+      "Kiswahili",
+      "Mathematics",
+      "Environmental Activities",
+      "Creative Activities",
+      "Religious Education"
+    ],
+
+    "Grade 4":[
+      "English",
+      "Kiswahili",
+      "Mathematics",
+      "Science and Technology",
+      "Social Studies",
+      "Creative Arts",
+      "Religious Education"
+    ],
+
+    "Grade 5":[
+      "English",
+      "Kiswahili",
+      "Mathematics",
+      "Science and Technology",
+      "Social Studies",
+      "Creative Arts",
+      "Religious Education"
+    ],
+
+    "Grade 6":[
+      "English",
+      "Kiswahili",
+      "Mathematics",
+      "Science and Technology",
+      "Social Studies",
+      "Creative Arts",
+      "Religious Education"
+    ],
+
+    "Grade 7":[
+      "English",
+      "Kiswahili",
+      "Mathematics",
+      "Integrated Science",
+      "Social Studies",
+      "Creative Arts and Sports",
+      "Religious Education",
+      "Agriculture and Nutrition"
+    ],
+
+    "Grade 8":[
+      "English",
+      "Kiswahili",
+      "Mathematics",
+      "Integrated Science",
+      "Social Studies",
+      "Creative Arts and Sports",
+      "Religious Education",
+      "Agriculture and Nutrition"
+    ],
+
+    "Grade 9":[
+      "English",
+      "Kiswahili",
+      "Mathematics",
+      "Integrated Science",
+      "Social Studies",
+      "Creative Arts and Sports",
+      "Religious Education",
+      "Agriculture and Nutrition"
+    ],
+
+    "Grade 10":[
+      "English",
+      "Kiswahili",
+      "Mathematics",
+      "Community Service Learning"
+    ],
+
+    "Grade 11":[
+      "English",
+      "Kiswahili",
+      "Mathematics"
+    ],
+
+    "Grade 12":[
+      "English",
+      "Kiswahili",
+      "Mathematics"
+    ]
+
+  };
+
+
+  /* =========================================================
+     GET SUBJECTS
+     ========================================================= */
+
+  function getSubjects(
+    grade
+  ){
+
+    const selectedGrade =
+      grade ||
+      assessmentState.grade;
+
+
+    /*
+     * Use existing CBC_SUBJECTS if available.
+     */
+
+    if(
+      typeof window.CBC_SUBJECTS !==
+      "undefined"
+    ){
+
+      const source =
+        window.CBC_SUBJECTS;
+
+
+      if(
+        Array.isArray(
+          source
+        )
+      ){
+
+        return source;
+
+      }
+
+
+      if(
+        source &&
+        Array.isArray(
+          source[selectedGrade]
+        )
+      ){
+
+        return source[selectedGrade];
+
+      }
+
+    }
+
+
+    return (
+      FALLBACK_SUBJECTS[
+        selectedGrade
+      ] || []
+    );
+
+  }
+
+
+  /* =========================================================
+     ID
+     ========================================================= */
+
+  function createAssessmentId(){
+
+    return (
+
+      "ASM-" +
+
+      Date.now()
+        .toString(36)
+        .toUpperCase() +
+
+      "-" +
+
+      Math.random()
+        .toString(36)
+        .substring(
+          2,
+          8
+        )
+        .toUpperCase()
+
+    );
+
+  }
+
+
+  /* =========================================================
+     DATE
+     ========================================================= */
+
+  function today(){
+
+    return new Date()
+      .toISOString()
+      .slice(
+        0,
+        10
+      );
+
+  }
+
+
+  /* =========================================================
+     NORMALIZE ASSESSMENT
+     ========================================================= */
+
+  function normalizeAssessment(
+    data
+  ){
+
+    const item =
+      data || {};
+
+
+    const now =
+      new Date()
+        .toISOString();
+
+
+    return {
+
+      id:
+        item.id ||
+        createAssessmentId(),
+
+
+      year:
+        Number(
+          item.year ||
+          assessmentState.year
+        ),
+
+
+      grade:
+        String(
+          item.grade ||
+          assessmentState.grade ||
+          ""
+        ),
+
+
+      term:
+        String(
+          item.term ||
+          assessmentState.term ||
+          ""
+        ),
+
+
+      subject:
+        String(
+          item.subject ||
+          ""
+        ),
+
+
+      assessmentType:
+        String(
+          item.assessmentType ||
+          "Formative Assessment"
+        ),
+
+
+      date:
+        String(
+          item.date ||
+          today()
+        ),
+
+
+      week:
+        Number(
+          item.week ||
+          1
+        ),
+
+
+      title:
+        String(
+          item.title ||
+          ""
+        ),
+
+
+      strand:
+        String(
+          item.strand ||
+          ""
+        ),
+
+
+      subStrand:
+        String(
+          item.subStrand ||
+          ""
+        ),
+
+
+      learningOutcome:
+        String(
+          item.learningOutcome ||
+          ""
+        ),
+
+
+      competency:
+        String(
+          item.competency ||
+          ""
+        ),
+
+
+      value:
+        String(
+          item.value ||
+          ""
+        ),
+
+
+      maximumScore:
+        Number(
+          item.maximumScore ||
+          100
+        ),
+
+
+      instructions:
+        String(
+          item.instructions ||
+          ""
+        ),
+
+
+      rubric:
+        String(
+          item.rubric ||
+          ""
+        ),
+
+
+      teacherNotes:
+        String(
+          item.teacherNotes ||
+          ""
+        ),
+
+
+      status:
+        String(
+          item.status ||
+          "Draft"
+        ),
+
+
+      createdAt:
+        item.createdAt ||
+        now,
+
+
+      updatedAt:
+        now
+
+    };
+
+  }
+
+
+  /* =========================================================
+     VALIDATE
+     ========================================================= */
+
+  function validateAssessment(
+    data
+  ){
+
+    const errors = [];
+
+
+    if(!data.grade){
+
+      errors.push(
+        "Grade is required."
+      );
+
+    }
+
+
+    if(!data.term){
+
+      errors.push(
+        "Term is required."
+      );
+
+    }
+
+
+    if(!data.subject){
+
+      errors.push(
+        "Subject is required."
+      );
+
+    }
+
+
+    if(!data.title){
+
+      errors.push(
+        "Assessment title is required."
+      );
+
+    }
+
+
+    if(!data.date){
+
+      errors.push(
+        "Assessment date is required."
+      );
+
+    }
+
+
+    if(
+      !Number.isFinite(
+        Number(
+          data.maximumScore
+        )
+      ) ||
+      Number(
+        data.maximumScore
+      ) <= 0
+    ){
+
+      errors.push(
+        "Maximum score must be greater than zero."
+      );
+
+    }
+
+
+    return {
+
+      valid:
+        errors.length === 0,
+
+      errors
+
+    };
+
+  }
+
+
+  /* =========================================================
+     GET ALL
+     ========================================================= */
+
+  function getAll(){
+
+    return assessmentState
+      .assessments
+      .slice();
+
+  }
+
+
+  /* =========================================================
+     GET BY ID
+     ========================================================= */
+
+  function getById(
+    id
+  ){
+
+    return assessmentState
+      .assessments
+      .find(
+        item =>
+          item.id === id
+      ) || null;
+
+  }
+
+
+  /* =========================================================
+     FILTER
+     ========================================================= */
+
+  function filterAssessments(
+    filters
+  ){
+
+    const f =
+      filters || {};
+
+
+    const grade =
+      f.grade ??
+      assessmentState.grade;
+
+
+    const term =
+      f.term ??
+      assessmentState.term;
+
+
+    const subject =
+      f.subject ??
+      assessmentState.subject;
+
+
+    const type =
+      f.type ??
+      assessmentState.type;
+
+
+    const search =
+      String(
+        f.search ??
+        assessmentState.search ??
+        ""
+      )
+      .trim()
+      .toLowerCase();
+
+
+    return assessmentState
+      .assessments
+      .filter(
+        item => {
+
+          if(
+            grade &&
+            grade !== "All Grades" &&
+            item.grade !== grade
+          ){
+
+            return false;
+
+          }
+
+
+          if(
+            term &&
+            term !== "All Terms" &&
+            item.term !== term
+          ){
+
+            return false;
+
+          }
+
+
+          if(
+            subject &&
+            subject !== "All Subjects" &&
+            item.subject !== subject
+          ){
+
+            return false;
+
+          }
+
+
+          if(
+            type &&
+            type !== "All Types" &&
+            item.assessmentType !== type
+          ){
+
+            return false;
+
+          }
+
+
+          if(search){
+
+            const text =
+              [
+
+                item.title,
+
+                item.subject,
+
+                item.strand,
+
+                item.subStrand,
+
+                item.learningOutcome,
+
+                item.competency,
+
+                item.value,
+
+                item.teacherNotes
+
+              ]
+              .join(" ")
+              .toLowerCase();
+
+
+            if(
+              !text.includes(
+                search
+              )
+            ){
+
+              return false;
+
+            }
+
+          }
+
+
+          return true;
+
+        }
+      );
+
+  }
+
+
+  /* =========================================================
+     ADD
+     ========================================================= */
+
+  function add(
+    data
+  ){
+
+    const lesson =
+      normalizeAssessment(
+        data
+      );
+
+
+    const validation =
+      validateAssessment(
+        lesson
+      );
+
+
+    if(
+      !validation.valid
+    ){
+
+      throw new Error(
+        validation.errors.join(
+          " "
+        )
+      );
+
+    }
+
+
+    assessmentState
+      .assessments
+      .push(
+        lesson
+      );
+
+
+    saveAssessments();
+
+
+    return lesson;
+
+  }
+
+
+  /* =========================================================
+     UPDATE
+     ========================================================= */
+
+  function update(
+    id,
+    data
+  ){
+
+    const index =
+      assessmentState
+        .assessments
+        .findIndex(
+          item =>
+            item.id === id
+        );
+
+
+    if(
+      index === -1
+    ){
+
+      return null;
+
+    }
+
+
+    const existing =
+      assessmentState
+        .assessments[index];
+
+
+    const updated =
+      normalizeAssessment({
+
+        ...existing,
+
+        ...data,
+
+        id:
+          existing.id,
+
+        createdAt:
+          existing.createdAt
+
+      });
+
+
+    const validation =
+      validateAssessment(
+        updated
+      );
+
+
+    if(
+      !validation.valid
+    ){
+
+      throw new Error(
+        validation.errors.join(
+          " "
+        )
+      );
+
+    }
+
+
+    assessmentState
+      .assessments[index] =
+        updated;
+
+
+    saveAssessments();
+
+
+    return updated;
+
+  }
+
+
+  /* =========================================================
+     REMOVE
+     ========================================================= */
+
+  function remove(
+    id
+  ){
+
+    const before =
+      assessmentState
+        .assessments
+        .length;
+
+
+    assessmentState
+      .assessments =
+        assessmentState
+          .assessments
+          .filter(
+            item =>
+              item.id !== id
+          );
+
+
+    const removed =
+      assessmentState
+        .assessments
+        .length <
+      before;
+
+
+    if(removed){
+
+      saveAssessments();
+
+    }
+
+
+    return removed;
+
+  }
+
+
+  /* =========================================================
+     DUPLICATE
+     ========================================================= */
+
+  function duplicate(
+    id
+  ){
+
+    const original =
+      getById(
+        id
+      );
+
+
+    if(!original){
+
+      return null;
+
+    }
+
+
+    const copy =
+      normalizeAssessment({
+
+        ...original,
+
+        id:
+          null,
+
+        title:
+          original.title +
+          " — Copy"
+
+      });
+
+
+    assessmentState
+      .assessments
+      .push(
+        copy
+      );
+
+
+    saveAssessments();
+
+
+    return copy;
+
+  }
+
+
+  /* =========================================================
+     CLEAR ALL
+     ========================================================= */
+
+  function clearAll(){
+
+    assessmentState
+      .assessments = [];
+
+
+    saveAssessments();
+
+  }
+
+
+  /* =========================================================
+     STATISTICS
+     ========================================================= */
+
+  function getStats(
+    filters
+  ){
+
+    const records =
+      filterAssessments(
+        filters
+      );
+
+
+    const total =
+      records.length;
+
+
+    const subjects =
+      new Set(
+        records.map(
+          item =>
+            item.subject
+        )
+      ).size;
+
+
+    const weeks =
+      new Set(
+        records.map(
+          item =>
+            item.week
+        )
+      ).size;
+
+
+    const completed =
+      records.filter(
+        item =>
+          item.status ===
+          "Completed"
+      ).length;
+
+
+    const draft =
+      records.filter(
+        item =>
+          item.status ===
+          "Draft"
+      ).length;
+
+
+    const maximumPossible =
+      records.reduce(
+        (
+          total,
+          item
+        ) =>
+          total +
+          Number(
+            item.maximumScore ||
+            0
+          ),
+        0
+      );
+
+
+    return {
+
+      total,
+
+      subjects,
+
+      weeks,
+
+      completed,
+
+      draft,
+
+      maximumPossible
+
+    };
+
+  }
+
+
+  /* =========================================================
+     IMPORT
+     ========================================================= */
+
+  function importData(
+    data
+  ){
+
+    let incoming =
+      data;
+
+
+    if(
+      typeof data ===
+      "string"
+    ){
+
+      try{
+
+        incoming =
+          JSON.parse(
+            data
+          );
+
+      }catch(error){
+
+        throw new Error(
+          "Invalid assessment JSON data."
+        );
+
+      }
+
+    }
+
+
+    if(
+      !Array.isArray(
+        incoming
+      )
+    ){
+
+      if(
+        incoming &&
+        Array.isArray(
+          incoming.assessments
+        )
+      ){
+
+        incoming =
+          incoming.assessments;
+
+      }else{
+
+        throw new Error(
+          "Assessment data must be an array."
+        );
+
+      }
+
+    }
+
+
+    const imported = [];
+
+
+    incoming.forEach(
+      item => {
+
+        try{
+
+          const normalized =
+            normalizeAssessment(
+              item
+            );
+
+
+          const validation =
+            validateAssessment(
+              normalized
+            );
+
+
+          if(
+            validation.valid
+          ){
+
+            assessmentState
+              .assessments
+              .push(
+                normalized
+              );
+
+
+            imported.push(
+              normalized
+            );
+
+          }
+
+        }catch(error){
+
+          console.warn(
+            "Skipped invalid assessment:",
+            error
+          );
+
+        }
+
+      }
+    );
+
+
+    saveAssessments();
+
+
+    return imported;
+
+  }
+
+
+  /* =========================================================
+     EXPORT
+     ========================================================= */
+
+  function exportData(){
+
+    return JSON.stringify(
+
+      {
+
+        app:
+          "CBC MASTER V2",
+
+        module:
+          "Assessment",
+
+        version:
+          STORAGE_VERSION,
+
+        exportedAt:
+          new Date()
+            .toISOString(),
+
+        assessments:
+          assessmentState
+            .assessments
+
+      },
+
+      null,
+
+      2
+
+    );
+
+  }
+
+
+  /* =========================================================
+     SET FILTERS
+     ========================================================= */
+
+  function setFilters(
+    filters
+  ){
+
+    const f =
+      filters || {};
+
+
+    if(
+      f.grade !== undefined
+    ){
+
+      assessmentState.grade =
+        f.grade;
+
+    }
+
+
+    if(
+      f.term !== undefined
+    ){
+
+      assessmentState.term =
+        f.term;
+
+    }
+
+
+    if(
+      f.subject !== undefined
+    ){
+
+      assessmentState.subject =
+        f.subject;
+
+    }
+
+
+    if(
+      f.type !== undefined
+    ){
+
+      assessmentState.type =
+        f.type;
+
+    }
+
+
+    if(
+      f.search !== undefined
+    ){
+
+      assessmentState.search =
+        f.search;
+
+    }
+
+
+    if(
+      f.year !== undefined
+    ){
+
+      assessmentState.year =
+        Number(
+          f.year
+        );
+
+    }
+
+
+    saveAssessments();
+
+
+    return assessmentState;
+
+  }
+
+
+  /* =========================================================
+     RESET FILTERS
+     ========================================================= */
+
+  function resetFilters(){
+
+    assessmentState.grade =
+      "Grade 5";
+
+
+    assessmentState.term =
+      "Term 1";
+
+
+    assessmentState.subject =
+      "All Subjects";
+
+
+    assessmentState.type =
+      "All Types";
+
+
+    assessmentState.search =
+      "";
+
+
+    saveAssessments();
+
+
+    return assessmentState;
+
+  }
+
+
+  /* =========================================================
+     STORAGE INFO
+     ========================================================= */
+
+  function storageInfo(){
+
+    let bytes = 0;
+
+
+    try{
+
+      const raw =
+        localStorage.getItem(
+          STORAGE_KEY
+        );
+
+
+      if(raw){
+
+        bytes =
+          new Blob(
+            [raw]
+          ).size;
+
+      }
+
+    }catch(error){
+
+      bytes = 0;
+
+    }
+
+
+    return {
+
+      key:
+        STORAGE_KEY,
+
+      version:
+        STORAGE_VERSION,
+
+      records:
+        assessmentState
+          .assessments
+          .length,
+
+      bytes
+
+    };
+
+  }
+
+
+  /* =========================================================
+     PUBLIC API
+     
+     IMPORTANT:
+     This creates CBC_ASSESSMENTS_V2 only.
+     
+     Existing:
+       window.CBC_ASSESSMENTS
+     
+     is NEVER replaced.
+     ========================================================= */
+
+  const API = {
+
+    version:
+      STORAGE_VERSION,
+
+
+    storageKey:
+      STORAGE_KEY,
+
+
+    grades:
+      ASSESSMENT_GRADES,
+
+
+    terms:
+      ASSESSMENT_TERMS,
+
+
+    types:
+      ASSESSMENT_TYPES,
+
+
+    performanceLevels:
+      PERFORMANCE_LEVELS,
+
+
+    competencies:
+      CBC_COMPETENCIES,
+
+
+    values:
+      CBC_VALUES,
+
+
+    subjects:
+      getSubjects,
+
+
+    state:
+      function(){
+
+        return assessmentState;
+
+      },
+
+
+    getAll:
+      getAll,
+
+
+    getById:
+      getById,
+
+
+    filter:
+      filterAssessments,
+
+
+    stats:
+      getStats,
+
+
+    add:
+      add,
+
+
+    update:
+      update,
+
+
+    remove:
+      remove,
+
+
+    duplicate:
+      duplicate,
+
+
+    clearAll:
+      clearAll,
+
+
+    import:
+      importData,
+
+
+    export:
+      exportData,
+
+
+    setFilters:
+      setFilters,
+
+
+    resetFilters:
+      resetFilters,
+
+
+    storageInfo:
+      storageInfo,
+
+
+    save:
+      saveAssessments,
+
+
+    reload:
+      loadAssessments
+
+  };
+
+
+  /* =========================================================
+     NON-DESTRUCTIVE REGISTRATION
+     ========================================================= */
+
+  if(
+    !window.CBC_ASSESSMENTS_V2
+  ){
+
+    window.CBC_ASSESSMENTS_V2 =
+      API;
+
+  }else{
+
+    console.warn(
+      "CBC MASTER V2: CBC_ASSESSMENTS_V2 already exists. Existing engine preserved."
+    );
+
+  }
+
+
+  /* =========================================================
+     OPTIONAL BRIDGE
+     
+     Do NOT replace CBC_ASSESSMENTS.
+     
+     If 7A exists, simply expose information that 8B
+     can inspect without modifying the old engine.
+     ========================================================= */
+
+  window.CBC_MASTER_ASSESSMENT_V2 =
+    {
+
+      ready:
+        true,
+
+      version:
+        STORAGE_VERSION,
+
+      compatibleWithLegacy:
+        typeof window.CBC_ASSESSMENTS !==
+        "undefined"
+
+    };
+
+
+  /* =========================================================
+     INITIALIZATION
+     ========================================================= */
+
+  function initializeAssessmentV2(){
+
+    loadAssessments();
+
+
+    console.log(
+      "CBC MASTER V2: Part 8A Assessment Data Engine ready."
+    );
+
+
+    console.log(
+      "CBC MASTER V2: Existing PART 7A engine preserved:",
+      typeof window.CBC_ASSESSMENTS !==
+      "undefined"
+    );
+
+
+    console.log(
+      "CBC MASTER V2: Assessment V2 records:",
+      assessmentState
+        .assessments
+        .length
+    );
+
+  }
+
+
+  if(
+    document.readyState ===
+    "loading"
+  ){
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      initializeAssessmentV2
+    );
+
+  }else{
+
+    initializeAssessmentV2();
+
+  }
+
+
+})();
+
+</script>
+
+<!-- =========================================================
+     END PART 8A — ASSESSMENT DATA ENGINE V2
+     ========================================================= -->
 </body>
 </html>
