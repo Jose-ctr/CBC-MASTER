@@ -1413,7 +1413,487 @@ textarea:focus-visible{
 
 
 </div>
+<!-- =========================================================
+     PART 2A-2 — STUDENT FORM
+     ========================================================= -->
 
+<section
+  id="studentsPage"
+  class="page">
+
+  <div class="page-heading">
+
+    <div>
+
+      <span class="eyebrow">
+        CBC LEARNER MANAGEMENT
+      </span>
+
+      <h1>
+        Students
+      </h1>
+
+      <p>
+        Add and manage your learners.
+      </p>
+
+    </div>
+
+    <button
+      id="addStudentBtn"
+      class="quick-add-btn"
+      type="button">
+
+      <span>＋</span>
+      <strong>Add Student</strong>
+
+    </button>
+
+  </div>
+
+
+  <!-- =======================================================
+       STUDENT FORM CARD
+       ======================================================= -->
+
+  <section
+    id="studentFormCard"
+    class="student-form-card"
+    hidden>
+
+    <div class="student-form-header">
+
+      <div>
+
+        <span class="eyebrow">
+          LEARNER RECORD
+        </span>
+
+        <h2 id="studentFormTitle">
+          Add Student
+        </h2>
+
+      </div>
+
+      <button
+        id="closeStudentForm"
+        class="icon-btn"
+        type="button"
+        aria-label="Close student form">
+
+        ×
+
+      </button>
+
+    </div>
+
+
+    <form
+      id="studentForm"
+      autocomplete="off">
+
+
+      <!-- ===================================================
+           BASIC INFORMATION
+           =================================================== -->
+
+      <div class="form-section-title">
+
+        <strong>
+          Basic Information
+        </strong>
+
+        <span>
+          Required learner details
+        </span>
+
+      </div>
+
+
+      <div class="student-form-grid">
+
+
+        <div class="form-field">
+
+          <label for="studentAdmissionNumber">
+            Admission Number
+          </label>
+
+          <input
+            id="studentAdmissionNumber"
+            name="admissionNumber"
+            type="text"
+            placeholder="e.g. ADM001">
+
+        </div>
+
+
+        <div class="form-field">
+
+          <label for="studentFirstName">
+            First Name *
+          </label>
+
+          <input
+            id="studentFirstName"
+            name="firstName"
+            type="text"
+            placeholder="First name"
+            required>
+
+        </div>
+
+
+        <div class="form-field">
+
+          <label for="studentMiddleName">
+            Middle Name
+          </label>
+
+          <input
+            id="studentMiddleName"
+            name="middleName"
+            type="text"
+            placeholder="Middle name">
+
+        </div>
+
+
+        <div class="form-field">
+
+          <label for="studentLastName">
+            Last Name
+          </label>
+
+          <input
+            id="studentLastName"
+            name="lastName"
+            type="text"
+            placeholder="Last name">
+
+        </div>
+
+
+        <div class="form-field">
+
+          <label for="studentGender">
+            Gender
+          </label>
+
+          <select
+            id="studentGender"
+            name="gender">
+
+            <option value="">
+              Select Gender
+            </option>
+
+            <option value="Male">
+              Male
+            </option>
+
+            <option value="Female">
+              Female
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="form-field">
+
+          <label for="studentDateOfBirth">
+            Date of Birth
+          </label>
+
+          <input
+            id="studentDateOfBirth"
+            name="dateOfBirth"
+            type="date">
+
+        </div>
+
+
+      </div>
+
+
+      <!-- ===================================================
+           SCHOOL INFORMATION
+           =================================================== -->
+
+      <div class="form-section-title">
+
+        <strong>
+          School Information
+        </strong>
+
+        <span>
+          Current CBC level and class
+        </span>
+
+      </div>
+
+
+      <div class="student-form-grid">
+
+
+        <div class="form-field">
+
+          <label for="studentGrade">
+            Grade / Level *
+          </label>
+
+          <select
+            id="studentGrade"
+            name="grade"
+            required>
+
+            <option value="">
+              Select Level
+            </option>
+
+            <option value="PP1">
+              PP1
+            </option>
+
+            <option value="PP2">
+              PP2
+            </option>
+
+            <option value="Grade 1">
+              Grade 1
+            </option>
+
+            <option value="Grade 2">
+              Grade 2
+            </option>
+
+            <option value="Grade 3">
+              Grade 3
+            </option>
+
+            <option value="Grade 4">
+              Grade 4
+            </option>
+
+            <option value="Grade 5">
+              Grade 5
+            </option>
+
+            <option value="Grade 6">
+              Grade 6
+            </option>
+
+            <option value="Grade 7">
+              Grade 7
+            </option>
+
+            <option value="Grade 8">
+              Grade 8
+            </option>
+
+            <option value="Grade 9">
+              Grade 9
+            </option>
+
+            <option value="Grade 10">
+              Grade 10
+            </option>
+
+            <option value="Grade 11">
+              Grade 11
+            </option>
+
+            <option value="Grade 12">
+              Grade 12
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="form-field">
+
+          <label for="studentStream">
+            Stream / Class
+          </label>
+
+          <input
+            id="studentStream"
+            name="stream"
+            type="text"
+            placeholder="e.g. A">
+
+        </div>
+
+
+      </div>
+
+
+      <!-- ===================================================
+           PARENT INFORMATION
+           =================================================== -->
+
+      <div class="form-section-title">
+
+        <strong>
+          Parent / Guardian
+        </strong>
+
+        <span>
+          Contact information
+        </span>
+
+      </div>
+
+
+      <div class="student-form-grid">
+
+
+        <div class="form-field">
+
+          <label for="studentParentName">
+            Parent / Guardian Name
+          </label>
+
+          <input
+            id="studentParentName"
+            name="parentName"
+            type="text"
+            placeholder="Full name">
+
+        </div>
+
+
+        <div class="form-field">
+
+          <label for="studentParentPhone">
+            Parent / Guardian Phone
+          </label>
+
+          <input
+            id="studentParentPhone"
+            name="parentPhone"
+            type="tel"
+            placeholder="07XXXXXXXX">
+
+        </div>
+
+
+      </div>
+
+
+      <!-- ===================================================
+           NOTES
+           =================================================== -->
+
+      <div class="form-section-title">
+
+        <strong>
+          Additional Notes
+        </strong>
+
+      </div>
+
+
+      <div class="form-field">
+
+        <label for="studentNotes">
+          Notes
+        </label>
+
+        <textarea
+          id="studentNotes"
+          name="notes"
+          rows="4"
+          placeholder="Optional notes about the learner"></textarea>
+
+      </div>
+
+
+      <!-- ===================================================
+           FORM ACTIONS
+           =================================================== -->
+
+      <div class="student-form-actions">
+
+        <button
+          id="cancelStudentBtn"
+          type="button"
+          class="secondary-btn">
+
+          Cancel
+
+        </button>
+
+
+        <button
+          type="submit"
+          class="primary-btn">
+
+          Save Student
+
+        </button>
+
+      </div>
+
+
+    </form>
+
+  </section>
+
+
+  <!-- =======================================================
+       EMPTY STATE
+       ======================================================= -->
+
+  <section
+    id="studentsEmptyState"
+    class="students-empty-state">
+
+    <div class="empty-icon">
+      👨‍🎓
+    </div>
+
+    <h2>
+      No Students Yet
+    </h2>
+
+    <p>
+      Add your first learner to begin
+      building your CBC learner records.
+    </p>
+
+    <button
+      id="emptyAddStudentBtn"
+      class="primary-btn"
+      type="button">
+
+      ＋ Add Student
+
+    </button>
+
+  </section>
+
+
+  <!-- =======================================================
+       STUDENT LIST CONTAINER
+       ======================================================= -->
+
+  <section
+    id="studentListContainer"
+    class="student-list-container"
+    hidden>
+
+  </section>
+
+</section>
+
+<!-- =========================================================
+     END OF PART 2A-2
+     ========================================================= -->
 <!-- =====================================================
      END OF PART 1E-3A
      ===================================================== -->
@@ -4079,6 +4559,331 @@ textarea:focus-visible{
 /* =========================================================
    END QUICK ADD CSS
    ========================================================= */
+       /* =========================================================
+   PART 2A-2 — STUDENT FORM CSS
+   ========================================================= */
+
+.student-form-card {
+
+  margin-top: 20px;
+
+  padding: 20px;
+
+  background: #FFFFFF;
+
+  border: 1px solid #E5E7EB;
+
+  border-radius: 18px;
+
+  box-shadow:
+    0 10px 30px
+    rgba(11,31,51,.08);
+
+}
+
+
+.student-form-header {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  margin-bottom: 22px;
+
+}
+
+
+.student-form-header h2 {
+
+  margin: 5px 0 0;
+
+  color: #0B1F33;
+
+}
+
+
+.form-section-title {
+
+  margin:
+    22px 0 12px;
+
+  padding-bottom: 8px;
+
+  border-bottom:
+    1px solid #EEF0F2;
+
+}
+
+
+.form-section-title strong {
+
+  display: block;
+
+  color: #0B1F33;
+
+  font-size: 14px;
+
+}
+
+
+.form-section-title span {
+
+  display: block;
+
+  margin-top: 3px;
+
+  color: #667085;
+
+  font-size: 10px;
+
+}
+
+
+.student-form-grid {
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 14px;
+
+}
+
+
+.form-field {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 6px;
+
+}
+
+
+.form-field label {
+
+  color: #344054;
+
+  font-size: 11px;
+
+  font-weight: 700;
+
+}
+
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+
+  width: 100%;
+
+  box-sizing: border-box;
+
+  padding: 11px 12px;
+
+  border:
+    1px solid #D0D5DD;
+
+  border-radius: 10px;
+
+  background: #FFFFFF;
+
+  color: #101828;
+
+  font: inherit;
+
+  outline: none;
+
+}
+
+
+.form-field textarea {
+
+  resize: vertical;
+
+}
+
+
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus {
+
+  border-color:
+    #F5B700;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(245,183,0,.12);
+
+}
+
+
+.student-form-actions {
+
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  margin-top: 24px;
+
+}
+
+
+.primary-btn,
+.secondary-btn {
+
+  min-height: 42px;
+
+  padding:
+    0 18px;
+
+  border-radius: 10px;
+
+  cursor: pointer;
+
+  font-weight: 700;
+
+}
+
+
+.primary-btn {
+
+  border: 0;
+
+  background: #0B1F33;
+
+  color: #FFFFFF;
+
+}
+
+
+.primary-btn:hover {
+
+  background: #163854;
+
+}
+
+
+.secondary-btn {
+
+  border:
+    1px solid #D0D5DD;
+
+  background: #FFFFFF;
+
+  color: #344054;
+
+}
+
+
+.secondary-btn:hover {
+
+  background: #F9FAFB;
+
+}
+
+
+.students-empty-state {
+
+  margin-top: 20px;
+
+  padding: 40px 20px;
+
+  text-align: center;
+
+  background: #FFFFFF;
+
+  border:
+    1px dashed #D0D5DD;
+
+  border-radius: 18px;
+
+}
+
+
+.empty-icon {
+
+  font-size: 42px;
+
+  margin-bottom: 10px;
+
+}
+
+
+.students-empty-state h2 {
+
+  margin: 0;
+
+  color: #0B1F33;
+
+}
+
+
+.students-empty-state p {
+
+  max-width: 420px;
+
+  margin:
+    8px auto 18px;
+
+  color: #667085;
+
+  font-size: 12px;
+
+  line-height: 1.6;
+
+}
+
+
+.student-list-container {
+
+  margin-top: 20px;
+
+}
+
+
+@media (max-width: 650px) {
+
+  .student-form-grid {
+
+    grid-template-columns: 1fr;
+
+  }
+
+
+  .student-form-card {
+
+    padding: 15px;
+
+  }
+
+
+  .student-form-actions {
+
+    flex-direction: column-reverse;
+
+  }
+
+
+  .primary-btn,
+  .secondary-btn {
+
+    width: 100%;
+
+  }
+
+}
+
+
+/* =========================================================
+   END OF PART 2A-2 CSS
+   ========================================================= */
 /* =========================================================
    END OF PART 1D
    ========================================================= */
@@ -6146,3 +6951,1409 @@ console.info(
 /* =========================================================
    END OF PART 1F
    ========================================================= */  
+          
+/* =========================================================
+   CBC MASTER V2
+   PART 2A-1 — STUDENT STORAGE ENGINE
+   ========================================================= */
+
+(function () {
+
+  "use strict";
+
+
+  /* =======================================================
+     STORAGE KEY
+     ======================================================= */
+
+  const STUDENT_STORAGE_KEY =
+    "cbc_master_students";
+
+
+  /* =======================================================
+     INTERNAL STORAGE HELPERS
+     ======================================================= */
+
+  function loadStudents() {
+
+    try {
+
+      const saved =
+        localStorage.getItem(
+          STUDENT_STORAGE_KEY
+        );
+
+
+      if (!saved) {
+        return [];
+      }
+
+
+      const students =
+        JSON.parse(saved);
+
+
+      return Array.isArray(students)
+        ? students
+        : [];
+
+    } catch (error) {
+
+      console.warn(
+        "CBC MASTER: Unable to load students.",
+        error
+      );
+
+      return [];
+
+    }
+
+  }
+
+
+  function saveStudents(students) {
+
+    try {
+
+      localStorage.setItem(
+        STUDENT_STORAGE_KEY,
+        JSON.stringify(students)
+      );
+
+      return true;
+
+    } catch (error) {
+
+      console.error(
+        "CBC MASTER: Unable to save students.",
+        error
+      );
+
+      return false;
+
+    }
+
+  }
+
+
+  /* =======================================================
+     CREATE STUDENT ID
+     ======================================================= */
+
+  function createStudentId() {
+
+    if (
+      window.CBCMaster &&
+      typeof window.CBCMaster.createId ===
+      "function"
+    ) {
+
+      return window.CBCMaster.createId(
+        "student"
+      );
+
+    }
+
+
+    return (
+      "student_" +
+      Date.now() +
+      "_" +
+      Math.random()
+        .toString(36)
+        .slice(2, 8)
+    );
+
+  }
+
+
+  /* =======================================================
+     NORMALIZE STUDENT DATA
+     ======================================================= */
+
+  function normalizeStudent(data) {
+
+    data =
+      data || {};
+
+
+    return {
+
+      id:
+        data.id ||
+        createStudentId(),
+
+
+      admissionNumber:
+        String(
+          data.admissionNumber || ""
+        ).trim(),
+
+
+      firstName:
+        String(
+          data.firstName || ""
+        ).trim(),
+
+
+      middleName:
+        String(
+          data.middleName || ""
+        ).trim(),
+
+
+      lastName:
+        String(
+          data.lastName || ""
+        ).trim(),
+
+
+      gender:
+        String(
+          data.gender || ""
+        ).trim(),
+
+
+      grade:
+        String(
+          data.grade || ""
+        ).trim(),
+
+
+      stream:
+        String(
+          data.stream || ""
+        ).trim(),
+
+
+      parentName:
+        String(
+          data.parentName || ""
+        ).trim(),
+
+
+      parentPhone:
+        String(
+          data.parentPhone || ""
+        ).trim(),
+
+
+      dateOfBirth:
+        String(
+          data.dateOfBirth || ""
+        ).trim(),
+
+
+      notes:
+        String(
+          data.notes || ""
+        ).trim(),
+
+
+      createdAt:
+        data.createdAt ||
+        new Date().toISOString(),
+
+
+      updatedAt:
+        new Date().toISOString()
+
+    };
+
+  }
+
+
+  /* =======================================================
+     ADD STUDENT
+     ======================================================= */
+
+  function addStudent(data) {
+
+    const students =
+      loadStudents();
+
+
+    const student =
+      normalizeStudent(data);
+
+
+    students.push(
+      student
+    );
+
+
+    const saved =
+      saveStudents(students);
+
+
+    if (!saved) {
+      return null;
+    }
+
+
+    dispatchStudentEvent(
+      "studentAdded",
+      student
+    );
+
+
+    return student;
+
+  }
+
+
+  /* =======================================================
+     GET ALL STUDENTS
+     ======================================================= */
+
+  function getStudents() {
+
+    return loadStudents();
+
+  }
+
+
+  /* =======================================================
+     GET STUDENT BY ID
+     ======================================================= */
+
+  function getStudentById(id) {
+
+    if (!id) {
+      return null;
+    }
+
+
+    const students =
+      loadStudents();
+
+
+    return students.find(
+      function (student) {
+
+        return student.id === id;
+
+      }
+    ) || null;
+
+  }
+
+
+  /* =======================================================
+     UPDATE STUDENT
+     ======================================================= */
+
+  function updateStudent(id, data) {
+
+    if (!id) {
+      return null;
+    }
+
+
+    const students =
+      loadStudents();
+
+
+    const index =
+      students.findIndex(
+        function (student) {
+
+          return student.id === id;
+
+        }
+      );
+
+
+    if (index === -1) {
+      return null;
+    }
+
+
+    const existing =
+      students[index];
+
+
+    const updated =
+      normalizeStudent({
+
+        ...existing,
+        ...data,
+        id: existing.id,
+        createdAt: existing.createdAt
+
+      });
+
+
+    students[index] =
+      updated;
+
+
+    const saved =
+      saveStudents(students);
+
+
+    if (!saved) {
+      return null;
+    }
+
+
+    dispatchStudentEvent(
+      "studentUpdated",
+      updated
+    );
+
+
+    return updated;
+
+  }
+
+
+  /* =======================================================
+     DELETE STUDENT
+     ======================================================= */
+
+  function deleteStudent(id) {
+
+    if (!id) {
+      return false;
+    }
+
+
+    const students =
+      loadStudents();
+
+
+    const index =
+      students.findIndex(
+        function (student) {
+
+          return student.id === id;
+
+        }
+      );
+
+
+    if (index === -1) {
+      return false;
+    }
+
+
+    const removed =
+      students[index];
+
+
+    students.splice(
+      index,
+      1
+    );
+
+
+    const saved =
+      saveStudents(students);
+
+
+    if (!saved) {
+      return false;
+    }
+
+
+    dispatchStudentEvent(
+      "studentDeleted",
+      removed
+    );
+
+
+    return true;
+
+  }
+
+
+  /* =======================================================
+     STUDENT COUNT
+     ======================================================= */
+
+  function getStudentCount() {
+
+    return loadStudents().length;
+
+  }
+
+
+  /* =======================================================
+     SEARCH STUDENTS
+     ======================================================= */
+
+  function searchStudents(query) {
+
+    const students =
+      loadStudents();
+
+
+    const search =
+      String(
+        query || ""
+      )
+      .trim()
+      .toLowerCase();
+
+
+    if (!search) {
+      return students;
+    }
+
+
+    return students.filter(
+      function (student) {
+
+        const text = [
+
+          student.admissionNumber,
+          student.firstName,
+          student.middleName,
+          student.lastName,
+          student.gender,
+          student.grade,
+          student.stream,
+          student.parentName,
+          student.parentPhone
+
+        ]
+        .join(" ")
+        .toLowerCase();
+
+
+        return text.includes(
+          search
+        );
+
+      }
+    );
+
+  }
+
+
+  /* =======================================================
+     FILTER BY GRADE
+     ======================================================= */
+
+  function getStudentsByGrade(grade) {
+
+    const students =
+      loadStudents();
+
+
+    const selectedGrade =
+      String(
+        grade || ""
+      ).trim();
+
+
+    if (!selectedGrade) {
+      return students;
+    }
+
+
+    return students.filter(
+      function (student) {
+
+        return (
+          student.grade ===
+          selectedGrade
+        );
+
+      }
+    );
+
+  }
+
+
+  /* =======================================================
+     EVENTS
+     ======================================================= */
+
+  function dispatchStudentEvent(
+    eventName,
+    student
+  ) {
+
+    window.dispatchEvent(
+      new CustomEvent(
+        "cbc:" + eventName,
+        {
+          detail: {
+            student: student
+          }
+        }
+      )
+    );
+
+  }
+
+
+  /* =======================================================
+     PUBLIC STUDENT API
+     ======================================================= */
+
+  window.CBCMasterStudents = {
+
+    add:
+      addStudent,
+
+    getAll:
+      getStudents,
+
+    getById:
+      getStudentById,
+
+    update:
+      updateStudent,
+
+    remove:
+      deleteStudent,
+
+    count:
+      getStudentCount,
+
+    search:
+      searchStudents,
+
+    byGrade:
+      getStudentsByGrade
+
+  };
+
+
+  /* =======================================================
+     STUDENT EVENTS
+     ======================================================= */
+
+  window.addEventListener(
+    "cbc:studentAdded",
+    function () {
+
+      if (
+        window.CBCMasterDashboard &&
+        typeof window.CBCMasterDashboard.refresh ===
+        "function"
+      ) {
+
+        window.CBCMasterDashboard.refresh();
+
+      }
+
+    }
+  );
+
+
+  window.addEventListener(
+    "cbc:studentDeleted",
+    function () {
+
+      if (
+        window.CBCMasterDashboard &&
+        typeof window.CBCMasterDashboard.refresh ===
+        "function"
+      ) {
+
+        window.CBCMasterDashboard.refresh();
+
+      }
+
+    }
+  );
+
+
+  /* =======================================================
+     READY MESSAGE
+     ======================================================= */
+
+  console.info(
+    "CBC MASTER: Student storage engine ready."
+  );
+
+
+})();
+
+
+/* =========================================================
+   END OF PART 2A-1
+   ========================================================= */
+          /* =========================================================
+   CBC MASTER V2
+   PART 2A-3 — STUDENT FORM LOGIC
+   SAVE / CANCEL / VALIDATION
+   ========================================================= */
+
+(function () {
+
+  "use strict";
+
+
+  /* =======================================================
+     ELEMENTS
+     ======================================================= */
+
+  const form =
+    document.getElementById(
+      "studentForm"
+    );
+
+  const formCard =
+    document.getElementById(
+      "studentFormCard"
+    );
+
+  const addBtn =
+    document.getElementById(
+      "addStudentBtn"
+    );
+
+  const emptyAddBtn =
+    document.getElementById(
+      "emptyAddStudentBtn"
+    );
+
+  const closeBtn =
+    document.getElementById(
+      "closeStudentForm"
+    );
+
+  const cancelBtn =
+    document.getElementById(
+      "cancelStudentBtn"
+    );
+
+
+  /* =======================================================
+     FORM MODE
+     ======================================================= */
+
+  let editingStudentId =
+    null;
+
+
+  /* =======================================================
+     OPEN FORM
+     ======================================================= */
+
+  function openStudentForm(student) {
+
+    if (!formCard) return;
+
+
+    editingStudentId =
+      student && student.id
+        ? student.id
+        : null;
+
+
+    formCard.hidden =
+      false;
+
+
+    if (student) {
+
+      fillStudentForm(
+        student
+      );
+
+      setFormTitle(
+        "Edit Student"
+      );
+
+    } else {
+
+      resetStudentForm();
+
+      setFormTitle(
+        "Add Student"
+      );
+
+
+      /* -----------------------------------------------
+         Use current dashboard level automatically
+         ----------------------------------------------- */
+
+      const currentGrade =
+        typeof CBCMaster !== "undefined" &&
+        typeof CBCMaster.getCurrentLevel ===
+        "function"
+          ? CBCMaster.getCurrentLevel()
+          : "";
+
+
+      const grade =
+        document.getElementById(
+          "studentGrade"
+        );
+
+
+      if (
+        grade &&
+        currentGrade
+      ) {
+
+        grade.value =
+          currentGrade;
+
+      }
+
+    }
+
+
+    formCard.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+
+
+    const firstName =
+      document.getElementById(
+        "studentFirstName"
+      );
+
+
+    if (firstName) {
+
+      setTimeout(
+        function () {
+
+          firstName.focus();
+
+        },
+        250
+      );
+
+    }
+
+  }
+
+
+  /* =======================================================
+     CLOSE FORM
+     ======================================================= */
+
+  function closeStudentForm() {
+
+    if (!formCard) return;
+
+    formCard.hidden =
+      true;
+
+    editingStudentId =
+      null;
+
+    resetStudentForm();
+
+  }
+
+
+  /* =======================================================
+     FORM TITLE
+     ======================================================= */
+
+  function setFormTitle(title) {
+
+    const titleElement =
+      document.getElementById(
+        "studentFormTitle"
+      );
+
+
+    if (titleElement) {
+
+      titleElement.textContent =
+        title;
+
+    }
+
+  }
+
+
+  /* =======================================================
+     RESET FORM
+     ======================================================= */
+
+  function resetStudentForm() {
+
+    if (!form) return;
+
+
+    form.reset();
+
+
+    const id =
+      document.getElementById(
+        "studentGrade"
+      );
+
+
+    if (id) {
+
+      id.value = "";
+
+    }
+
+  }
+
+
+  /* =======================================================
+     FILL FORM
+     ======================================================= */
+
+  function fillStudentForm(student) {
+
+    setField(
+      "studentAdmissionNumber",
+      student.admissionNumber
+    );
+
+    setField(
+      "studentFirstName",
+      student.firstName
+    );
+
+    setField(
+      "studentMiddleName",
+      student.middleName
+    );
+
+    setField(
+      "studentLastName",
+      student.lastName
+    );
+
+    setField(
+      "studentGender",
+      student.gender
+    );
+
+    setField(
+      "studentDateOfBirth",
+      student.dateOfBirth
+    );
+
+    setField(
+      "studentGrade",
+      student.grade
+    );
+
+    setField(
+      "studentStream",
+      student.stream
+    );
+
+    setField(
+      "studentParentName",
+      student.parentName
+    );
+
+    setField(
+      "studentParentPhone",
+      student.parentPhone
+    );
+
+    setField(
+      "studentNotes",
+      student.notes
+    );
+
+  }
+
+
+  /* =======================================================
+     SET FIELD
+     ======================================================= */
+
+  function setField(
+    id,
+    value
+  ) {
+
+    const element =
+      document.getElementById(id);
+
+
+    if (element) {
+
+      element.value =
+        value || "";
+
+    }
+
+  }
+
+
+  /* =======================================================
+     READ FORM
+     ======================================================= */
+
+  function getFormData() {
+
+    return {
+
+      admissionNumber:
+        getValue(
+          "studentAdmissionNumber"
+        ),
+
+      firstName:
+        getValue(
+          "studentFirstName"
+        ),
+
+      middleName:
+        getValue(
+          "studentMiddleName"
+        ),
+
+      lastName:
+        getValue(
+          "studentLastName"
+        ),
+
+      gender:
+        getValue(
+          "studentGender"
+        ),
+
+      dateOfBirth:
+        getValue(
+          "studentDateOfBirth"
+        ),
+
+      grade:
+        getValue(
+          "studentGrade"
+        ),
+
+      stream:
+        getValue(
+          "studentStream"
+        ),
+
+      parentName:
+        getValue(
+          "studentParentName"
+        ),
+
+      parentPhone:
+        getValue(
+          "studentParentPhone"
+        ),
+
+      notes:
+        getValue(
+          "studentNotes"
+        )
+
+    };
+
+  }
+
+
+  /* =======================================================
+     GET VALUE
+     ======================================================= */
+
+  function getValue(id) {
+
+    const element =
+      document.getElementById(id);
+
+
+    if (!element) {
+      return "";
+    }
+
+
+    return element.value
+      .trim();
+
+  }
+
+
+  /* =======================================================
+     VALIDATE
+     ======================================================= */
+
+  function validateStudent(data) {
+
+    if (!data.firstName) {
+
+      showStudentMessage(
+        "Please enter the student's first name."
+      );
+
+      focusField(
+        "studentFirstName"
+      );
+
+      return false;
+
+    }
+
+
+    if (!data.grade) {
+
+      showStudentMessage(
+        "Please select the student's level."
+      );
+
+      focusField(
+        "studentGrade"
+      );
+
+      return false;
+
+    }
+
+
+    if (
+      typeof CBCMaster !== "undefined" &&
+      Array.isArray(
+        CBCMaster.levels
+      ) &&
+      !CBCMaster.levels.includes(
+        data.grade
+      )
+    ) {
+
+      showStudentMessage(
+        "Please select a valid CBC level."
+      );
+
+      focusField(
+        "studentGrade"
+      );
+
+      return false;
+
+    }
+
+
+    return true;
+
+  }
+
+
+  /* =======================================================
+     FOCUS FIELD
+     ======================================================= */
+
+  function focusField(id) {
+
+    const element =
+      document.getElementById(id);
+
+
+    if (element) {
+
+      element.focus();
+
+    }
+
+  }
+
+
+  /* =======================================================
+     SAVE STUDENT
+     ======================================================= */
+
+  function saveStudent(event) {
+
+    event.preventDefault();
+
+
+    if (
+      !window.CBCMasterStudents
+    ) {
+
+      showStudentMessage(
+        "Student storage is not available."
+      );
+
+      return;
+
+    }
+
+
+    const data =
+      getFormData();
+
+
+    if (
+      !validateStudent(data)
+    ) {
+
+      return;
+
+    }
+
+
+    let student;
+
+
+    /* -----------------------------------------------
+       EDIT EXISTING
+       ----------------------------------------------- */
+
+    if (editingStudentId) {
+
+      student =
+        CBCMasterStudents.update(
+          editingStudentId,
+          data
+        );
+
+
+    } else {
+
+      /* ---------------------------------------------
+         CREATE NEW
+         --------------------------------------------- */
+
+      student =
+        CBCMasterStudents.add(
+          data
+        );
+
+    }
+
+
+    if (!student) {
+
+      showStudentMessage(
+        "Unable to save student. Please try again."
+      );
+
+      return;
+
+    }
+
+
+    /* -----------------------------------------------
+       Success
+       ----------------------------------------------- */
+
+    showStudentMessage(
+      editingStudentId
+        ? "Student updated successfully."
+        : "Student saved successfully."
+    );
+
+
+    closeStudentForm();
+
+
+    /* -----------------------------------------------
+       Refresh student list when available
+       ----------------------------------------------- */
+
+    window.dispatchEvent(
+      new CustomEvent(
+        "cbc:studentsChanged"
+      )
+    );
+
+
+    /* -----------------------------------------------
+       Refresh dashboard
+       ----------------------------------------------- */
+
+    if (
+      window.CBCMasterDashboard &&
+      typeof window.CBCMasterDashboard.refresh ===
+      "function"
+    ) {
+
+      window.CBCMasterDashboard.refresh();
+
+    }
+
+  }
+
+
+  /* =======================================================
+     MESSAGE
+     ======================================================= */
+
+  function showStudentMessage(message) {
+
+    if (
+      typeof window.showCBCToast ===
+      "function"
+    ) {
+
+      window.showCBCToast(
+        message
+      );
+
+      return;
+
+    }
+
+
+    console.log(
+      "CBC MASTER:",
+      message
+    );
+
+  }
+
+
+  /* =======================================================
+     ADD BUTTON
+     ======================================================= */
+
+  if (addBtn) {
+
+    addBtn.addEventListener(
+      "click",
+      function () {
+
+        openStudentForm();
+
+      }
+    );
+
+  }
+
+
+  /* =======================================================
+     EMPTY STATE ADD BUTTON
+     ======================================================= */
+
+  if (emptyAddBtn) {
+
+    emptyAddBtn.addEventListener(
+      "click",
+      function () {
+
+        openStudentForm();
+
+      }
+    );
+
+  }
+
+
+  /* =======================================================
+     CLOSE BUTTON
+     ======================================================= */
+
+  if (closeBtn) {
+
+    closeBtn.addEventListener(
+      "click",
+      closeStudentForm
+    );
+
+  }
+
+
+  /* =======================================================
+     CANCEL BUTTON
+     ======================================================= */
+
+  if (cancelBtn) {
+
+    cancelBtn.addEventListener(
+      "click",
+      closeStudentForm
+    );
+
+  }
+
+
+  /* =======================================================
+     FORM SUBMIT
+     ======================================================= */
+
+  if (form) {
+
+    form.addEventListener(
+      "submit",
+      saveStudent
+    );
+
+  }
+
+
+  /* =======================================================
+     ESCAPE TO CLOSE
+     ======================================================= */
+
+  document.addEventListener(
+    "keydown",
+    function (event) {
+
+      if (
+        event.key === "Escape" &&
+        formCard &&
+        !formCard.hidden
+      ) {
+
+        closeStudentForm();
+
+      }
+
+    }
+  );
+
+
+  /* =======================================================
+     PUBLIC STUDENT FORM API
+     ======================================================= */
+
+  window.CBCMasterStudentForm = {
+
+    open:
+      openStudentForm,
+
+    close:
+      closeStudentForm,
+
+    edit:
+      function (studentId) {
+
+        if (
+          !window.CBCMasterStudents
+        ) {
+
+          return;
+
+        }
+
+
+        const student =
+          CBCMasterStudents.getById(
+            studentId
+          );
+
+
+        if (student) {
+
+          openStudentForm(
+            student
+          );
+
+        }
+
+      }
+
+  };
+
+
+  /* =======================================================
+     READY
+     ======================================================= */
+
+  console.info(
+    "CBC MASTER: Student form ready."
+  );
+
+
+})();
+          
+           
