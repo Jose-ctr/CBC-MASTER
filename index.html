@@ -39156,5 +39156,1598 @@ else {
 <!-- =========================================================
      END PART 11B
      ========================================================= -->
+ <!-- =========================================================
+     CBC MASTER V2
+     PART 12A — REPORT GENERATION DATA + STORAGE ENGINE
+     ========================================================= -->
+
+<style>
+/* =========================================================
+   PART 12A — REPORT DATA FOUNDATION
+   ========================================================= */
+
+.report-data-hidden{
+  display:none !important;
+}
+</style>
+
+<script>
+
+/* =========================================================
+   PART 12A — REPORT GENERATION DATA + STORAGE ENGINE
+   ========================================================= */
+
+(function(){
+
+  "use strict";
+
+
+  /* =======================================================
+     STORAGE KEYS
+     ======================================================= */
+
+  const CBC_REPORTS_STORAGE =
+    "cbc_master_reports_v2";
+
+  const CBC_REPORT_SETTINGS_STORAGE =
+    "cbc_master_report_settings_v2";
+
+
+  /* =======================================================
+     DEFAULT SETTINGS
+     ======================================================= */
+
+  const DEFAULT_REPORT_SETTINGS = {
+
+    schoolName:
+      "CBC MASTER SCHOOL",
+
+    schoolCode:
+      "",
+
+    county:
+      "",
+
+    teacherName:
+      "",
+
+    headteacherName:
+      "",
+
+    phone:
+      "",
+
+    email:
+      "",
+
+    address:
+      "",
+
+    academicYear:
+      new Date().getFullYear(),
+
+    term:
+      "Term 1",
+
+    reportTitle:
+      "LEARNER PROGRESS REPORT",
+
+    motto:
+      "",
+
+    showLogo:
+      true,
+
+    showPosition:
+      true,
+
+    showAttendance:
+      true,
+
+    showRemarks:
+      true,
+
+    showCompetencies:
+      true,
+
+    showTeacherComment:
+      true,
+
+    showHeadteacherComment:
+      true
+
+  };
+
+
+  /* =======================================================
+     STATE
+     ======================================================= */
+
+  let reportState = {
+
+    reports:[],
+
+    settings:
+      Object.assign(
+        {},
+        DEFAULT_REPORT_SETTINGS
+      ),
+
+    selectedStudentId:null,
+
+    selectedGrade:"Grade 5",
+
+    selectedTerm:"Term 1",
+
+    selectedYear:
+      new Date().getFullYear()
+
+  };
+
+
+  /* =======================================================
+     SAFE PARSE
+     ======================================================= */
+
+  function safeParse(
+    value,
+    fallback
+  ){
+
+    try{
+
+      const parsed =
+        JSON.parse(value);
+
+      return parsed;
+
+    }catch(error){
+
+      return fallback;
+
+    }
+
+  }
+
+
+  /* =======================================================
+     LOAD REPORTS
+     ======================================================= */
+
+  function loadReports(){
+
+    try{
+
+      const saved =
+        localStorage.getItem(
+          CBC_REPORTS_STORAGE
+        );
+
+      if(!saved){
+
+        reportState.reports = [];
+
+        saveReports();
+
+        return;
+
+      }
+
+      const parsed =
+        safeParse(
+          saved,
+          []
+        );
+
+      if(Array.isArray(parsed)){
+
+        reportState.reports =
+          parsed;
+
+      }else{
+
+        reportState.reports = [];
+
+      }
+
+    }catch(error){
+
+      console.warn(
+        "CBC MASTER: Reports could not be loaded.",
+        error
+      );
+
+      reportState.reports = [];
+
+    }
+
+  }
+
+
+  /* =======================================================
+     SAVE REPORTS
+     ======================================================= */
+
+  function saveReports(){
+
+    try{
+
+      localStorage.setItem(
+        CBC_REPORTS_STORAGE,
+        JSON.stringify(
+          reportState.reports
+        )
+      );
+
+      return true;
+
+    }catch(error){
+
+      console.warn(
+        "CBC MASTER: Reports could not be saved.",
+        error
+      );
+
+      return false;
+
+    }
+
+  }
+
+
+  /* =======================================================
+     LOAD SETTINGS
+     ======================================================= */
+
+  function loadReportSettings(){
+
+    try{
+
+      const saved =
+        localStorage.getItem(
+          CBC_REPORT_SETTINGS_STORAGE
+        );
+
+      if(!saved){
+
+        reportState.settings =
+          Object.assign(
+            {},
+            DEFAULT_REPORT_SETTINGS
+          );
+
+        saveReportSettings();
+
+        return;
+
+      }
+
+      const parsed =
+        safeParse(
+          saved,
+          {}
+        );
+
+      reportState.settings =
+        Object.assign(
+          {},
+          DEFAULT_REPORT_SETTINGS,
+          parsed
+        );
+
+    }catch(error){
+
+      console.warn(
+        "CBC MASTER: Report settings could not be loaded.",
+        error
+      );
+
+      reportState.settings =
+        Object.assign(
+          {},
+          DEFAULT_REPORT_SETTINGS
+        );
+
+    }
+
+  }
+
+
+  /* =======================================================
+     SAVE SETTINGS
+     ======================================================= */
+
+  function saveReportSettings(){
+
+    try{
+
+      localStorage.setItem(
+        CBC_REPORT_SETTINGS_STORAGE,
+        JSON.stringify(
+          reportState.settings
+        )
+      );
+
+      return true;
+
+    }catch(error){
+
+      console.warn(
+        "CBC MASTER: Report settings could not be saved.",
+        error
+      );
+
+      return false;
+
+    }
+
+  }
+
+
+  /* =======================================================
+     REPORT TYPES
+     ======================================================= */
+
+  const REPORT_TYPES = [
+
+    "Learner Progress Report",
+
+    "Term Report",
+
+    "Academic Summary",
+
+    "Competency Report",
+
+    "Class Performance Report"
+
+  ];
+
+
+  /* =======================================================
+     GRADES
+     ======================================================= */
+
+  const REPORT_GRADES = [
+
+    "PP1",
+    "PP2",
+
+    "Grade 1",
+    "Grade 2",
+    "Grade 3",
+
+    "Grade 4",
+    "Grade 5",
+    "Grade 6",
+
+    "Grade 7",
+    "Grade 8",
+    "Grade 9",
+
+    "Grade 10",
+    "Grade 11",
+    "Grade 12"
+
+  ];
+
+
+  /* =======================================================
+     TERMS
+     ======================================================= */
+
+  const REPORT_TERMS = [
+
+    "Term 1",
+    "Term 2",
+    "Term 3"
+
+  ];
+
+
+  /* =======================================================
+     CREATE REPORT ID
+     ======================================================= */
+
+  function createReportId(){
+
+    return(
+
+      "RPT-" +
+
+      Date.now()
+        .toString(36)
+        .toUpperCase() +
+
+      "-" +
+
+      Math.random()
+        .toString(36)
+        .substring(
+          2,
+          8
+        )
+        .toUpperCase()
+
+    );
+
+  }
+
+
+  /* =======================================================
+     CREATE REPORT
+     ======================================================= */
+
+  function createReport(
+    data
+  ){
+
+    const now =
+      new Date().toISOString();
+
+    const report = {
+
+      id:
+        createReportId(),
+
+      type:
+        data && data.type
+        ? data.type
+        : REPORT_TYPES[0],
+
+      studentId:
+        data && data.studentId
+        ? String(data.studentId)
+        : "",
+
+      studentName:
+        data && data.studentName
+        ? String(data.studentName)
+        : "",
+
+      admissionNo:
+        data && data.admissionNo
+        ? String(data.admissionNo)
+        : "",
+
+      grade:
+        data && data.grade
+        ? String(data.grade)
+        : reportState.selectedGrade,
+
+      stream:
+        data && data.stream
+        ? String(data.stream)
+        : "",
+
+      term:
+        data && data.term
+        ? String(data.term)
+        : reportState.selectedTerm,
+
+      year:
+        data && data.year
+        ? Number(data.year)
+        : reportState.selectedYear,
+
+      status:
+        data && data.status
+        ? String(data.status)
+        : "Draft",
+
+      generatedAt:
+        now,
+
+      updatedAt:
+        now,
+
+      metadata:
+        data && data.metadata
+        ? data.metadata
+        : {},
+
+      subjects:
+        data && Array.isArray(data.subjects)
+        ? data.subjects
+        : [],
+
+      competencies:
+        data && Array.isArray(data.competencies)
+        ? data.competencies
+        : [],
+
+      attendance:
+        data && data.attendance
+        ? data.attendance
+        : {
+            present:0,
+            absent:0,
+            late:0,
+            total:0
+          },
+
+      remarks:
+        data && data.remarks
+        ? String(data.remarks)
+        : "",
+
+      teacherComment:
+        data && data.teacherComment
+        ? String(data.teacherComment)
+        : "",
+
+      headteacherComment:
+        data && data.headteacherComment
+        ? String(data.headteacherComment)
+        : ""
+
+    };
+
+
+    reportState.reports.push(
+      report
+    );
+
+    saveReports();
+
+    return report;
+
+  }
+
+
+  /* =======================================================
+     UPDATE REPORT
+     ======================================================= */
+
+  function updateReport(
+    id,
+    updates
+  ){
+
+    const index =
+      reportState.reports.findIndex(
+        report =>
+          String(report.id) ===
+          String(id)
+      );
+
+    if(index === -1){
+
+      return null;
+
+    }
+
+
+    reportState.reports[index] =
+      Object.assign(
+        {},
+        reportState.reports[index],
+        updates || {},
+        {
+          updatedAt:
+            new Date().toISOString()
+        }
+      );
+
+
+    saveReports();
+
+    return reportState.reports[index];
+
+  }
+
+
+  /* =======================================================
+     GET REPORT
+     ======================================================= */
+
+  function getReport(
+    id
+  ){
+
+    return (
+      reportState.reports.find(
+        report =>
+          String(report.id) ===
+          String(id)
+      ) ||
+      null
+    );
+
+  }
+
+
+  /* =======================================================
+     DELETE REPORT
+     ======================================================= */
+
+  function deleteReport(
+    id
+  ){
+
+    const before =
+      reportState.reports.length;
+
+    reportState.reports =
+      reportState.reports.filter(
+        report =>
+          String(report.id) !==
+          String(id)
+      );
+
+    const removed =
+      reportState.reports.length <
+      before;
+
+    if(removed){
+
+      saveReports();
+
+    }
+
+    return removed;
+
+  }
+
+
+  /* =======================================================
+     GET ALL REPORTS
+     ======================================================= */
+
+  function getAllReports(){
+
+    return [
+      ...reportState.reports
+    ];
+
+  }
+
+
+  /* =======================================================
+     FILTER REPORTS
+     ======================================================= */
+
+  function filterReports(
+    filters
+  ){
+
+    const options =
+      filters || {};
+
+    return reportState.reports.filter(
+      report => {
+
+        if(
+          options.grade &&
+          report.grade !==
+          options.grade
+        ){
+
+          return false;
+
+        }
+
+
+        if(
+          options.term &&
+          report.term !==
+          options.term
+        ){
+
+          return false;
+
+        }
+
+
+        if(
+          options.year &&
+          Number(report.year) !==
+          Number(options.year)
+        ){
+
+          return false;
+
+        }
+
+
+        if(
+          options.studentId &&
+          String(report.studentId) !==
+          String(options.studentId)
+        ){
+
+          return false;
+
+        }
+
+
+        if(
+          options.status &&
+          report.status !==
+          options.status
+        ){
+
+          return false;
+
+        }
+
+
+        if(
+          options.search
+        ){
+
+          const query =
+            String(
+              options.search
+            )
+            .trim()
+            .toLowerCase();
+
+
+          if(query){
+
+            const haystack =
+              [
+
+                report.studentName,
+
+                report.admissionNo,
+
+                report.grade,
+
+                report.stream,
+
+                report.term,
+
+                report.type
+
+              ]
+              .join(" ")
+              .toLowerCase();
+
+
+            if(
+              !haystack.includes(
+                query
+              )
+            ){
+
+              return false;
+
+            }
+
+          }
+
+        }
+
+
+        return true;
+
+      }
+    );
+
+  }
+
+
+  /* =======================================================
+     SUBJECT RESULT
+     ======================================================= */
+
+  function createSubjectResult(
+    data
+  ){
+
+    data =
+      data || {};
+
+
+    return {
+
+      subject:
+        String(
+          data.subject || ""
+        ),
+
+      code:
+        String(
+          data.code || ""
+        ),
+
+      score:
+        normaliseScore(
+          data.score
+        ),
+
+      grade:
+        String(
+          data.grade || ""
+        ),
+
+      level:
+        String(
+          data.level || ""
+        ),
+
+      remarks:
+        String(
+          data.remarks || ""
+        ),
+
+      teacher:
+        String(
+          data.teacher || ""
+        )
+
+    };
+
+  }
+
+
+  /* =======================================================
+     NORMALISE SCORE
+     ======================================================= */
+
+  function normaliseScore(
+    value
+  ){
+
+    if(
+      value === "" ||
+      value === null ||
+      value === undefined
+    ){
+
+      return null;
+
+    }
+
+
+    const number =
+      Number(value);
+
+
+    if(
+      !Number.isFinite(
+        number
+      )
+    ){
+
+      return null;
+
+    }
+
+
+    return Math.max(
+      0,
+      Math.min(
+        100,
+        number
+      )
+    );
+
+  }
+
+
+  /* =======================================================
+     SCORE TO LETTER
+     ======================================================= */
+
+  function scoreToGrade(
+    score
+  ){
+
+    const value =
+      normaliseScore(
+        score
+      );
+
+
+    if(value === null){
+
+      return "";
+
+    }
+
+
+    if(value >= 80){
+
+      return "A";
+
+    }
+
+    if(value >= 70){
+
+      return "B";
+
+    }
+
+    if(value >= 60){
+
+      return "C";
+
+    }
+
+    if(value >= 50){
+
+      return "D";
+
+    }
+
+    return "E";
+
+  }
+
+
+  /* =======================================================
+     AVERAGE
+     ======================================================= */
+
+  function calculateAverage(
+    subjects
+  ){
+
+    if(
+      !Array.isArray(subjects) ||
+      !subjects.length
+    ){
+
+      return null;
+
+    }
+
+
+    const scores =
+      subjects
+        .map(
+          item =>
+            normaliseScore(
+              item.score
+            )
+        )
+        .filter(
+          value =>
+            value !== null
+        );
+
+
+    if(!scores.length){
+
+      return null;
+
+    }
+
+
+    const total =
+      scores.reduce(
+        (
+          sum,
+          value
+        ) =>
+          sum + value,
+        0
+      );
+
+
+    return Math.round(
+      (
+        total /
+        scores.length
+      ) * 100
+    ) / 100;
+
+  }
+
+
+  /* =======================================================
+     PERFORMANCE SUMMARY
+     ======================================================= */
+
+  function buildPerformanceSummary(
+    subjects
+  ){
+
+    const average =
+      calculateAverage(
+        subjects
+      );
+
+
+    if(average === null){
+
+      return {
+
+        average:null,
+
+        grade:"",
+
+        level:"",
+
+        remark:"No assessment data"
+
+      };
+
+    }
+
+
+    let level = "";
+    let remark = "";
+
+
+    if(average >= 80){
+
+      level =
+        "Exceeding Expectations";
+
+      remark =
+        "Excellent performance.";
+
+    }else if(average >= 60){
+
+      level =
+        "Meeting Expectations";
+
+      remark =
+        "Good progress.";
+
+    }else if(average >= 40){
+
+      level =
+        "Approaching Expectations";
+
+      remark =
+        "More practice and support recommended.";
+
+    }else{
+
+      level =
+        "Below Expectations";
+
+      remark =
+        "Additional support is recommended.";
+
+    }
+
+
+    return {
+
+      average,
+
+      grade:
+        scoreToGrade(
+          average
+        ),
+
+      level,
+
+      remark
+
+    };
+
+  }
+
+
+  /* =======================================================
+     ATTENDANCE
+     ======================================================= */
+
+  function normaliseAttendance(
+    attendance
+  ){
+
+    attendance =
+      attendance || {};
+
+
+    const total =
+      Number(
+        attendance.total || 0
+      );
+
+    const present =
+      Number(
+        attendance.present || 0
+      );
+
+    const absent =
+      Number(
+        attendance.absent || 0
+      );
+
+    const late =
+      Number(
+        attendance.late || 0
+      );
+
+
+    const percentage =
+      total > 0
+      ? Math.round(
+          (
+            present /
+            total
+          ) * 10000
+        ) / 100
+      : 0;
+
+
+    return {
+
+      total:
+        Math.max(
+          0,
+          total
+        ),
+
+      present:
+        Math.max(
+          0,
+          present
+        ),
+
+      absent:
+        Math.max(
+          0,
+          absent
+        ),
+
+      late:
+        Math.max(
+          0,
+          late
+        ),
+
+      percentage
+
+    };
+
+  }
+
+
+  /* =======================================================
+     REPORT SNAPSHOT
+     ======================================================= */
+
+  function buildReportSnapshot(
+    data
+  ){
+
+    data =
+      data || {};
+
+
+    const subjects =
+      Array.isArray(
+        data.subjects
+      )
+      ? data.subjects.map(
+          createSubjectResult
+        )
+      : [];
+
+
+    const performance =
+      buildPerformanceSummary(
+        subjects
+      );
+
+
+    return {
+
+      studentId:
+        String(
+          data.studentId || ""
+        ),
+
+      studentName:
+        String(
+          data.studentName || ""
+        ),
+
+      admissionNo:
+        String(
+          data.admissionNo || ""
+        ),
+
+      grade:
+        String(
+          data.grade ||
+          reportState.selectedGrade
+        ),
+
+      stream:
+        String(
+          data.stream || ""
+        ),
+
+      term:
+        String(
+          data.term ||
+          reportState.selectedTerm
+        ),
+
+      year:
+        Number(
+          data.year ||
+          reportState.selectedYear
+        ),
+
+      subjects,
+
+      performance,
+
+      attendance:
+        normaliseAttendance(
+          data.attendance
+        ),
+
+      competencies:
+        Array.isArray(
+          data.competencies
+        )
+        ? data.competencies
+        : [],
+
+      remarks:
+        String(
+          data.remarks || ""
+        ),
+
+      teacherComment:
+        String(
+          data.teacherComment || ""
+        ),
+
+      headteacherComment:
+        String(
+          data.headteacherComment || ""
+        )
+
+    };
+
+  }
+
+
+  /* =======================================================
+     SETTING
+     ======================================================= */
+
+  function setReportSetting(
+    key,
+    value
+  ){
+
+    if(
+      !Object.prototype.hasOwnProperty.call(
+        DEFAULT_REPORT_SETTINGS,
+        key
+      )
+    ){
+
+      return false;
+
+    }
+
+
+    reportState.settings[key] =
+      value;
+
+    saveReportSettings();
+
+    return true;
+
+  }
+
+
+  /* =======================================================
+     GET SETTING
+     ======================================================= */
+
+  function getReportSetting(
+    key
+  ){
+
+    return reportState.settings[key];
+
+  }
+
+
+  /* =======================================================
+     RESET SETTINGS
+     ======================================================= */
+
+  function resetReportSettings(){
+
+    reportState.settings =
+      Object.assign(
+        {},
+        DEFAULT_REPORT_SETTINGS
+      );
+
+    saveReportSettings();
+
+    return reportState.settings;
+
+  }
+
+
+  /* =======================================================
+     EXPORT DATA
+     ======================================================= */
+
+  function exportReports(){
+
+    return JSON.stringify(
+      {
+        version:"2.0",
+
+        exportedAt:
+          new Date().toISOString(),
+
+        settings:
+          reportState.settings,
+
+        reports:
+          reportState.reports
+
+      },
+      null,
+      2
+    );
+
+  }
+
+
+  /* =======================================================
+     IMPORT DATA
+     ======================================================= */
+
+  function importReports(
+    json
+  ){
+
+    const data =
+      typeof json === "string"
+      ? safeParse(
+          json,
+          null
+        )
+      : json;
+
+
+    if(
+      !data ||
+      typeof data !== "object"
+    ){
+
+      return false;
+
+    }
+
+
+    if(
+      Array.isArray(
+        data.reports
+      )
+    ){
+
+      reportState.reports =
+        data.reports;
+
+    }
+
+
+    if(
+      data.settings &&
+      typeof data.settings ===
+      "object"
+    ){
+
+      reportState.settings =
+        Object.assign(
+          {},
+          DEFAULT_REPORT_SETTINGS,
+          data.settings
+        );
+
+    }
+
+
+    saveReports();
+
+    saveReportSettings();
+
+    return true;
+
+  }
+
+
+  /* =======================================================
+     PUBLIC API
+     ======================================================= */
+
+  window.CBC_REPORTS_V2 = {
+
+    state:function(){
+
+      return reportState;
+
+    },
+
+
+    types:
+      REPORT_TYPES,
+
+
+    grades:
+      REPORT_GRADES,
+
+
+    terms:
+      REPORT_TERMS,
+
+
+    load:function(){
+
+      loadReports();
+
+      loadReportSettings();
+
+      return reportState;
+
+    },
+
+
+    save:function(){
+
+      saveReports();
+
+      saveReportSettings();
+
+      return true;
+
+    },
+
+
+    getAll:
+      getAllReports,
+
+
+    get:
+      getReport,
+
+
+    filter:
+      filterReports,
+
+
+    create:
+      createReport,
+
+
+    update:
+      updateReport,
+
+
+    remove:
+      deleteReport,
+
+
+    subject:
+      createSubjectResult,
+
+
+    average:
+      calculateAverage,
+
+
+    grade:
+      scoreToGrade,
+
+
+    performance:
+      buildPerformanceSummary,
+
+
+    attendance:
+      normaliseAttendance,
+
+
+    snapshot:
+      buildReportSnapshot,
+
+
+    settings:function(){
+
+      return reportState.settings;
+
+    },
+
+
+    getSetting:
+      getReportSetting,
+
+
+    setSetting:
+      setReportSetting,
+
+
+    resetSettings:
+      resetReportSettings,
+
+
+    export:
+      exportReports,
+
+
+    import:
+      importReports
+
+  };
+
+
+  /* =======================================================
+     INITIALIZE
+     ======================================================= */
+
+  function initializeReportDataV2(){
+
+    loadReports();
+
+    loadReportSettings();
+
+
+    if(
+      window.CBC_MASTER &&
+      typeof CBC_MASTER.registerPage ===
+      "function"
+    ){
+
+      CBC_MASTER.registerPage(
+        "reports",
+        function(){
+
+          /*
+
+             PART 12B will provide
+             the Report Generation UI.
+
+          */
+
+        }
+      );
+
+    }
+
+
+    console.log(
+      "CBC MASTER V2: Part 12A Report Data Engine ready."
+    );
+
+  }
+
+
+  if(
+    document.readyState ===
+    "loading"
+  ){
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      initializeReportDataV2
+    );
+
+  }else{
+
+    initializeReportDataV2();
+
+  }
+
+
+})();
+
+</script>
+
+<!-- =========================================================
+     END PART 12A
+     ========================================================= --> 
 </body>
 </html>
