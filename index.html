@@ -26173,5 +26173,1394 @@ else {
 <!-- =========================================================
      END PART 8B
      ========================================================= --> 
+ <!-- =========================================================
+     CBC MASTER V2
+     PART 9A — ATTENDANCE DATA + STORAGE ENGINE V2
+     ========================================================= -->
+
+<script>
+
+(function(){
+
+  "use strict";
+
+
+  /* =======================================================
+     STORAGE
+     ======================================================= */
+
+  const CBC_ATTENDANCE_STORAGE =
+    "cbc_master_attendance_v2";
+
+
+  /* =======================================================
+     VERSION
+     ======================================================= */
+
+  const ATTENDANCE_VERSION =
+    "2.0";
+
+
+  /* =======================================================
+     STATE
+     ======================================================= */
+
+  let attendanceState = {
+
+    records: [],
+
+    grade: "Grade 5",
+
+    term: "Term 1",
+
+    year: new Date().getFullYear(),
+
+    month: "",
+
+    search: "",
+
+    status: "All",
+
+    editingId: null
+
+  };
+
+
+  /* =======================================================
+     GRADES
+     ======================================================= */
+
+  const ATTENDANCE_GRADES = [
+
+    "PP1",
+    "PP2",
+
+    "Grade 1",
+    "Grade 2",
+    "Grade 3",
+
+    "Grade 4",
+    "Grade 5",
+    "Grade 6",
+
+    "Grade 7",
+    "Grade 8",
+    "Grade 9",
+
+    "Grade 10",
+    "Grade 11",
+    "Grade 12"
+
+  ];
+
+
+  /* =======================================================
+     TERMS
+     ======================================================= */
+
+  const ATTENDANCE_TERMS = [
+
+    "Term 1",
+    "Term 2",
+    "Term 3"
+
+  ];
+
+
+  /* =======================================================
+     STATUS
+     ======================================================= */
+
+  const ATTENDANCE_STATUSES = [
+
+    "Present",
+    "Absent",
+    "Late",
+    "Excused"
+
+  ];
+
+
+  /* =======================================================
+     LOAD
+     ======================================================= */
+
+  function loadAttendance(){
+
+    try{
+
+      const saved =
+        localStorage.getItem(
+          CBC_ATTENDANCE_STORAGE
+        );
+
+
+      if(!saved){
+
+        saveAttendance();
+
+        return attendanceState;
+
+      }
+
+
+      const parsed =
+        JSON.parse(saved);
+
+
+      if(
+        parsed &&
+        typeof parsed === "object"
+      ){
+
+        attendanceState =
+          Object.assign(
+            {},
+            attendanceState,
+            parsed
+          );
+
+      }
+
+
+      if(
+        !Array.isArray(
+          attendanceState.records
+        )
+      ){
+
+        attendanceState.records = [];
+
+      }
+
+
+      return attendanceState;
+
+    }catch(error){
+
+      console.warn(
+        "CBC MASTER V2: Attendance could not be loaded.",
+        error
+      );
+
+      attendanceState.records = [];
+
+      return attendanceState;
+
+    }
+
+  }
+
+
+  /* =======================================================
+     SAVE
+     ======================================================= */
+
+  function saveAttendance(){
+
+    try{
+
+      localStorage.setItem(
+        CBC_ATTENDANCE_STORAGE,
+        JSON.stringify(
+          attendanceState
+        )
+      );
+
+      return true;
+
+    }catch(error){
+
+      console.warn(
+        "CBC MASTER V2: Attendance could not be saved.",
+        error
+      );
+
+      return false;
+
+    }
+
+  }
+
+
+  /* =======================================================
+     GENERATE ID
+     ======================================================= */
+
+  function createAttendanceId(){
+
+    return (
+
+      "ATT-" +
+
+      Date.now().toString(36) +
+
+      "-" +
+
+      Math.random()
+        .toString(36)
+        .substring(
+          2,
+          8
+        )
+        .toUpperCase()
+
+    );
+
+  }
+
+
+  /* =======================================================
+     NORMALIZE RECORD
+     ======================================================= */
+
+  function normalizeAttendanceRecord(
+    data
+  ){
+
+    const source =
+      data || {};
+
+
+    const status =
+      ATTENDANCE_STATUSES.includes(
+        source.status
+      )
+      ? source.status
+      : "Present";
+
+
+    return {
+
+      id:
+        source.id ||
+        createAttendanceId(),
+
+
+      studentId:
+        String(
+          source.studentId ??
+          ""
+        ).trim(),
+
+
+      studentName:
+        String(
+          source.studentName ??
+          ""
+        ).trim(),
+
+
+      admissionNo:
+        String(
+          source.admissionNo ??
+          ""
+        ).trim(),
+
+
+      grade:
+        String(
+          source.grade ||
+          attendanceState.grade
+        ).trim(),
+
+
+      term:
+        String(
+          source.term ||
+          attendanceState.term
+        ).trim(),
+
+
+      date:
+        String(
+          source.date ||
+          ""
+        ).trim(),
+
+
+      status:
+        status,
+
+
+      remarks:
+        String(
+          source.remarks ??
+          ""
+        ).trim(),
+
+
+      year:
+        Number(
+          source.year ||
+          attendanceState.year
+        ),
+
+
+      createdAt:
+        source.createdAt ||
+        new Date().toISOString(),
+
+
+      updatedAt:
+        new Date().toISOString()
+
+    };
+
+  }
+
+
+  /* =======================================================
+     ADD
+     ======================================================= */
+
+  function addAttendance(
+    data
+  ){
+
+    const record =
+      normalizeAttendanceRecord(
+        data
+      );
+
+
+    if(!record.studentName){
+
+      throw new Error(
+        "Student name is required."
+      );
+
+    }
+
+
+    if(!record.grade){
+
+      throw new Error(
+        "Grade is required."
+      );
+
+    }
+
+
+    if(!record.term){
+
+      throw new Error(
+        "Term is required."
+      );
+
+    }
+
+
+    if(!record.date){
+
+      throw new Error(
+        "Attendance date is required."
+      );
+
+    }
+
+
+    attendanceState.records.push(
+      record
+    );
+
+
+    saveAttendance();
+
+
+    return record;
+
+  }
+
+
+  /* =======================================================
+     UPDATE
+     ======================================================= */
+
+  function updateAttendance(
+    id,
+    data
+  ){
+
+    const index =
+      attendanceState.records.findIndex(
+        record =>
+          record.id === id
+      );
+
+
+    if(index === -1){
+
+      return null;
+
+    }
+
+
+    const current =
+      attendanceState.records[index];
+
+
+    const updated =
+      normalizeAttendanceRecord({
+
+        ...current,
+
+        ...data,
+
+        id: current.id,
+
+        createdAt:
+          current.createdAt
+
+      });
+
+
+    attendanceState.records[index] =
+      updated;
+
+
+    saveAttendance();
+
+
+    return updated;
+
+  }
+
+
+  /* =======================================================
+     REMOVE
+     ======================================================= */
+
+  function removeAttendance(
+    id
+  ){
+
+    const before =
+      attendanceState.records.length;
+
+
+    attendanceState.records =
+      attendanceState.records.filter(
+        record =>
+          record.id !== id
+      );
+
+
+    const removed =
+      attendanceState.records.length <
+      before;
+
+
+    if(removed){
+
+      saveAttendance();
+
+    }
+
+
+    return removed;
+
+  }
+
+
+  /* =======================================================
+     GET BY ID
+     ======================================================= */
+
+  function getAttendanceById(
+    id
+  ){
+
+    return (
+      attendanceState.records.find(
+        record =>
+          record.id === id
+      ) || null
+    );
+
+  }
+
+
+  /* =======================================================
+     FILTER
+     ======================================================= */
+
+  function getFilteredAttendance(
+    filters
+  ){
+
+    const options =
+      filters || {};
+
+
+    const grade =
+      options.grade ??
+      attendanceState.grade;
+
+
+    const term =
+      options.term ??
+      attendanceState.term;
+
+
+    const year =
+      options.year ??
+      attendanceState.year;
+
+
+    const status =
+      options.status ??
+      attendanceState.status;
+
+
+    const search =
+      String(
+        options.search ??
+        attendanceState.search
+      )
+      .trim()
+      .toLowerCase();
+
+
+    return attendanceState.records.filter(
+      record => {
+
+        const gradeMatch =
+          !grade ||
+          record.grade === grade;
+
+
+        const termMatch =
+          !term ||
+          record.term === term;
+
+
+        const yearMatch =
+          !year ||
+          Number(record.year) ===
+          Number(year);
+
+
+        const statusMatch =
+          status === "All" ||
+          !status ||
+          record.status === status;
+
+
+        const searchMatch =
+          !search ||
+
+          String(
+            record.studentName
+          )
+          .toLowerCase()
+          .includes(search)
+
+          ||
+
+          String(
+            record.admissionNo
+          )
+          .toLowerCase()
+          .includes(search)
+
+          ||
+
+          String(
+            record.studentId
+          )
+          .toLowerCase()
+          .includes(search)
+
+          ||
+
+          String(
+            record.remarks
+          )
+          .toLowerCase()
+          .includes(search);
+
+
+        return (
+
+          gradeMatch &&
+          termMatch &&
+          yearMatch &&
+          statusMatch &&
+          searchMatch
+
+        );
+
+      }
+    );
+
+  }
+
+
+  /* =======================================================
+     GET BY DATE
+     ======================================================= */
+
+  function getAttendanceByDate(
+    date,
+    grade,
+    term
+  ){
+
+    return attendanceState.records.filter(
+      record => {
+
+        return (
+
+          record.date === date &&
+
+          (!grade ||
+            record.grade === grade) &&
+
+          (!term ||
+            record.term === term)
+
+        );
+
+      }
+    );
+
+  }
+
+
+  /* =======================================================
+     GET BY STUDENT
+     ======================================================= */
+
+  function getStudentAttendance(
+    studentId
+  ){
+
+    const id =
+      String(
+        studentId ?? ""
+      ).trim();
+
+
+    return attendanceState.records.filter(
+      record =>
+        record.studentId === id
+    );
+
+  }
+
+
+  /* =======================================================
+     STATISTICS
+     ======================================================= */
+
+  function getAttendanceStats(
+    records
+  ){
+
+    const list =
+      Array.isArray(records)
+      ? records
+      : getFilteredAttendance();
+
+
+    const total =
+      list.length;
+
+
+    const present =
+      list.filter(
+        record =>
+          record.status ===
+          "Present"
+      ).length;
+
+
+    const absent =
+      list.filter(
+        record =>
+          record.status ===
+          "Absent"
+      ).length;
+
+
+    const late =
+      list.filter(
+        record =>
+          record.status ===
+          "Late"
+      ).length;
+
+
+    const excused =
+      list.filter(
+        record =>
+          record.status ===
+          "Excused"
+      ).length;
+
+
+    const attendanceDays =
+      new Set(
+        list.map(
+          record =>
+            record.date
+        )
+      ).size;
+
+
+    const percentage =
+      total > 0
+      ? Number(
+          (
+            (
+              present +
+              late
+            ) /
+            total
+          ) * 100
+        ).toFixed(1)
+      : 0;
+
+
+    return {
+
+      total,
+
+      present,
+
+      absent,
+
+      late,
+
+      excused,
+
+      attendanceDays,
+
+      percentage
+
+    };
+
+  }
+
+
+  /* =======================================================
+     STUDENT STATISTICS
+     ======================================================= */
+
+  function getStudentStats(
+    studentId
+  ){
+
+    const records =
+      getStudentAttendance(
+        studentId
+      );
+
+
+    return getAttendanceStats(
+      records
+    );
+
+  }
+
+
+  /* =======================================================
+     DAILY SUMMARY
+     ======================================================= */
+
+  function getDailySummary(
+    date,
+    grade,
+    term
+  ){
+
+    const records =
+      getAttendanceByDate(
+        date,
+        grade,
+        term
+      );
+
+
+    return {
+
+      date:
+        date || "",
+
+      total:
+        records.length,
+
+      present:
+        records.filter(
+          r =>
+            r.status ===
+            "Present"
+        ).length,
+
+      absent:
+        records.filter(
+          r =>
+            r.status ===
+            "Absent"
+        ).length,
+
+      late:
+        records.filter(
+          r =>
+            r.status ===
+            "Late"
+        ).length,
+
+      excused:
+        records.filter(
+          r =>
+            r.status ===
+            "Excused"
+        ).length,
+
+      records
+
+    };
+
+  }
+
+
+  /* =======================================================
+     BULK MARK
+     ======================================================= */
+
+  function markBulkAttendance(
+    students,
+    options
+  ){
+
+    if(!Array.isArray(students)){
+
+      return [];
+
+    }
+
+
+    const settings =
+      options || {};
+
+
+    const grade =
+      settings.grade ||
+      attendanceState.grade;
+
+
+    const term =
+      settings.term ||
+      attendanceState.term;
+
+
+    const date =
+      settings.date ||
+      "";
+
+
+    const status =
+      ATTENDANCE_STATUSES.includes(
+        settings.status
+      )
+      ? settings.status
+      : "Present";
+
+
+    const created = [];
+
+
+    students.forEach(
+      student => {
+
+        const studentId =
+          String(
+            student.studentId ??
+            student.id ??
+            ""
+          ).trim();
+
+
+        const studentName =
+          String(
+            student.studentName ??
+            student.name ??
+            ""
+          ).trim();
+
+
+        if(!studentName){
+
+          return;
+
+        }
+
+
+        const existing =
+          attendanceState.records.find(
+            record => (
+
+              record.studentId ===
+              studentId &&
+
+              record.date ===
+              date &&
+
+              record.grade ===
+              grade &&
+
+              record.term ===
+              term
+
+            )
+          );
+
+
+        if(existing){
+
+          existing.status =
+            status;
+
+          existing.updatedAt =
+            new Date()
+              .toISOString();
+
+          return;
+
+        }
+
+
+        const record =
+          addAttendance({
+
+            studentId,
+
+            studentName,
+
+            admissionNo:
+              student.admissionNo ??
+              student.admission ??
+              "",
+
+            grade,
+
+            term,
+
+            date,
+
+            status,
+
+            remarks:
+              settings.remarks ||
+              ""
+
+          });
+
+
+        created.push(
+          record
+        );
+
+      }
+    );
+
+
+    saveAttendance();
+
+
+    return created;
+
+  }
+
+
+  /* =======================================================
+     EXPORT DATA
+     ======================================================= */
+
+  function exportAttendance(){
+
+    return JSON.stringify(
+
+      {
+
+        version:
+          ATTENDANCE_VERSION,
+
+        exportedAt:
+          new Date()
+            .toISOString(),
+
+        state:
+          attendanceState
+
+      },
+
+      null,
+
+      2
+
+    );
+
+  }
+
+
+  /* =======================================================
+     IMPORT DATA
+     ======================================================= */
+
+  function importAttendance(
+    payload,
+    replace
+  ){
+
+    let parsed;
+
+
+    try{
+
+      parsed =
+        typeof payload ===
+        "string"
+        ? JSON.parse(payload)
+        : payload;
+
+    }catch(error){
+
+      throw new Error(
+        "Invalid attendance data."
+      );
+
+    }
+
+
+    const incoming =
+      Array.isArray(
+        parsed
+      )
+      ? parsed
+      : parsed &&
+        Array.isArray(
+          parsed.records
+        )
+        ? parsed.records
+        : parsed &&
+          parsed.state &&
+          Array.isArray(
+            parsed.state.records
+          )
+          ? parsed.state.records
+          : [];
+
+
+    const normalized =
+      incoming.map(
+        record =>
+          normalizeAttendanceRecord(
+            record
+          )
+      );
+
+
+    if(replace){
+
+      attendanceState.records =
+        normalized;
+
+    }else{
+
+      const existingIds =
+        new Set(
+          attendanceState.records.map(
+            record =>
+              record.id
+          )
+        );
+
+
+      normalized.forEach(
+        record => {
+
+          if(
+            existingIds.has(
+              record.id
+            )
+          ){
+
+            return;
+
+          }
+
+
+          attendanceState.records.push(
+            record
+          );
+
+        }
+      );
+
+    }
+
+
+    saveAttendance();
+
+
+    return attendanceState.records;
+
+  }
+
+
+  /* =======================================================
+     CLEAR
+     ======================================================= */
+
+  function clearAttendance(){
+
+    attendanceState.records = [];
+
+    attendanceState.editingId =
+      null;
+
+    saveAttendance();
+
+  }
+
+
+  /* =======================================================
+     SET FILTER
+     ======================================================= */
+
+  function setFilters(
+    filters
+  ){
+
+    const data =
+      filters || {};
+
+
+    if(
+      data.grade !== undefined &&
+      ATTENDANCE_GRADES.includes(
+        data.grade
+      )
+    ){
+
+      attendanceState.grade =
+        data.grade;
+
+    }
+
+
+    if(
+      data.term !== undefined &&
+      ATTENDANCE_TERMS.includes(
+        data.term
+      )
+    ){
+
+      attendanceState.term =
+        data.term;
+
+    }
+
+
+    if(
+      data.year !== undefined &&
+      Number.isFinite(
+        Number(data.year)
+      )
+    ){
+
+      attendanceState.year =
+        Number(data.year);
+
+    }
+
+
+    if(
+      data.search !== undefined
+    ){
+
+      attendanceState.search =
+        String(
+          data.search
+        );
+
+    }
+
+
+    if(
+      data.status !== undefined &&
+      (
+        data.status === "All" ||
+        ATTENDANCE_STATUSES.includes(
+          data.status
+        )
+      )
+    ){
+
+      attendanceState.status =
+        data.status;
+
+    }
+
+
+    saveAttendance();
+
+
+    return attendanceState;
+
+  }
+
+
+  /* =======================================================
+     PUBLIC API
+     ======================================================= */
+
+  window.CBC_ATTENDANCE_V2 = {
+
+    version:
+      ATTENDANCE_VERSION,
+
+
+    state:
+      function(){
+
+        return attendanceState;
+
+      },
+
+
+    grades:
+      ATTENDANCE_GRADES,
+
+
+    terms:
+      ATTENDANCE_TERMS,
+
+
+    statuses:
+      ATTENDANCE_STATUSES,
+
+
+    load:
+      loadAttendance,
+
+
+    save:
+      saveAttendance,
+
+
+    getAll:
+      function(){
+
+        return attendanceState.records;
+
+      },
+
+
+    getById:
+      getAttendanceById,
+
+
+    getByDate:
+      getAttendanceByDate,
+
+
+    getByStudent:
+      getStudentAttendance,
+
+
+    filter:
+      getFilteredAttendance,
+
+
+    stats:
+      getAttendanceStats,
+
+
+    studentStats:
+      getStudentStats,
+
+
+    dailySummary:
+      getDailySummary,
+
+
+    add:
+      addAttendance,
+
+
+    update:
+      updateAttendance,
+
+
+    remove:
+      removeAttendance,
+
+
+    bulkMark:
+      markBulkAttendance,
+
+
+    setFilters:
+      setFilters,
+
+
+    export:
+      exportAttendance,
+
+
+    import:
+      importAttendance,
+
+
+    clear:
+      clearAttendance
+
+  };
+
+
+  /* =======================================================
+     INITIALIZE
+     ======================================================= */
+
+  function initializeAttendanceV2(){
+
+    loadAttendance();
+
+
+    console.log(
+      "CBC MASTER V2: Attendance Data Engine ready."
+    );
+
+  }
+
+
+  if(
+    document.readyState ===
+    "loading"
+  ){
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      initializeAttendanceV2
+    );
+
+  }else{
+
+    initializeAttendanceV2();
+
+  }
+
+
+})();
+
+</script>
+
+<!-- =========================================================
+     END PART 9A — ATTENDANCE DATA + STORAGE ENGINE V2
+     ========================================================= --> 
 </body>
 </html>
