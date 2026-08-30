@@ -17636,5 +17636,1467 @@ else {
 <!-- =========================================================
      END PART 6B
      ========================================================= -->
+ <!-- =========================================================
+     CBC MASTER V2
+     PART 7A — ASSESSMENT & RESULTS
+     DATA + STORAGE ENGINE
+     ========================================================= -->
+
+<script>
+
+(function(){
+
+  "use strict";
+
+
+  /* =========================================================
+     STORAGE
+     ========================================================= */
+
+  const CBC_ASSESSMENTS_STORAGE =
+    "cbc_master_assessments_v2";
+
+
+  const CBC_ASSESSMENTS_VERSION =
+    1;
+
+
+  /* =========================================================
+     DEFAULT STATE
+     ========================================================= */
+
+  let assessmentState = {
+
+    version:
+      CBC_ASSESSMENTS_VERSION,
+
+    assessments: [],
+
+    grade:
+      "Grade 5",
+
+    term:
+      "Term 1",
+
+    subject:
+      "All Subjects",
+
+    year:
+      new Date().getFullYear(),
+
+    search:
+      "",
+
+    assessmentType:
+      "All Types"
+
+  };
+
+
+  /* =========================================================
+     ASSESSMENT TYPES
+     ========================================================= */
+
+  const CBC_ASSESSMENT_TYPES = [
+
+    "Baseline Assessment",
+    "Diagnostic Assessment",
+    "Formative Assessment",
+    "CAT",
+    "Project",
+    "Practical Assessment",
+    "Oral Assessment",
+    "Written Assessment",
+    "End of Term Assessment",
+    "Summative Assessment"
+
+  ];
+
+
+  /* =========================================================
+     GRADES
+     ========================================================= */
+
+  const ASSESSMENT_GRADES = [
+
+    "PP1",
+    "PP2",
+
+    "Grade 1",
+    "Grade 2",
+    "Grade 3",
+
+    "Grade 4",
+    "Grade 5",
+    "Grade 6",
+
+    "Grade 7",
+    "Grade 8",
+    "Grade 9",
+
+    "Grade 10",
+    "Grade 11",
+    "Grade 12"
+
+  ];
+
+
+  /* =========================================================
+     TERMS
+     ========================================================= */
+
+  const ASSESSMENT_TERMS = [
+
+    "Term 1",
+    "Term 2",
+    "Term 3"
+
+  ];
+
+
+  /* =========================================================
+     SUBJECTS
+     ========================================================= */
+
+  const ASSESSMENT_SUBJECTS = {
+
+    "PP1":[
+      "Language Activities",
+      "Mathematical Activities",
+      "Environmental Activities",
+      "Psychomotor Activities",
+      "Creative Activities",
+      "Religious Activities"
+    ],
+
+    "PP2":[
+      "Language Activities",
+      "Mathematical Activities",
+      "Environmental Activities",
+      "Psychomotor Activities",
+      "Creative Activities",
+      "Religious Activities"
+    ],
+
+    "Grade 1":[
+      "English",
+      "Kiswahili",
+      "Mathematics",
+      "Environmental Activities",
+      "Creative Activities",
+      "Religious Education"
+    ],
+
+    "Grade 2":[
+      "English",
+      "Kiswahili",
+      "Mathematics",
+      "Environmental Activities",
+      "Creative Activities",
+      "Religious Education"
+    ],
+
+    "Grade 3":[
+      "English",
+      "Kiswahili",
+      "Mathematics",
+      "Environmental Activities",
+      "Creative Activities",
+      "Religious Education"
+    ],
+
+    "Grade 4":[
+      "English",
+      "Kiswahili",
+      "Mathematics",
+      "Science and Technology",
+      "Social Studies",
+      "Creative Arts",
+      "Religious Education"
+    ],
+
+    "Grade 5":[
+      "English",
+      "Kiswahili",
+      "Mathematics",
+      "Science and Technology",
+      "Social Studies",
+      "Creative Arts",
+      "Religious Education"
+    ],
+
+    "Grade 6":[
+      "English",
+      "Kiswahili",
+      "Mathematics",
+      "Science and Technology",
+      "Social Studies",
+      "Creative Arts",
+      "Religious Education"
+    ],
+
+    "Grade 7":[
+      "English",
+      "Kiswahili",
+      "Mathematics",
+      "Integrated Science",
+      "Social Studies",
+      "Creative Arts and Sports",
+      "Religious Education",
+      "Agriculture and Nutrition"
+    ],
+
+    "Grade 8":[
+      "English",
+      "Kiswahili",
+      "Mathematics",
+      "Integrated Science",
+      "Social Studies",
+      "Creative Arts and Sports",
+      "Religious Education",
+      "Agriculture and Nutrition"
+    ],
+
+    "Grade 9":[
+      "English",
+      "Kiswahili",
+      "Mathematics",
+      "Integrated Science",
+      "Social Studies",
+      "Creative Arts and Sports",
+      "Religious Education",
+      "Agriculture and Nutrition"
+    ],
+
+    "Grade 10":[
+      "English",
+      "Kiswahili",
+      "Mathematics",
+      "Community Service Learning"
+    ],
+
+    "Grade 11":[
+      "English",
+      "Kiswahili",
+      "Mathematics"
+    ],
+
+    "Grade 12":[
+      "English",
+      "Kiswahili",
+      "Mathematics"
+    ]
+
+  };
+
+
+  /* =========================================================
+     SUBJECTS FOR GRADE
+     ========================================================= */
+
+  function getAssessmentSubjects(
+    grade
+  ){
+
+    return (
+      ASSESSMENT_SUBJECTS[
+        grade ||
+        assessmentState.grade
+      ] || []
+    );
+
+  }
+
+
+  /* =========================================================
+     LOAD
+     ========================================================= */
+
+  function loadAssessments(){
+
+    try{
+
+      const saved =
+        localStorage.getItem(
+          CBC_ASSESSMENTS_STORAGE
+        );
+
+
+      if(!saved){
+
+        saveAssessments();
+
+        return;
+
+      }
+
+
+      const parsed =
+        JSON.parse(saved);
+
+
+      if(
+        parsed &&
+        typeof parsed === "object"
+      ){
+
+        if(
+          !Array.isArray(
+            parsed.assessments
+          )
+        ){
+
+          parsed.assessments = [];
+
+        }
+
+
+        assessmentState =
+          Object.assign(
+            {},
+            assessmentState,
+            parsed
+          );
+
+      }
+
+    }catch(error){
+
+      console.warn(
+        "CBC MASTER V2: Assessment data could not be loaded.",
+        error
+      );
+
+    }
+
+  }
+
+
+  /* =========================================================
+     SAVE
+     ========================================================= */
+
+  function saveAssessments(){
+
+    try{
+
+      assessmentState.version =
+        CBC_ASSESSMENTS_VERSION;
+
+
+      localStorage.setItem(
+
+        CBC_ASSESSMENTS_STORAGE,
+
+        JSON.stringify(
+          assessmentState
+        )
+
+      );
+
+
+      return true;
+
+    }catch(error){
+
+      console.warn(
+        "CBC MASTER V2: Assessment data could not be saved.",
+        error
+      );
+
+
+      return false;
+
+    }
+
+  }
+
+
+  /* =========================================================
+     ID
+     ========================================================= */
+
+  function createAssessmentId(){
+
+    return (
+
+      "ASM-" +
+
+      Date.now()
+        .toString(36)
+        .toUpperCase() +
+
+      "-" +
+
+      Math.random()
+        .toString(36)
+        .substring(
+          2,
+          8
+        )
+        .toUpperCase()
+
+    );
+
+  }
+
+
+  /* =========================================================
+     NORMALIZE SCORE
+     ========================================================= */
+
+  function calculateAssessmentPercentage(
+    score,
+    maxScore
+  ){
+
+    const scoreNumber =
+      Number(score);
+
+
+    const maxNumber =
+      Number(maxScore);
+
+
+    if(
+      !Number.isFinite(scoreNumber) ||
+      !Number.isFinite(maxNumber) ||
+      maxNumber <= 0
+    ){
+
+      return 0;
+
+    }
+
+
+    const percentage =
+      (
+        scoreNumber /
+        maxNumber
+      ) * 100;
+
+
+    return Math.round(
+      Math.max(
+        0,
+        Math.min(
+          100,
+          percentage
+        )
+      ) * 100
+    ) / 100;
+
+  }
+
+
+  /* =========================================================
+     CBC PERFORMANCE LEVEL
+     ========================================================= */
+
+  function getPerformanceLevel(
+    percentage
+  ){
+
+    const value =
+      Number(percentage);
+
+
+    if(!Number.isFinite(value)){
+
+      return "";
+
+    }
+
+
+    if(value >= 80){
+
+      return "Exceeding Expectations";
+
+    }
+
+
+    if(value >= 60){
+
+      return "Meeting Expectations";
+
+    }
+
+
+    if(value >= 40){
+
+      return "Approaching Expectations";
+
+    }
+
+
+    return "Below Expectations";
+
+  }
+
+
+  /* =========================================================
+     FILTER
+     ========================================================= */
+
+  function getFilteredAssessments(){
+
+    const query =
+      String(
+        assessmentState.search || ""
+      )
+      .trim()
+      .toLowerCase();
+
+
+    return assessmentState.assessments
+      .filter(
+        assessment => {
+
+          const gradeMatch =
+            assessment.grade ===
+            assessmentState.grade;
+
+
+          const termMatch =
+            assessment.term ===
+            assessmentState.term;
+
+
+          const subjectMatch =
+            assessmentState.subject ===
+            "All Subjects"
+            ||
+            assessment.subject ===
+            assessmentState.subject;
+
+
+          const typeMatch =
+            assessmentState.assessmentType ===
+            "All Types"
+            ||
+            assessment.assessmentType ===
+            assessmentState.assessmentType;
+
+
+          const searchMatch =
+            !query
+            ||
+            String(
+              assessment.learnerName
+            )
+            .toLowerCase()
+            .includes(query)
+            ||
+            String(
+              assessment.admissionNumber
+            )
+            .toLowerCase()
+            .includes(query)
+            ||
+            String(
+              assessment.subject
+            )
+            .toLowerCase()
+            .includes(query)
+            ||
+            String(
+              assessment.strand
+            )
+            .toLowerCase()
+            .includes(query)
+            ||
+            String(
+              assessment.subStrand
+            )
+            .toLowerCase()
+            .includes(query)
+            ||
+            String(
+              assessment.competency
+            )
+            .toLowerCase()
+            .includes(query)
+            ||
+            String(
+              assessment.topic
+            )
+            .toLowerCase()
+            .includes(query)
+            ||
+            String(
+              assessment.remarks
+            )
+            .toLowerCase()
+            .includes(query);
+
+
+          return (
+            gradeMatch &&
+            termMatch &&
+            subjectMatch &&
+            typeMatch &&
+            searchMatch
+          );
+
+        }
+      );
+
+  }
+
+
+  /* =========================================================
+     ADD
+     ========================================================= */
+
+  function addAssessment(
+    data
+  ){
+
+    const now =
+      new Date().toISOString();
+
+
+    const score =
+      Number(
+        data.score || 0
+      );
+
+
+    const maxScore =
+      Number(
+        data.maxScore || 100
+      );
+
+
+    const percentage =
+      calculateAssessmentPercentage(
+        score,
+        maxScore
+      );
+
+
+    const assessment = {
+
+      id:
+        createAssessmentId(),
+
+      grade:
+        data.grade ||
+        assessmentState.grade,
+
+      term:
+        data.term ||
+        assessmentState.term,
+
+      year:
+        Number(
+          data.year ||
+          assessmentState.year
+        ),
+
+      subject:
+        data.subject || "",
+
+      assessmentType:
+        data.assessmentType ||
+        "Formative Assessment",
+
+      assessmentDate:
+        data.assessmentDate || "",
+
+      learnerName:
+        data.learnerName || "",
+
+      admissionNumber:
+        data.admissionNumber || "",
+
+      strand:
+        data.strand || "",
+
+      subStrand:
+        data.subStrand || "",
+
+      topic:
+        data.topic || "",
+
+      competency:
+        data.competency || "",
+
+      score:
+        score,
+
+      maxScore:
+        maxScore,
+
+      percentage:
+        percentage,
+
+      performanceLevel:
+        getPerformanceLevel(
+          percentage
+        ),
+
+      remarks:
+        data.remarks || "",
+
+      evidence:
+        data.evidence || "",
+
+      createdAt:
+        now,
+
+      updatedAt:
+        now
+
+    };
+
+
+    assessmentState.assessments.push(
+      assessment
+    );
+
+
+    saveAssessments();
+
+
+    return assessment;
+
+  }
+
+
+  /* =========================================================
+     UPDATE
+     ========================================================= */
+
+  function updateAssessment(
+    id,
+    data
+  ){
+
+    const index =
+      assessmentState.assessments.findIndex(
+        assessment =>
+          assessment.id === id
+      );
+
+
+    if(index === -1){
+
+      return null;
+
+    }
+
+
+    const current =
+      assessmentState.assessments[
+        index
+      ];
+
+
+    const score =
+      Number(
+        data.score ??
+        current.score
+      );
+
+
+    const maxScore =
+      Number(
+        data.maxScore ??
+        current.maxScore
+      );
+
+
+    const percentage =
+      calculateAssessmentPercentage(
+        score,
+        maxScore
+      );
+
+
+    const updated = {
+
+      ...current,
+
+      ...data,
+
+      score:
+        score,
+
+      maxScore:
+        maxScore,
+
+      percentage:
+        percentage,
+
+      performanceLevel:
+        getPerformanceLevel(
+          percentage
+        ),
+
+      updatedAt:
+        new Date().toISOString()
+
+    };
+
+
+    assessmentState.assessments[
+      index
+    ] = updated;
+
+
+    saveAssessments();
+
+
+    return updated;
+
+  }
+
+
+  /* =========================================================
+     REMOVE
+     ========================================================= */
+
+  function removeAssessment(
+    id
+  ){
+
+    const before =
+      assessmentState.assessments.length;
+
+
+    assessmentState.assessments =
+      assessmentState.assessments.filter(
+        assessment =>
+          assessment.id !== id
+      );
+
+
+    const removed =
+      assessmentState.assessments.length <
+      before;
+
+
+    if(removed){
+
+      saveAssessments();
+
+    }
+
+
+    return removed;
+
+  }
+
+
+  /* =========================================================
+     FIND
+     ========================================================= */
+
+  function getAssessment(
+    id
+  ){
+
+    return assessmentState.assessments.find(
+      assessment =>
+        assessment.id === id
+    ) || null;
+
+  }
+
+
+  /* =========================================================
+     STATISTICS
+     ========================================================= */
+
+  function getAssessmentStatistics(
+    assessments
+  ){
+
+    const list =
+      Array.isArray(
+        assessments
+      )
+      ? assessments
+      : getFilteredAssessments();
+
+
+    if(!list.length){
+
+      return {
+
+        count:0,
+
+        average:0,
+
+        highest:0,
+
+        lowest:0,
+
+        exceeding:0,
+
+        meeting:0,
+
+        approaching:0,
+
+        below:0
+
+      };
+
+    }
+
+
+    const percentages =
+      list.map(
+        item =>
+          Number(
+            item.percentage
+          ) || 0
+      );
+
+
+    const total =
+      percentages.reduce(
+        (sum,value) =>
+          sum + value,
+        0
+      );
+
+
+    return {
+
+      count:
+        list.length,
+
+      average:
+        Math.round(
+          (
+            total /
+            list.length
+          ) * 100
+        ) / 100,
+
+      highest:
+        Math.max(
+          ...percentages
+        ),
+
+      lowest:
+        Math.min(
+          ...percentages
+        ),
+
+      exceeding:
+        list.filter(
+          item =>
+            item.performanceLevel ===
+            "Exceeding Expectations"
+        ).length,
+
+      meeting:
+        list.filter(
+          item =>
+            item.performanceLevel ===
+            "Meeting Expectations"
+        ).length,
+
+      approaching:
+        list.filter(
+          item =>
+            item.performanceLevel ===
+            "Approaching Expectations"
+        ).length,
+
+      below:
+        list.filter(
+          item =>
+            item.performanceLevel ===
+            "Below Expectations"
+        ).length
+
+    };
+
+  }
+
+
+  /* =========================================================
+     SUBJECT STATISTICS
+     ========================================================= */
+
+  function getSubjectStatistics(
+    grade,
+    term
+  ){
+
+    const selectedGrade =
+      grade ||
+      assessmentState.grade;
+
+
+    const selectedTerm =
+      term ||
+      assessmentState.term;
+
+
+    const subjects =
+      ASSESSMENT_SUBJECTS[
+        selectedGrade
+      ] || [];
+
+
+    return subjects.map(
+      subject => {
+
+        const records =
+          assessmentState.assessments.filter(
+            assessment =>
+              assessment.grade ===
+              selectedGrade
+              &&
+              assessment.term ===
+              selectedTerm
+              &&
+              assessment.subject ===
+              subject
+          );
+
+
+        const stats =
+          getAssessmentStatistics(
+            records
+          );
+
+
+        return {
+
+          subject:
+            subject,
+
+          count:
+            stats.count,
+
+          average:
+            stats.average,
+
+          highest:
+            stats.highest,
+
+          lowest:
+            stats.lowest
+
+        };
+
+      }
+    );
+
+  }
+
+
+  /* =========================================================
+     LEARNER SUMMARY
+     ========================================================= */
+
+  function getLearnerSummary(
+    learnerName,
+    grade,
+    term
+  ){
+
+    const selectedGrade =
+      grade ||
+      assessmentState.grade;
+
+
+    const selectedTerm =
+      term ||
+      assessmentState.term;
+
+
+    const name =
+      String(
+        learnerName || ""
+      )
+      .trim()
+      .toLowerCase();
+
+
+    const records =
+      assessmentState.assessments.filter(
+        assessment => {
+
+          return (
+
+            assessment.grade ===
+            selectedGrade
+
+            &&
+
+            assessment.term ===
+            selectedTerm
+
+            &&
+
+            String(
+              assessment.learnerName
+            )
+            .trim()
+            .toLowerCase() ===
+            name
+
+          );
+
+        }
+      );
+
+
+    const stats =
+      getAssessmentStatistics(
+        records
+      );
+
+
+    return {
+
+      learnerName:
+        learnerName || "",
+
+      grade:
+        selectedGrade,
+
+      term:
+        selectedTerm,
+
+      count:
+        stats.count,
+
+      average:
+        stats.average,
+
+      highest:
+        stats.highest,
+
+      lowest:
+        stats.lowest,
+
+      records:
+        records
+
+    };
+
+  }
+
+
+  /* =========================================================
+     EXPORT DATA
+     ========================================================= */
+
+  function exportAssessments(){
+
+    return JSON.stringify(
+      assessmentState,
+      null,
+      2
+    );
+
+  }
+
+
+  /* =========================================================
+     IMPORT DATA
+     ========================================================= */
+
+  function importAssessments(
+    data
+  ){
+
+    try{
+
+      const parsed =
+        typeof data === "string"
+        ? JSON.parse(data)
+        : data;
+
+
+      if(
+        !parsed ||
+        typeof parsed !== "object"
+      ){
+
+        return false;
+
+      }
+
+
+      if(
+        !Array.isArray(
+          parsed.assessments
+        )
+      ){
+
+        return false;
+
+      }
+
+
+      assessmentState =
+        Object.assign(
+          {},
+          assessmentState,
+          parsed,
+          {
+
+            version:
+              CBC_ASSESSMENTS_VERSION
+
+          }
+        );
+
+
+      saveAssessments();
+
+
+      return true;
+
+    }catch(error){
+
+      console.warn(
+        "CBC MASTER V2: Assessment import failed.",
+        error
+      );
+
+
+      return false;
+
+    }
+
+  }
+
+
+  /* =========================================================
+     CLEAR
+     ========================================================= */
+
+  function clearAssessments(){
+
+    assessmentState.assessments = [];
+
+
+    saveAssessments();
+
+
+    return true;
+
+  }
+
+
+  /* =========================================================
+     PUBLIC API
+     ========================================================= */
+
+  window.CBC_ASSESSMENTS = {
+
+    version:
+      CBC_ASSESSMENTS_VERSION,
+
+
+    state:function(){
+
+      return assessmentState;
+
+    },
+
+
+    grades:
+      ASSESSMENT_GRADES,
+
+
+    terms:
+      ASSESSMENT_TERMS,
+
+
+    types:
+      CBC_ASSESSMENT_TYPES,
+
+
+    subjects:function(
+      grade
+    ){
+
+      return getAssessmentSubjects(
+        grade
+      );
+
+    },
+
+
+    getAll:function(){
+
+      return assessmentState.assessments;
+
+    },
+
+
+    getFiltered:function(){
+
+      return getFilteredAssessments();
+
+    },
+
+
+    get:function(
+      id
+    ){
+
+      return getAssessment(
+        id
+      );
+
+    },
+
+
+    add:function(
+      data
+    ){
+
+      return addAssessment(
+        data
+      );
+
+    },
+
+
+    update:function(
+      id,
+      data
+    ){
+
+      return updateAssessment(
+        id,
+        data
+      );
+
+    },
+
+
+    remove:function(
+      id
+    ){
+
+      return removeAssessment(
+        id
+      );
+
+    },
+
+
+    statistics:function(
+      assessments
+    ){
+
+      return getAssessmentStatistics(
+        assessments
+      );
+
+    },
+
+
+    subjectStatistics:function(
+      grade,
+      term
+    ){
+
+      return getSubjectStatistics(
+        grade,
+        term
+      );
+
+    },
+
+
+    learnerSummary:function(
+      learnerName,
+      grade,
+      term
+    ){
+
+      return getLearnerSummary(
+        learnerName,
+        grade,
+        term
+      );
+
+    },
+
+
+    percentage:
+      calculateAssessmentPercentage,
+
+
+    performanceLevel:
+      getPerformanceLevel,
+
+
+    export:
+      exportAssessments,
+
+
+    import:
+      importAssessments,
+
+
+    clear:
+      clearAssessments,
+
+
+    load:
+      loadAssessments,
+
+
+    save:
+      saveAssessments
+
+  };
+
+
+  /* =========================================================
+     INITIALIZE
+     ========================================================= */
+
+  function initializeAssessmentData(){
+
+    loadAssessments();
+
+
+    console.log(
+      "CBC MASTER V2: Assessment & Results Data Engine ready."
+    );
+
+  }
+
+
+  if(
+    document.readyState ===
+    "loading"
+  ){
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      initializeAssessmentData
+    );
+
+  }else{
+
+    initializeAssessmentData();
+
+  }
+
+
+})();
+
+</script>
+
+<!-- =========================================================
+     END PART 7A
+     ========================================================= --> 
 </body>
 </html>
