@@ -1878,18 +1878,734 @@ textarea:focus-visible{
   </section>
 
 
-  <!-- =======================================================
-       STUDENT LIST CONTAINER
-       ======================================================= -->
+/* =========================================================
+   PART 2A-4 — STUDENT LIST UI
+   ========================================================= */
 
-  <section
-    id="studentListContainer"
-    class="student-list-container"
-    hidden>
+(function () {
 
-  </section>
+  "use strict";
 
-</section>
+
+  /* =======================================================
+     ELEMENTS
+     ======================================================= */
+
+  const container =
+    document.getElementById(
+      "studentListContainer"
+    );
+
+  const emptyState =
+    document.getElementById(
+      "studentsEmptyState"
+    );
+
+
+  if (!container) {
+    return;
+  }
+
+
+  /* =======================================================
+     RENDER LIST
+     ======================================================= */
+
+  function renderStudents(
+    students
+  ) {
+
+    students =
+      Array.isArray(students)
+        ? students
+        : [];
+
+
+    if (emptyState) {
+
+      emptyState.hidden =
+        students.length > 0;
+
+    }
+
+
+    container.hidden =
+      students.length === 0;
+
+
+    if (!students.length) {
+
+      container.innerHTML =
+        "";
+
+      return;
+
+    }
+
+
+    let html = "";
+
+
+    html += `
+      <div class="student-list-toolbar">
+
+        <input
+          id="studentSearchInput"
+          class="student-search"
+          type="search"
+          placeholder="Search students..."
+          aria-label="Search students">
+
+        <select
+          id="studentGradeFilter"
+          class="student-grade-filter"
+          aria-label="Filter students by level">
+
+          <option value="">
+            All Levels
+          </option>
+
+          <option value="PP1">PP1</option>
+          <option value="PP2">PP2</option>
+          <option value="Grade 1">Grade 1</option>
+          <option value="Grade 2">Grade 2</option>
+          <option value="Grade 3">Grade 3</option>
+          <option value="Grade 4">Grade 4</option>
+          <option value="Grade 5">Grade 5</option>
+          <option value="Grade 6">Grade 6</option>
+          <option value="Grade 7">Grade 7</option>
+          <option value="Grade 8">Grade 8</option>
+          <option value="Grade 9">Grade 9</option>
+          <option value="Grade 10">Grade 10</option>
+          <option value="Grade 11">Grade 11</option>
+          <option value="Grade 12">Grade 12</option>
+
+        </select>
+
+      </div>
+
+
+      <div class="student-list-header">
+
+        <h2>
+          Learners
+        </h2>
+
+        <span
+          id="studentListCount"
+          class="student-list-count">
+
+          ${students.length}
+
+        </span>
+
+      </div>
+
+
+      <div
+        id="studentList"
+        class="student-list">
+      </div>
+    `;
+
+
+    container.innerHTML =
+      html;
+
+
+    attachListEvents();
+
+
+    drawStudentItems(
+      students
+    );
+
+  }
+
+
+  /* =======================================================
+     DRAW STUDENT ITEMS
+     ======================================================= */
+
+  function drawStudentItems(
+    students
+  ) {
+
+    const list =
+      document.getElementById(
+        "studentList"
+      );
+
+    const count =
+      document.getElementById(
+        "studentListCount"
+      );
+
+
+    if (!list) return;
+
+
+    if (count) {
+
+      count.textContent =
+        students.length;
+
+    }
+
+
+    if (!students.length) {
+
+      list.innerHTML = `
+        <div class="student-list-empty">
+          No learners match your search.
+        </div>
+      `;
+
+      return;
+
+    }
+
+
+    list.innerHTML =
+      students.map(
+        createStudentItem
+      ).join("");
+
+  }
+
+
+  /* =======================================================
+     CREATE ITEM
+     ======================================================= */
+
+  function createStudentItem(
+    student
+  ) {
+
+    const fullName =
+      [
+        student.firstName,
+        student.middleName,
+        student.lastName
+      ]
+      .filter(Boolean)
+      .join(" ");
+
+
+    const initials =
+      (
+        (student.firstName || "")
+          .charAt(0) +
+        (student.lastName || "")
+          .charAt(0)
+      )
+      .toUpperCase();
+
+
+    const admission =
+      student.admissionNumber
+        ? "Adm: " +
+          escapeHTML(
+            student.admissionNumber
+          )
+        : "No admission number";
+
+
+    const grade =
+      student.grade
+        ? escapeHTML(
+            student.grade
+          )
+        : "Level not set";
+
+
+    const stream =
+      student.stream
+        ? " • " +
+          escapeHTML(
+            student.stream
+          )
+        : "";
+
+
+    return `
+
+      <article
+        class="student-item"
+        data-student-id="${escapeHTML(
+          student.id
+        )}">
+
+        <div class="student-avatar">
+          ${escapeHTML(
+            initials || "S"
+          )}
+        </div>
+
+
+        <div class="student-info">
+
+          <span class="student-name">
+
+            ${escapeHTML(
+              fullName || "Unnamed Student"
+            )}
+
+          </span>
+
+          <span class="student-meta">
+
+            ${admission}
+            •
+            ${grade}
+            ${stream}
+
+          </span>
+
+        </div>
+
+
+        <div class="student-actions">
+
+          <button
+            type="button"
+            class="student-action-btn"
+            data-action="edit"
+            data-id="${escapeHTML(
+              student.id
+            )}"
+            aria-label="Edit student">
+
+            ✎
+
+          </button>
+
+
+          <button
+            type="button"
+            class="student-action-btn delete"
+            data-action="delete"
+            data-id="${escapeHTML(
+              student.id
+            )}"
+            aria-label="Delete student">
+
+            ×
+
+          </button>
+
+        </div>
+
+      </article>
+
+    `;
+
+  }
+
+
+  /* =======================================================
+     EVENTS
+     ======================================================= */
+
+  function attachListEvents() {
+
+    const search =
+      document.getElementById(
+        "studentSearchInput"
+      );
+
+    const filter =
+      document.getElementById(
+        "studentGradeFilter"
+      );
+
+
+    if (search) {
+
+      search.addEventListener(
+        "input",
+        applyFilters
+      );
+
+    }
+
+
+    if (filter) {
+
+      filter.addEventListener(
+        "change",
+        applyFilters
+      );
+
+    }
+
+
+    container.addEventListener(
+      "click",
+      handleStudentAction
+    );
+
+  }
+
+
+  /* =======================================================
+     FILTER
+     ======================================================= */
+
+  function applyFilters() {
+
+    if (
+      !window.CBCMasterStudents
+    ) {
+      return;
+    }
+
+
+    const search =
+      document.getElementById(
+        "studentSearchInput"
+      );
+
+
+    const filter =
+      document.getElementById(
+        "studentGradeFilter"
+      );
+
+
+    const query =
+      search
+        ? search.value
+        : "";
+
+
+    const grade =
+      filter
+        ? filter.value
+        : "";
+
+
+    let students =
+      CBCMasterStudents.search(
+        query
+      );
+
+
+    if (grade) {
+
+      students =
+        students.filter(
+          function (student) {
+
+            return (
+              student.grade ===
+              grade
+            );
+
+          }
+        );
+
+    }
+
+
+    drawStudentItems(
+      students
+    );
+
+  }
+
+
+  /* =======================================================
+     ACTIONS
+     ======================================================= */
+
+  function handleStudentAction(
+    event
+  ) {
+
+    const button =
+      event.target.closest(
+        "[data-action]"
+      );
+
+
+    if (!button) {
+      return;
+    }
+
+
+    const action =
+      button.dataset.action;
+
+
+    const id =
+      button.dataset.id;
+
+
+    if (!id) {
+      return;
+    }
+
+
+    if (action === "edit") {
+
+      if (
+        window.CBCMasterStudentForm
+      ) {
+
+        CBCMasterStudentForm.edit(
+          id
+        );
+
+      }
+
+      return;
+
+    }
+
+
+    if (action === "delete") {
+
+      deleteStudent(
+        id
+      );
+
+    }
+
+  }
+
+
+  /* =======================================================
+     DELETE
+     ======================================================= */
+
+  function deleteStudent(
+    id
+  ) {
+
+    if (
+      !window.CBCMasterStudents
+    ) {
+      return;
+    }
+
+
+    const student =
+      CBCMasterStudents.getById(
+        id
+      );
+
+
+    if (!student) {
+      return;
+    }
+
+
+    const fullName =
+      [
+        student.firstName,
+        student.middleName,
+        student.lastName
+      ]
+      .filter(Boolean)
+      .join(" ");
+
+
+    const confirmed =
+      window.confirm(
+        "Delete " +
+        (
+          fullName ||
+          "this student"
+        ) +
+        "?"
+      );
+
+
+    if (!confirmed) {
+      return;
+    }
+
+
+    const removed =
+      CBCMasterStudents.remove(
+        id
+      );
+
+
+    if (!removed) {
+
+      showMessage(
+        "Unable to delete student."
+      );
+
+      return;
+
+    }
+
+
+    showMessage(
+      "Student deleted."
+    );
+
+
+    render();
+
+  }
+
+
+  /* =======================================================
+     RENDER FROM STORAGE
+     ======================================================= */
+
+  function render() {
+
+    if (
+      !window.CBCMasterStudents
+    ) {
+
+      container.hidden =
+        true;
+
+      return;
+
+    }
+
+
+    const students =
+      CBCMasterStudents.getAll();
+
+
+    renderStudents(
+      students
+    );
+
+  }
+
+
+  /* =======================================================
+     ESCAPE HTML
+     ======================================================= */
+
+  function escapeHTML(
+    value
+  ) {
+
+    return String(
+      value == null
+        ? ""
+        : value
+    )
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /'/g,
+      "&#039;"
+    );
+
+  }
+
+
+  /* =======================================================
+     MESSAGE
+     ======================================================= */
+
+  function showMessage(
+    message
+  ) {
+
+    if (
+      typeof window.showCBCToast ===
+      "function"
+    ) {
+
+      window.showCBCToast(
+        message
+      );
+
+      return;
+
+    }
+
+
+    console.log(
+      "CBC MASTER:",
+      message
+    );
+
+  }
+
+
+  /* =======================================================
+     REFRESH WHEN STUDENT CHANGES
+     ======================================================= */
+
+  window.addEventListener(of
+    "cbc:studentsChanged",
+    render
+  );
+
+
+  window.addEventListener(
+    "cbc:studentAdded",
+    render
+  );
+
+
+  window.addEventListener(
+    "cbc:studentUpdated",
+    render
+  );
+
+
+  window.addEventListener(
+    "cbc:studentDeleted",
+    render
+  );
+
+
+  /* =======================================================
+     PUBLIC API
+     ======================================================= */
+
+  window.CBCMasterStudentList = {
+
+    render:
+      render,
+
+    refresh:
+      render
+
+  };
+
+
+  /* =======================================================
+     INITIAL RENDER
+     ======================================================= */
+
+  render();
+
+
+  console.info(
+    "CBC MASTER: Student list ready."
+  );
+
+
+})();
 
 <!-- =========================================================
      END OF PART 2A-2
@@ -1917,7 +2633,6 @@ textarea:focus-visible{
    ROOT DESIGN TOKENS
    ======================================== */
 :root {
-
   --cbcm-navy: #0B1F33;
   --cbcm-navy-2: #102B46;
   --cbcm-navy-3: #163957;
@@ -1959,6 +2674,298 @@ textarea:focus-visible{
 
 }
 
+       
+    /* =========================================================
+   PART 2A-4 — STUDENT LIST UI CSS
+   ========================================================= */
+
+.student-list-toolbar {
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  margin-top: 20px;
+  padding: 14px;
+
+  background: #FFFFFF;
+
+  border: 1px solid #E5E7EB;
+
+  border-radius: 16px;
+
+}
+
+
+.student-search {
+
+  flex: 1;
+
+  min-width: 0;
+
+  padding: 11px 13px;
+
+  border: 1px solid #D0D5DD;
+
+  border-radius: 10px;
+
+  background: #FFFFFF;
+
+  color: #101828;
+
+  outline: none;
+
+}
+
+
+.student-search:focus {
+
+  border-color: #F5B700;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(245,183,0,.12);
+
+}
+
+
+.student-grade-filter {
+
+  min-width: 145px;
+
+  padding: 11px 12px;
+
+  border: 1px solid #D0D5DD;
+
+  border-radius: 10px;
+
+  background: #FFFFFF;
+
+  color: #101828;
+
+}
+
+
+.student-list-header {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 10px;
+
+  margin-top: 18px;
+
+}
+
+
+.student-list-header h2 {
+
+  margin: 0;
+
+  color: #0B1F33;
+
+  font-size: 17px;
+
+}
+
+
+.student-list-count {
+
+  padding: 5px 9px;
+
+  border-radius: 20px;
+
+  background: #FFF4CC;
+
+  color: #0B1F33;
+
+  font-size: 10px;
+
+  font-weight: 700;
+
+}
+
+
+.student-list {
+
+  display: grid;
+
+  gap: 10px;
+
+  margin-top: 12px;
+
+}
+
+
+.student-item {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 14px;
+
+  background: #FFFFFF;
+
+  border: 1px solid #E5E7EB;
+
+  border-radius: 15px;
+
+}
+
+
+.student-avatar {
+
+  width: 44px;
+  height: 44px;
+
+  flex: 0 0 44px;
+
+  display: grid;
+
+  place-items: center;
+
+  border-radius: 12px;
+
+  background: #0B1F33;
+
+  color: #F5B700;
+
+  font-weight: 800;
+
+}
+
+
+.student-info {
+
+  flex: 1;
+
+  min-width: 0;
+
+}
+
+
+.student-name {
+
+  display: block;
+
+  color: #0B1F33;
+
+  font-size: 13px;
+
+  font-weight: 800;
+
+}
+
+
+.student-meta {
+
+  display: block;
+
+  margin-top: 4px;
+
+  color: #667085;
+
+  font-size: 10px;
+
+}
+
+
+.student-actions {
+
+  display: flex;
+
+  gap: 6px;
+
+}
+
+
+.student-action-btn {
+
+  width: 34px;
+  height: 34px;
+
+  border: 1px solid #E5E7EB;
+
+  border-radius: 9px;
+
+  background: #FFFFFF;
+
+  color: #344054;
+
+  cursor: pointer;
+
+}
+
+
+.student-action-btn:hover {
+
+  background: #FFF8DD;
+
+}
+
+
+.student-action-btn.delete:hover {
+
+  background: #FEF3F2;
+
+}
+
+
+.student-list-empty {
+
+  padding: 30px 15px;
+
+  text-align: center;
+
+  color: #667085;
+
+  background: #FFFFFF;
+
+  border: 1px dashed #D0D5DD;
+
+  border-radius: 15px;
+
+  font-size: 12px;
+
+}
+
+
+@media (max-width: 650px) {
+
+  .student-list-toolbar {
+
+    flex-direction: column;
+
+    align-items: stretch;
+
+  }
+
+  .student-grade-filter {
+
+    width: 100%;
+
+  }
+
+  .student-item {
+
+    align-items: flex-start;
+
+  }
+
+  .student-actions {
+
+    flex-direction: column;
+
+  }
+
+}   
 
 /* =========================================================
    GLOBAL RESET FOR DASHBOARD
