@@ -35547,5 +35547,1107 @@ else {
 <!-- =========================================================
      END PART 10B
      ========================================================= -->
+  <!-- =========================================================
+     CBC MASTER V2
+     PART 11A — DATA + STORAGE ENGINE
+     ========================================================= -->
+
+<script>
+
+(function(){
+
+  "use strict";
+
+  /* =======================================================
+     SAFE NAMESPACE
+     ======================================================= */
+
+  const STORAGE_KEY =
+    "cbc_master_part11_data_v2";
+
+
+  const VERSION =
+    "11A";
+
+
+  /* =======================================================
+     STATE
+     ======================================================= */
+
+  let state = {
+
+    version: VERSION,
+
+    year:
+      new Date().getFullYear(),
+
+    activeGrade:
+      "Grade 5",
+
+    activeTerm:
+      "Term 1",
+
+    records: [],
+
+    updatedAt:
+      null
+
+  };
+
+
+  /* =======================================================
+     ID GENERATOR
+     ======================================================= */
+
+  function createId(){
+
+    return (
+      "P11-" +
+      Date.now().toString(36) +
+      "-" +
+      Math.random()
+        .toString(36)
+        .substring(2,9)
+        .toUpperCase()
+    );
+
+  }
+
+
+  /* =======================================================
+     SAFE STRING
+     ======================================================= */
+
+  function safeString(value){
+
+    return String(
+      value ?? ""
+    ).trim();
+
+  }
+
+
+  /* =======================================================
+     LOAD
+     ======================================================= */
+
+  function load(){
+
+    try{
+
+      const raw =
+        localStorage.getItem(
+          STORAGE_KEY
+        );
+
+      if(!raw){
+
+        save();
+
+        return state;
+
+      }
+
+
+      const parsed =
+        JSON.parse(raw);
+
+
+      if(
+        !parsed ||
+        typeof parsed !== "object"
+      ){
+
+        save();
+
+        return state;
+
+      }
+
+
+      state = {
+
+        version:
+          VERSION,
+
+        year:
+          Number(
+            parsed.year
+          ) ||
+          new Date().getFullYear(),
+
+        activeGrade:
+          safeString(
+            parsed.activeGrade
+          ) ||
+          "Grade 5",
+
+        activeTerm:
+          safeString(
+            parsed.activeTerm
+          ) ||
+          "Term 1",
+
+        records:
+          Array.isArray(
+            parsed.records
+          )
+          ? parsed.records
+          : [],
+
+        updatedAt:
+          parsed.updatedAt ||
+          null
+
+      };
+
+
+      return state;
+
+    }catch(error){
+
+      console.warn(
+        "CBC MASTER 11A: Load failed.",
+        error
+      );
+
+      return state;
+
+    }
+
+  }
+
+
+  /* =======================================================
+     SAVE
+     ======================================================= */
+
+  function save(){
+
+    try{
+
+      state.updatedAt =
+        new Date().toISOString();
+
+
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(state)
+      );
+
+
+      return true;
+
+    }catch(error){
+
+      console.warn(
+        "CBC MASTER 11A: Save failed.",
+        error
+      );
+
+      return false;
+
+    }
+
+  }
+
+
+  /* =======================================================
+     NORMALIZE RECORD
+     ======================================================= */
+
+  function normalizeRecord(
+    data,
+    existing
+  ){
+
+    const now =
+      new Date().toISOString();
+
+
+    const source =
+      data || {};
+
+
+    return {
+
+      id:
+        safeString(
+          source.id
+        ) ||
+        (
+          existing &&
+          existing.id
+        ) ||
+        createId(),
+
+
+      year:
+        Number(
+          source.year
+        ) ||
+        state.year,
+
+
+      grade:
+        safeString(
+          source.grade
+        ) ||
+        state.activeGrade,
+
+
+      term:
+        safeString(
+          source.term
+        ) ||
+        state.activeTerm,
+
+
+      subject:
+        safeString(
+          source.subject
+        ),
+
+
+      week:
+        Number(
+          source.week
+        ) ||
+        1,
+
+
+      date:
+        safeString(
+          source.date
+        ),
+
+
+      strand:
+        safeString(
+          source.strand
+        ),
+
+
+      subStrand:
+        safeString(
+          source.subStrand
+        ),
+
+
+      topic:
+        safeString(
+          source.topic
+        ),
+
+
+      description:
+        safeString(
+          source.description
+        ),
+
+
+      activities:
+        safeString(
+          source.activities
+        ),
+
+
+      resources:
+        safeString(
+          source.resources
+        ),
+
+
+      assessment:
+        safeString(
+          source.assessment
+        ),
+
+
+      notes:
+        safeString(
+          source.notes
+        ),
+
+
+      createdAt:
+        (
+          existing &&
+          existing.createdAt
+        ) ||
+        source.createdAt ||
+        now,
+
+
+      updatedAt:
+        now
+
+    };
+
+  }
+
+
+  /* =======================================================
+     GET ALL
+     ======================================================= */
+
+  function getAll(){
+
+    return state.records.slice();
+
+  }
+
+
+  /* =======================================================
+     GET BY ID
+     ======================================================= */
+
+  function getById(id){
+
+    return state.records.find(
+      record =>
+        record.id === id
+    ) || null;
+
+  }
+
+
+  /* =======================================================
+     FILTER
+     ======================================================= */
+
+  function filterRecords(
+    filters
+  ){
+
+    const f =
+      filters || {};
+
+
+    const grade =
+      safeString(
+        f.grade
+      );
+
+
+    const term =
+      safeString(
+        f.term
+      );
+
+
+    const subject =
+      safeString(
+        f.subject
+      );
+
+
+    const search =
+      safeString(
+        f.search
+      ).toLowerCase();
+
+
+    return state.records.filter(
+      record => {
+
+        if(
+          grade &&
+          grade !== "All Grades" &&
+          record.grade !== grade
+        ){
+
+          return false;
+
+        }
+
+
+        if(
+          term &&
+          term !== "All Terms" &&
+          record.term !== term
+        ){
+
+          return false;
+
+        }
+
+
+        if(
+          subject &&
+          subject !== "All Subjects" &&
+          record.subject !== subject
+        ){
+
+          return false;
+
+        }
+
+
+        if(search){
+
+          const haystack =
+            [
+
+              record.subject,
+
+              record.strand,
+
+              record.subStrand,
+
+              record.topic,
+
+              record.description,
+
+              record.activities,
+
+              record.resources,
+
+              record.assessment,
+
+              record.notes
+
+            ]
+            .join(" ")
+            .toLowerCase();
+
+
+          if(
+            !haystack.includes(
+              search
+            )
+          ){
+
+            return false;
+
+          }
+
+        }
+
+
+        return true;
+
+      }
+    );
+
+  }
+
+
+  /* =======================================================
+     ADD
+     ======================================================= */
+
+  function add(data){
+
+    const record =
+      normalizeRecord(
+        data
+      );
+
+
+    state.records.push(
+      record
+    );
+
+
+    save();
+
+
+    notify(
+      "Record Added",
+      "The record was saved successfully."
+    );
+
+
+    return record;
+
+  }
+
+
+  /* =======================================================
+     UPDATE
+     ======================================================= */
+
+  function update(
+    id,
+    data
+  ){
+
+    const index =
+      state.records.findIndex(
+        record =>
+          record.id === id
+      );
+
+
+    if(index === -1){
+
+      return null;
+
+    }
+
+
+    const updated =
+      normalizeRecord(
+        Object.assign(
+          {},
+          state.records[index],
+          data,
+          {
+            id:id
+          }
+        ),
+        state.records[index]
+      );
+
+
+    state.records[index] =
+      updated;
+
+
+    save();
+
+
+    notify(
+      "Record Updated",
+      "The record was updated successfully."
+    );
+
+
+    return updated;
+
+  }
+
+
+  /* =======================================================
+     REMOVE
+     ======================================================= */
+
+  function remove(id){
+
+    const before =
+      state.records.length;
+
+
+    state.records =
+      state.records.filter(
+        record =>
+          record.id !== id
+      );
+
+
+    if(
+      state.records.length ===
+      before
+    ){
+
+      return false;
+
+    }
+
+
+    save();
+
+
+    notify(
+      "Record Deleted",
+      "The record was removed successfully."
+    );
+
+
+    return true;
+
+  }
+
+
+  /* =======================================================
+     CLEAR
+     ======================================================= */
+
+  function clear(){
+
+    state.records = [];
+
+    save();
+
+
+    notify(
+      "Data Cleared",
+      "All Part 11 records have been removed."
+    );
+
+  }
+
+
+  /* =======================================================
+     SET CONTEXT
+     ======================================================= */
+
+  function setContext(
+    grade,
+    term,
+    year
+  ){
+
+    if(grade){
+
+      state.activeGrade =
+        safeString(
+          grade
+        );
+
+    }
+
+
+    if(term){
+
+      state.activeTerm =
+        safeString(
+          term
+        );
+
+    }
+
+
+    if(year){
+
+      state.year =
+        Number(year) ||
+        state.year;
+
+    }
+
+
+    save();
+
+  }
+
+
+  /* =======================================================
+     STATISTICS
+     ======================================================= */
+
+  function stats(
+    records
+  ){
+
+    const list =
+      Array.isArray(records)
+      ? records
+      : state.records;
+
+
+    const subjects =
+      new Set();
+
+
+    const grades =
+      new Set();
+
+
+    const terms =
+      new Set();
+
+
+    const weeks =
+      new Set();
+
+
+    list.forEach(
+      record => {
+
+        if(record.subject)
+          subjects.add(
+            record.subject
+          );
+
+        if(record.grade)
+          grades.add(
+            record.grade
+          );
+
+        if(record.term)
+          terms.add(
+            record.term
+          );
+
+        if(record.week)
+          weeks.add(
+            String(record.week)
+          );
+
+      }
+    );
+
+
+    return {
+
+      total:
+        list.length,
+
+      subjects:
+        subjects.size,
+
+      grades:
+        grades.size,
+
+      terms:
+        terms.size,
+
+      weeks:
+        weeks.size
+
+    };
+
+  }
+
+
+  /* =======================================================
+     EXPORT
+     ======================================================= */
+
+  function exportData(){
+
+    return JSON.stringify(
+      {
+
+        app:
+          "CBC MASTER V2",
+
+        module:
+          "PART 11A",
+
+        version:
+          VERSION,
+
+        exportedAt:
+          new Date().toISOString(),
+
+        state:
+          state
+
+      },
+      null,
+      2
+    );
+
+  }
+
+
+  /* =======================================================
+     IMPORT
+     ======================================================= */
+
+  function importData(
+    json
+  ){
+
+    try{
+
+      const parsed =
+        typeof json === "string"
+        ? JSON.parse(json)
+        : json;
+
+
+      const incoming =
+        parsed &&
+        parsed.state
+        ? parsed.state
+        : parsed;
+
+
+      if(
+        !incoming ||
+        typeof incoming !== "object"
+      ){
+
+        throw new Error(
+          "Invalid data format."
+        );
+
+      }
+
+
+      const records =
+        Array.isArray(
+          incoming.records
+        )
+        ? incoming.records
+        : [];
+
+
+      state.records =
+        records.map(
+          record =>
+            normalizeRecord(
+              record,
+              record
+            )
+        );
+
+
+      state.year =
+        Number(
+          incoming.year
+        ) ||
+        new Date().getFullYear();
+
+
+      state.activeGrade =
+        safeString(
+          incoming.activeGrade
+        ) ||
+        "Grade 5";
+
+
+      state.activeTerm =
+        safeString(
+          incoming.activeTerm
+        ) ||
+        "Term 1";
+
+
+      save();
+
+
+      notify(
+        "Import Complete",
+        state.records.length +
+        " records imported."
+      );
+
+
+      return true;
+
+    }catch(error){
+
+      console.warn(
+        "CBC MASTER 11A: Import failed.",
+        error
+      );
+
+
+      notify(
+        "Import Failed",
+        "The selected data could not be imported."
+      );
+
+
+      return false;
+
+    }
+
+  }
+
+
+  /* =======================================================
+     DOWNLOAD EXPORT
+     ======================================================= */
+
+  function downloadExport(){
+
+    const content =
+      exportData();
+
+
+    const blob =
+      new Blob(
+        [content],
+        {
+          type:
+            "application/json"
+        }
+      );
+
+
+    const url =
+      URL.createObjectURL(
+        blob
+      );
+
+
+    const link =
+      document.createElement(
+        "a"
+      );
+
+
+    link.href =
+      url;
+
+
+    link.download =
+      "cbc-master-part11-data-" +
+      new Date()
+        .toISOString()
+        .slice(0,10) +
+      ".json";
+
+
+    document.body.appendChild(
+      link
+    );
+
+
+    link.click();
+
+
+    link.remove();
+
+
+    URL.revokeObjectURL(
+      url
+    );
+
+  }
+
+
+  /* =======================================================
+     NOTIFICATION
+     ======================================================= */
+
+  function notify(
+    title,
+    message
+  ){
+
+    try{
+
+      if(
+        window.CBC_MASTER &&
+        typeof
+        window.CBC_MASTER.notify ===
+        "function"
+      ){
+
+        window.CBC_MASTER.notify(
+          title,
+          message
+        );
+
+        return;
+
+      }
+
+    }catch(error){
+
+      console.warn(error);
+
+    }
+
+
+    console.log(
+      title +
+      ": " +
+      message
+    );
+
+  }
+
+
+  /* =======================================================
+     PUBLIC API
+     ======================================================= */
+
+  window.CBC_PART11 = {
+
+    version:
+      VERSION,
+
+    storageKey:
+      STORAGE_KEY,
+
+    state:function(){
+
+      return state;
+
+    },
+
+    load:
+      load,
+
+    save:
+      save,
+
+    getAll:
+      getAll,
+
+    getById:
+      getById,
+
+    filter:
+      filterRecords,
+
+    add:
+      add,
+
+    update:
+      update,
+
+    remove:
+      remove,
+
+    clear:
+      clear,
+
+    setContext:
+      setContext,
+
+    stats:
+      stats,
+
+    exportData:
+      exportData,
+
+    importData:
+      importData,
+
+    downloadExport:
+      downloadExport
+
+  };
+
+
+  /* =======================================================
+     INITIALIZE
+     ======================================================= */
+
+  function initializePart11A(){
+
+    load();
+
+
+    console.log(
+      "CBC MASTER V2: PART 11A Data + Storage Engine ready."
+    );
+
+  }
+
+
+  if(
+    document.readyState ===
+    "loading"
+  ){
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      initializePart11A
+    );
+
+  }else{
+
+    initializePart11A();
+
+  }
+
+
+})();
+
+</script>
+
+<!-- =========================================================
+     END PART 11A
+     ========================================================= -->
 </body>
 </html>
