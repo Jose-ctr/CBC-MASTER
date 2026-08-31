@@ -44163,5 +44163,993 @@ else {
 <!-- =========================================================
      END PART 12B
      ========================================================= -->  
+  <!-- =========================================================
+     CBC MASTER V2
+     PART 13A — TEACHER PROFILE DATA + STORAGE ENGINE V2
+     ========================================================= -->
+
+<script>
+
+(function(){
+
+  "use strict";
+
+
+  /* =======================================================
+     STORAGE
+     ======================================================= */
+
+  const CBC_TEACHER_PROFILE_STORAGE =
+    "cbc_master_teacher_profile_v2";
+
+
+  /* =======================================================
+     DEFAULT PROFILE
+     ======================================================= */
+
+  const DEFAULT_TEACHER_PROFILE = {
+
+    fullName:"",
+
+    title:"Teacher",
+
+    teacherId:"",
+
+    tscNumber:"",
+
+    phone:"",
+
+    email:"",
+
+    schoolName:"",
+
+    schoolCode:"",
+
+    county:"",
+
+    subCounty:"",
+
+    zone:"",
+
+    address:"",
+
+    teachingLevel:"",
+
+    subjects:[],
+
+    grades:[],
+
+    academicYear:
+      String(
+        new Date().getFullYear()
+      ),
+
+    term:"Term 1",
+
+    bio:"",
+
+    photo:"",
+
+    createdAt:"",
+
+    updatedAt:""
+
+  };
+
+
+  /* =======================================================
+     STATE
+     ======================================================= */
+
+  let teacherProfile =
+    Object.assign(
+      {},
+      DEFAULT_TEACHER_PROFILE
+    );
+
+
+  /* =======================================================
+     LOAD PROFILE
+     ======================================================= */
+
+  function loadTeacherProfile(){
+
+    try{
+
+      const saved =
+        localStorage.getItem(
+          CBC_TEACHER_PROFILE_STORAGE
+        );
+
+
+      if(!saved){
+
+        teacherProfile =
+          Object.assign(
+            {},
+            DEFAULT_TEACHER_PROFILE
+          );
+
+        saveTeacherProfile();
+
+        return teacherProfile;
+
+      }
+
+
+      const parsed =
+        JSON.parse(saved);
+
+
+      if(
+        parsed &&
+        typeof parsed === "object" &&
+        !Array.isArray(parsed)
+      ){
+
+        teacherProfile =
+          Object.assign(
+            {},
+            DEFAULT_TEACHER_PROFILE,
+            parsed
+          );
+
+      }
+
+
+      if(
+        !Array.isArray(
+          teacherProfile.subjects
+        )
+      ){
+
+        teacherProfile.subjects = [];
+
+      }
+
+
+      if(
+        !Array.isArray(
+          teacherProfile.grades
+        )
+      ){
+
+        teacherProfile.grades = [];
+
+      }
+
+
+      return teacherProfile;
+
+    }catch(error){
+
+      console.warn(
+        "CBC MASTER: Teacher profile could not be loaded.",
+        error
+      );
+
+
+      teacherProfile =
+        Object.assign(
+          {},
+          DEFAULT_TEACHER_PROFILE
+        );
+
+
+      return teacherProfile;
+
+    }
+
+  }
+
+
+  /* =======================================================
+     SAVE PROFILE
+     ======================================================= */
+
+  function saveTeacherProfile(){
+
+    try{
+
+      localStorage.setItem(
+        CBC_TEACHER_PROFILE_STORAGE,
+        JSON.stringify(
+          teacherProfile
+        )
+      );
+
+
+      return true;
+
+    }catch(error){
+
+      console.warn(
+        "CBC MASTER: Teacher profile could not be saved.",
+        error
+      );
+
+
+      return false;
+
+    }
+
+  }
+
+
+  /* =======================================================
+     UPDATE PROFILE
+     ======================================================= */
+
+  function updateTeacherProfile(
+    data
+  ){
+
+    if(
+      !data ||
+      typeof data !== "object"
+    ){
+
+      return false;
+
+    }
+
+
+    teacherProfile =
+      Object.assign(
+        {},
+        teacherProfile,
+        data
+      );
+
+
+    if(
+      !Array.isArray(
+        teacherProfile.subjects
+      )
+    ){
+
+      teacherProfile.subjects = [];
+
+    }
+
+
+    if(
+      !Array.isArray(
+        teacherProfile.grades
+      )
+    ){
+
+      teacherProfile.grades = [];
+
+    }
+
+
+    if(
+      !teacherProfile.createdAt
+    ){
+
+      teacherProfile.createdAt =
+        new Date()
+          .toISOString();
+
+    }
+
+
+    teacherProfile.updatedAt =
+      new Date()
+        .toISOString();
+
+
+    return saveTeacherProfile();
+
+  }
+
+
+  /* =======================================================
+     CLEAR PROFILE
+     ======================================================= */
+
+  function clearTeacherProfile(){
+
+    teacherProfile =
+      Object.assign(
+        {},
+        DEFAULT_TEACHER_PROFILE
+      );
+
+
+    teacherProfile.updatedAt =
+      new Date()
+        .toISOString();
+
+
+    return saveTeacherProfile();
+
+  }
+
+
+  /* =======================================================
+     PROFILE COMPLETION
+     ======================================================= */
+
+  function getProfileCompletion(){
+
+    const fields = [
+
+      "fullName",
+
+      "schoolName",
+
+      "phone",
+
+      "email",
+
+      "teachingLevel",
+
+      "academicYear",
+
+      "term"
+
+    ];
+
+
+    let completed = 0;
+
+
+    fields.forEach(
+      field => {
+
+        const value =
+          teacherProfile[field];
+
+
+        if(
+          value !== null &&
+          value !== undefined &&
+          String(value).trim() !== ""
+        ){
+
+          completed++;
+
+        }
+
+      }
+    );
+
+
+    return Math.round(
+      (
+        completed /
+        fields.length
+      ) * 100
+    );
+
+  }
+
+
+  /* =======================================================
+     PROFILE STATUS
+     ======================================================= */
+
+  function getProfileStatus(){
+
+    const completion =
+      getProfileCompletion();
+
+
+    if(
+      completion >= 90
+    ){
+
+      return "Complete";
+
+    }
+
+
+    if(
+      completion >= 60
+    ){
+
+      return "Almost Complete";
+
+    }
+
+
+    if(
+      completion > 0
+    ){
+
+      return "Incomplete";
+
+    }
+
+
+    return "Not Set";
+
+  }
+
+
+  /* =======================================================
+     GET PROFILE
+     ======================================================= */
+
+  function getTeacherProfile(){
+
+    return Object.assign(
+      {},
+      teacherProfile,
+      {
+        subjects:[
+          ...teacherProfile.subjects
+        ],
+        grades:[
+          ...teacherProfile.grades
+        ]
+      }
+    );
+
+  }
+
+
+  /* =======================================================
+     SUBJECT MANAGEMENT
+     ======================================================= */
+
+  function addTeacherSubject(
+    subject
+  ){
+
+    subject =
+      String(
+        subject ?? ""
+      ).trim();
+
+
+    if(!subject){
+
+      return false;
+
+    }
+
+
+    if(
+      !teacherProfile.subjects
+        .includes(subject)
+    ){
+
+      teacherProfile.subjects.push(
+        subject
+      );
+
+
+      teacherProfile.updatedAt =
+        new Date()
+          .toISOString();
+
+
+      saveTeacherProfile();
+
+    }
+
+
+    return true;
+
+  }
+
+
+  function removeTeacherSubject(
+    subject
+  ){
+
+    teacherProfile.subjects =
+      teacherProfile.subjects.filter(
+        item =>
+          item !== subject
+      );
+
+
+    teacherProfile.updatedAt =
+      new Date()
+        .toISOString();
+
+
+    return saveTeacherProfile();
+
+  }
+
+
+  /* =======================================================
+     GRADE MANAGEMENT
+     ======================================================= */
+
+  function addTeacherGrade(
+    grade
+  ){
+
+    grade =
+      String(
+        grade ?? ""
+      ).trim();
+
+
+    if(!grade){
+
+      return false;
+
+    }
+
+
+    if(
+      !teacherProfile.grades
+        .includes(grade)
+    ){
+
+      teacherProfile.grades.push(
+        grade
+      );
+
+
+      teacherProfile.updatedAt =
+        new Date()
+          .toISOString();
+
+
+      saveTeacherProfile();
+
+    }
+
+
+    return true;
+
+  }
+
+
+  function removeTeacherGrade(
+    grade
+  ){
+
+    teacherProfile.grades =
+      teacherProfile.grades.filter(
+        item =>
+          item !== grade
+      );
+
+
+    teacherProfile.updatedAt =
+      new Date()
+        .toISOString();
+
+
+    return saveTeacherProfile();
+
+  }
+
+
+  /* =======================================================
+     PHOTO
+     ======================================================= */
+
+  function setTeacherPhoto(
+    photo
+  ){
+
+    if(
+      photo === null ||
+      photo === undefined
+    ){
+
+      teacherProfile.photo = "";
+
+    }else{
+
+      teacherProfile.photo =
+        String(photo);
+
+    }
+
+
+    teacherProfile.updatedAt =
+      new Date()
+        .toISOString();
+
+
+    return saveTeacherProfile();
+
+  }
+
+
+  function removeTeacherPhoto(){
+
+    teacherProfile.photo = "";
+
+
+    teacherProfile.updatedAt =
+      new Date()
+        .toISOString();
+
+
+    return saveTeacherProfile();
+
+  }
+
+
+  /* =======================================================
+     IMPORT
+     ======================================================= */
+
+  function importTeacherProfile(
+    data
+  ){
+
+    if(
+      !data ||
+      typeof data !== "object"
+    ){
+
+      return false;
+
+    }
+
+
+    teacherProfile =
+      Object.assign(
+        {},
+        DEFAULT_TEACHER_PROFILE,
+        data
+      );
+
+
+    if(
+      !Array.isArray(
+        teacherProfile.subjects
+      )
+    ){
+
+      teacherProfile.subjects = [];
+
+    }
+
+
+    if(
+      !Array.isArray(
+        teacherProfile.grades
+      )
+    ){
+
+      teacherProfile.grades = [];
+
+    }
+
+
+    if(
+      !teacherProfile.createdAt
+    ){
+
+      teacherProfile.createdAt =
+        new Date()
+          .toISOString();
+
+    }
+
+
+    teacherProfile.updatedAt =
+      new Date()
+        .toISOString();
+
+
+    return saveTeacherProfile();
+
+  }
+
+
+  /* =======================================================
+     EXPORT
+     ======================================================= */
+
+  function exportTeacherProfile(){
+
+    return JSON.stringify(
+      teacherProfile,
+      null,
+      2
+    );
+
+  }
+
+
+  /* =======================================================
+     RESET STORAGE
+     ======================================================= */
+
+  function resetTeacherProfileStorage(){
+
+    try{
+
+      localStorage.removeItem(
+        CBC_TEACHER_PROFILE_STORAGE
+      );
+
+
+      teacherProfile =
+        Object.assign(
+          {},
+          DEFAULT_TEACHER_PROFILE
+        );
+
+
+      return true;
+
+    }catch(error){
+
+      console.warn(
+        "CBC MASTER: Teacher profile storage could not be reset.",
+        error
+      );
+
+
+      return false;
+
+    }
+
+  }
+
+
+  /* =======================================================
+     NOTIFICATION
+     ======================================================= */
+
+  function teacherProfileNotify(
+    title,
+    message
+  ){
+
+    if(
+      window.CBC_MASTER &&
+      typeof CBC_MASTER.notify ===
+      "function"
+    ){
+
+      CBC_MASTER.notify(
+        title,
+        message
+      );
+
+      return;
+
+    }
+
+
+    console.log(
+      title +
+      ": " +
+      message
+    );
+
+  }
+
+
+  /* =======================================================
+     PUBLIC API
+     ======================================================= */
+
+  window.CBC_TEACHER_PROFILE_V2 = {
+
+    storageKey:
+      CBC_TEACHER_PROFILE_STORAGE,
+
+
+    defaults:function(){
+
+      return Object.assign(
+        {},
+        DEFAULT_TEACHER_PROFILE,
+        {
+          subjects:[],
+          grades:[]
+        }
+      );
+
+    },
+
+
+    state:function(){
+
+      return getTeacherProfile();
+
+    },
+
+
+    get:function(){
+
+      return getTeacherProfile();
+
+    },
+
+
+    save:function(
+      data
+    ){
+
+      return updateTeacherProfile(
+        data
+      );
+
+    },
+
+
+    update:function(
+      data
+    ){
+
+      return updateTeacherProfile(
+        data
+      );
+
+    },
+
+
+    clear:function(){
+
+      return clearTeacherProfile();
+
+    },
+
+
+    reset:function(){
+
+      return resetTeacherProfileStorage();
+
+    },
+
+
+    completion:function(){
+
+      return getProfileCompletion();
+
+    },
+
+
+    status:function(){
+
+      return getProfileStatus();
+
+    },
+
+
+    addSubject:function(
+      subject
+    ){
+
+      return addTeacherSubject(
+        subject
+      );
+
+    },
+
+
+    removeSubject:function(
+      subject
+    ){
+
+      return removeTeacherSubject(
+        subject
+      );
+
+    },
+
+
+    addGrade:function(
+      grade
+    ){
+
+      return addTeacherGrade(
+        grade
+      );
+
+    },
+
+
+    removeGrade:function(
+      grade
+    ){
+
+      return removeTeacherGrade(
+        grade
+      );
+
+    },
+
+
+    setPhoto:function(
+      photo
+    ){
+
+      return setTeacherPhoto(
+        photo
+      );
+
+    },
+
+
+    removePhoto:function(){
+
+      return removeTeacherPhoto();
+
+    },
+
+
+    import:function(
+      data
+    ){
+
+      return importTeacherProfile(
+        data
+      );
+
+    },
+
+
+    export:function(){
+
+      return exportTeacherProfile();
+
+    },
+
+
+    notify:function(
+      title,
+      message
+    ){
+
+      teacherProfileNotify(
+        title,
+        message
+      );
+
+    }
+
+  };
+
+
+  /* =======================================================
+     INITIALIZE
+     ======================================================= */
+
+  function initializeTeacherProfileV2(){
+
+    loadTeacherProfile();
+
+
+    console.log(
+      "CBC MASTER V2: Teacher Profile Data Engine ready."
+    );
+
+  }
+
+
+  if(
+    document.readyState ===
+    "loading"
+  ){
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      initializeTeacherProfileV2
+    );
+
+  }else{
+
+    initializeTeacherProfileV2();
+
+  }
+
+
+})();
+
+</script>
+
+<!-- =========================================================
+     END PART 13A — TEACHER PROFILE DATA + STORAGE ENGINE V2
+     ========================================================= -->
 </body>
 </html>
