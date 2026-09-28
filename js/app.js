@@ -1979,3 +1979,798 @@ else {
 
 
   /* 
+  CREATE STUDENT ID
+     ========================================================= */
+
+  function createStudentId() {
+
+    return (
+
+      "STU-" +
+
+      Date.now().toString(36) +
+
+      "-" +
+
+      Math.random()
+        .toString(36)
+        .substring(2, 7)
+        .toUpperCase()
+
+    );
+
+  }
+
+
+  /* =========================================================
+     GET STUDENTS FOR SELECTED GRADE
+     ========================================================= */
+
+  function getFilteredStudents() {
+
+    return reportState.students.filter(
+      student => {
+
+        return (
+          student.grade ===
+          reportState.selectedGrade
+        );
+
+      }
+    );
+
+  }
+
+
+  /* =========================================================
+     RENDER REPORT BOOK PAGE
+     ========================================================= */
+
+  function renderReportBooks() {
+
+    const container =
+      document.getElementById(
+        "pageContainer"
+      );
+
+
+    if (!container) {
+      return;
+    }
+
+
+    const students =
+      getFilteredStudents();
+
+
+    container.innerHTML = `
+
+      <div class="report-page">
+
+        <!-- ================================================
+             HEADER
+             ================================================ -->
+
+        <div class="report-module-header">
+
+          <div class="report-module-title">
+
+            <h1>
+              Report Books
+            </h1>
+
+            <p>
+              Manage learner records,
+              assessments and competency-based reports.
+            </p>
+
+          </div>
+
+
+          <div class="report-header-actions">
+
+            <button
+              type="button"
+              class="cbc-btn cbc-btn-secondary"
+              id="reportRefreshBtn">
+
+              ↻ Refresh
+
+            </button>
+
+
+            <button
+              type="button"
+              class="cbc-btn cbc-btn-primary"
+              id="addStudentBtn">
+
+              ＋ Add Student
+
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <!-- ================================================
+             FILTERS
+             ================================================ -->
+
+        <div class="report-filters">
+
+          <div class="report-field">
+
+            <label for="reportGrade">
+              Grade
+            </label>
+
+            <select id="reportGrade">
+
+              ${renderGradeOptions()}
+
+            </select>
+
+          </div>
+
+
+          <div class="report-field">
+
+            <label for="reportTerm">
+              Term
+            </label>
+
+            <select id="reportTerm">
+
+              ${renderTermOptions()}
+
+            </select>
+
+          </div>
+
+
+          <div class="report-field">
+
+            <label for="reportYear">
+              Academic Year
+            </label>
+
+            <input
+              id="reportYear"
+              type="number"
+              min="2020"
+              max="2100"
+              value="${reportState.selectedYear}"
+            >
+
+          </div>
+
+
+          <div class="filter-action">
+
+            <button
+              type="button"
+              class="cbc-btn cbc-btn-secondary"
+              id="manageSubjectsBtn">
+
+              📚 Subjects
+
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <!-- ================================================
+             STATISTICS
+             ================================================ -->
+
+        <div class="report-stats">
+
+          <div class="report-stat">
+
+            <div class="report-stat-label">
+              Learners
+            </div>
+
+            <div class="report-stat-value">
+              ${students.length}
+            </div>
+
+            <div class="report-stat-note">
+              ${reportState.selectedGrade}
+            </div>
+
+          </div>
+
+
+          <div class="report-stat">
+
+            <div class="report-stat-label">
+              Subjects
+            </div>
+
+            <div class="report-stat-value">
+              ${getSubjects().length}
+            </div>
+
+            <div class="report-stat-note">
+              Curriculum subjects
+            </div>
+
+          </div>
+
+
+          <div class="report-stat">
+
+            <div class="report-stat-label">
+              Assessments
+            </div>
+
+            <div class="report-stat-value">
+              ${countAssessments()}
+            </div>
+
+            <div class="report-stat-note">
+              Saved entries
+            </div>
+
+          </div>
+
+
+          <div class="report-stat">
+
+            <div class="report-stat-label">
+              Reports
+            </div>
+
+            <div class="report-stat-value">
+              ${countReports()}
+            </div>
+
+            <div class="report-stat-note">
+              Generated records
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- ================================================
+             STUDENT PANEL
+             ================================================ -->
+
+        <section class="report-panel">
+
+          <div class="report-panel-header">
+
+            <div>
+
+              <h2 class="report-panel-title">
+                Learners
+              </h2>
+
+              <p class="report-panel-subtitle">
+                ${reportState.selectedGrade}
+                • ${reportState.selectedTerm}
+                • ${reportState.selectedYear}
+              </p>
+
+            </div>
+
+
+            <button
+              type="button"
+              class="cbc-btn cbc-btn-secondary"
+              id="exportStudentsBtn">
+
+              Export
+
+            </button>
+
+          </div>
+
+
+          <div class="report-student-list">
+
+            ${
+              students.length
+              ? renderStudentRows(students)
+              : renderEmptyStudents()
+            }
+
+          </div>
+
+        </section>
+
+      </div>
+
+
+      <!-- ==================================================
+           ADD STUDENT MODAL
+           ================================================== -->
+
+      <div
+        class="cbc-modal"
+        id="studentModal"
+        aria-hidden="true">
+
+        <div class="cbc-modal-card">
+
+          <div class="cbc-modal-header">
+
+            <h2>
+              Add Student
+            </h2>
+
+            <button
+              type="button"
+              class="cbc-modal-close"
+              id="closeStudentModal"
+              aria-label="Close">
+
+              ×
+
+            </button>
+
+          </div>
+
+
+          <form
+            class="cbc-modal-form"
+            id="studentForm">
+
+
+            <div class="cbc-form-group">
+
+              <label for="studentName">
+                Student Full Name
+              </label>
+
+              <input
+                id="studentName"
+                type="text"
+                placeholder="Enter student name"
+                autocomplete="off"
+                required
+              >
+
+            </div>
+
+
+            <div class="cbc-form-group">
+
+              <label for="studentGrade">
+                Grade
+              </label>
+
+              <select id="studentGrade">
+
+                ${renderGradeOptions(
+                  reportState.selectedGrade
+                )}
+
+              </select>
+
+            </div>
+
+
+            <div class="cbc-form-group">
+
+              <label for="studentAdmission">
+                Admission / Learner Number
+              </label>
+
+              <input
+                id="studentAdmission"
+                type="text"
+                placeholder="Optional"
+                autocomplete="off"
+              >
+
+            </div>
+
+
+            <div class="cbc-form-group">
+
+              <label for="studentGender">
+                Gender
+              </label>
+
+              <select id="studentGender">
+
+                <option value="">
+                  Select
+                </option>
+
+                <option value="Male">
+                  Male
+                </option>
+
+                <option value="Female">
+                  Female
+                </option>
+
+              </select>
+
+            </div>
+
+
+            <div class="cbc-modal-footer">
+
+              <button
+                type="button"
+                class="cbc-btn cbc-btn-secondary"
+                id="cancelStudentBtn">
+
+                Cancel
+
+              </button>
+
+
+              <button
+                type="submit"
+                class="cbc-btn cbc-btn-primary">
+
+                Save Student
+
+              </button>
+
+            </div>
+
+
+          </form>
+
+        </div>
+
+      </div>
+
+    `;
+
+
+    bindReportEvents();
+
+  }
+
+
+  /* =========================================================
+     GRADE OPTIONS
+     ========================================================= */
+
+  function renderGradeOptions(
+    selected
+  ) {
+
+    const current =
+      selected ||
+      reportState.selectedGrade;
+
+
+    return REPORT_GRADES
+      .map(grade => {
+
+        return `
+
+          <option
+            value="${escapeHtml(grade)}"
+            ${grade === current ? "selected" : ""}>
+
+            ${escapeHtml(grade)}
+
+          </option>
+
+        `;
+
+      })
+      .join("");
+
+  }
+
+
+  /* =========================================================
+     TERM OPTIONS
+     ========================================================= */
+
+  function renderTermOptions() {
+
+    return REPORT_TERMS
+      .map(term => {
+
+        return `
+
+          <option
+            value="${escapeHtml(term)}"
+            ${
+              term === reportState.selectedTerm
+                ? "selected"
+                : ""
+            }>
+
+            ${escapeHtml(term)}
+
+          </option>
+
+        `;
+
+      })
+      .join("");
+
+  }
+
+
+  /* =========================================================
+     SUBJECTS
+     ========================================================= */
+
+  function getSubjects() {
+
+    return (
+      CBC_REPORT_SUBJECTS[
+        reportState.selectedGrade
+      ] || []
+    );
+
+  }
+
+
+  /* =========================================================
+     STUDENT ROWS
+     ========================================================= */
+
+  function renderStudentRows(
+    students
+  ) {
+
+    return students
+      .map(
+        (student, index) => {
+
+          const initials =
+            getInitials(
+              student.name
+            );
+
+
+          return `
+
+            <div
+              class="report-student-row"
+              data-student-id="${escapeHtml(
+                student.id
+              )}">
+
+
+              <div class="student-number">
+                ${index + 1}
+              </div>
+
+
+              <div class="student-name">
+
+                <div class="student-avatar">
+                  ${escapeHtml(initials)}
+                </div>
+
+                <div class="student-name-text">
+
+                  <strong>
+                    ${escapeHtml(
+                      student.name
+                    )}
+                  </strong>
+
+                  <span>
+                    ${
+                      student.admission
+                        ? escapeHtml(
+                            student.admission
+                          )
+                        : "No admission number"
+                    }
+                  </span>
+
+                </div>
+
+              </div>
+
+
+              <div class="student-grade">
+                ${escapeHtml(
+                  student.grade
+                )}
+              </div>
+
+
+              <div class="student-term">
+                ${escapeHtml(
+                  reportState.selectedTerm
+                )}
+              </div>
+
+
+              <div>
+
+                <span class="student-status">
+
+                  ${
+                    getStudentAssessmentCount(
+                      student.id
+                    )
+                  }
+
+                  assessments
+
+                </span>
+
+              </div>
+
+
+              <div class="student-actions">
+
+                <button
+                  type="button"
+                  class="student-action"
+                  data-action="assess"
+                  data-id="${escapeHtml(
+                    student.id
+                  )}"
+                  title="Assess">
+
+                  ✎
+
+                </button>
+
+
+                <button
+                  type="button"
+                  class="student-action"
+                  data-action="view"
+                  data-id="${escapeHtml(
+                    student.id
+                  )}"
+                  title="View report">
+
+                  👁
+
+                </button>
+
+
+                <button
+                  type="button"
+                  class="student-action"
+                  data-action="delete"
+                  data-id="${escapeHtml(
+                    student.id
+                  )}"
+                  title="Delete">
+
+                  🗑
+
+                </button>
+
+              </div>
+
+
+            </div>
+
+          `;
+
+        }
+      )
+      .join("");
+
+  }
+
+
+  /* =========================================================
+     EMPTY STUDENT STATE
+     ========================================================= */
+
+  function renderEmptyStudents() {
+
+    return `
+
+      <div class="report-empty">
+
+        <div class="report-empty-icon">
+          📋
+        </div>
+
+        <h3>
+          No learners yet
+        </h3>
+
+        <p>
+          Add learners to
+          ${escapeHtml(
+            reportState.selectedGrade
+          )}
+          to start building their report books.
+        </p>
+
+        <button
+          type="button"
+          class="cbc-btn cbc-btn-primary"
+          id="emptyAddStudentBtn">
+
+          ＋ Add First Student
+
+        </button>
+
+      </div>
+
+    `;
+
+  }
+
+
+  /* =========================================================
+     BIND EVENTS
+     ========================================================= */
+
+  function bindReportEvents() {
+
+
+    /* -------------------------------------------------------
+       GRADE
+       ------------------------------------------------------- */
+
+    const grade =
+      document.getElementById(
+        "reportGrade"
+      );
+
+
+    if (grade) {
+
+      grade.addEventListener(
+        "change",
+        function () {
+
+          reportState.selectedGrade =
+            this.value;
+
+
+          saveReportState();
+
+          renderReportBooks();
+
+        }
+      );
+
+    }
+
+
+    /* -------------------------------------------------------
+       TERM
+       ------------------------------------------------------- */
+
+    const term =
+      document.getElementById(
+        "reportTerm"
+      );
+
+
+    if (term) {
+
+      term.addEventListener(
+        "change",
+        function () {
+
+          reportState.selectedTerm =
+            this.value;
+
+
+          saveReportState();
+
+          renderReportBooks();
+
+        }
+      );
+
+    }
+
+
+    /* -------------------------------------------------------
