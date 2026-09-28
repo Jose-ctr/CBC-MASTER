@@ -1,6 +1,5 @@
-
-
-/* =========================================================
+/* 
+=========================================================
    PART 2A — CBC MASTER APPLICATION CONSTANTS
    ========================================================= */
 
@@ -2773,4 +2772,1139 @@ else {
     }
 
 
+    /* 
+    -------------------------------------------------------
+        YEAR
+       ------------------------------------------------------- */
+
+    const year =
+      document.getElementById(
+        "reportYear"
+      );
+
+
+    if (year) {
+
+      year.addEventListener(
+        "change",
+        function () {
+
+          const value =
+            parseInt(
+              this.value,
+              10
+            );
+
+
+          if (
+            Number.isFinite(value)
+          ) {
+
+            reportState.selectedYear =
+              value;
+
+            saveReportState();
+
+          }
+
+        }
+      );
+
+    }
+
+
     /* -------------------------------------------------------
+       ADD STUDENT
+       ------------------------------------------------------- */
+
+    const addButton =
+      document.getElementById(
+        "addStudentBtn"
+      );
+
+
+    if (addButton) {
+
+      addButton.addEventListener(
+        "click",
+        openStudentModal
+      );
+
+    }
+
+
+    const emptyAdd =
+      document.getElementById(
+        "emptyAddStudentBtn"
+      );
+
+
+    if (emptyAdd) {
+
+      emptyAdd.addEventListener(
+        "click",
+        openStudentModal
+      );
+
+    }
+
+
+    /* -------------------------------------------------------
+       CLOSE MODAL
+       ------------------------------------------------------- */
+
+    const closeButton =
+      document.getElementById(
+        "closeStudentModal"
+      );
+
+
+    if (closeButton) {
+
+      closeButton.addEventListener(
+        "click",
+        closeStudentModal
+      );
+
+    }
+
+
+    const cancelButton =
+      document.getElementById(
+        "cancelStudentBtn"
+      );
+
+
+    if (cancelButton) {
+
+      cancelButton.addEventListener(
+        "click",
+        closeStudentModal
+      );
+
+    }
+
+
+    /* -------------------------------------------------------
+       FORM
+       ------------------------------------------------------- */
+
+    const form =
+      document.getElementById(
+        "studentForm"
+      );
+
+
+    if (form) {
+
+      form.addEventListener(
+        "submit",
+        handleStudentSubmit
+      );
+
+    }
+
+
+    /* -------------------------------------------------------
+       REFRESH
+       ------------------------------------------------------- */
+
+    const refresh =
+      document.getElementById(
+        "reportRefreshBtn"
+      );
+
+
+    if (refresh) {
+
+      refresh.addEventListener(
+        "click",
+        function () {
+
+          loadReportState();
+
+          renderReportBooks();
+
+          CBC_MASTER.notify(
+            "Report Books",
+            "Report Book data refreshed."
+          );
+
+        }
+      );
+
+    }
+
+
+    /* -------------------------------------------------------
+       SUBJECTS
+       ------------------------------------------------------- */
+
+    const subjectsButton =
+      document.getElementById(
+        "manageSubjectsBtn"
+      );
+
+
+    if (subjectsButton) {
+
+      subjectsButton.addEventListener(
+        "click",
+        function () {
+
+          CBC_MASTER.notify(
+            "Subjects",
+            getSubjects().length +
+            " curriculum subjects are available for " +
+            reportState.selectedGrade +
+            "."
+          );
+
+        }
+      );
+
+    }
+
+
+    /* -------------------------------------------------------
+       EXPORT
+       ------------------------------------------------------- */
+
+    const exportButton =
+      document.getElementById(
+        "exportStudentsBtn"
+      );
+
+
+    if (exportButton) {
+
+      exportButton.addEventListener(
+        "click",
+        exportStudents
+      );
+
+    }
+
+
+    /* -------------------------------------------------------
+       STUDENT ACTIONS
+       ------------------------------------------------------- */
+
+    document
+      .querySelectorAll(
+        "[data-action]"
+      )
+      .forEach(button => {
+
+        button.addEventListener(
+          "click",
+          function () {
+
+            const action =
+              this.dataset.action;
+
+
+            const id =
+              this.dataset.id;
+
+
+            handleStudentAction(
+              action,
+              id
+            );
+
+          }
+        );
+
+      });
+
+
+    /* -------------------------------------------------------
+       MODAL BACKDROP
+       ------------------------------------------------------- */
+
+    const modal =
+      document.getElementById(
+        "studentModal"
+      );
+
+
+    if (modal) {
+
+      modal.addEventListener(
+        "click",
+        function (event) {
+
+          if (
+            event.target === modal
+          ) {
+
+            closeStudentModal();
+
+          }
+
+        }
+      );
+
+    }
+
+  }
+
+
+  /* =========================================================
+     OPEN STUDENT MODAL
+     ========================================================= */
+
+  function openStudentModal() {
+
+    const modal =
+      document.getElementById(
+        "studentModal"
+      );
+
+
+    if (!modal) {
+      return;
+    }
+
+
+    modal.classList.add(
+      "open"
+    );
+
+
+    modal.setAttribute(
+      "aria-hidden",
+      "false"
+    );
+
+
+    const nameInput =
+      document.getElementById(
+        "studentName"
+      );
+
+
+    if (nameInput) {
+
+      setTimeout(
+        () => nameInput.focus(),
+        100
+      );
+
+    }
+
+  }
+
+
+  /* =========================================================
+     CLOSE STUDENT MODAL
+     ========================================================= */
+
+  function closeStudentModal() {
+
+    const modal =
+      document.getElementById(
+        "studentModal"
+      );
+
+
+    if (!modal) {
+      return;
+    }
+
+
+    modal.classList.remove(
+      "open"
+    );
+
+
+    modal.setAttribute(
+      "aria-hidden",
+      "true"
+    );
+
+
+    const form =
+      document.getElementById(
+        "studentForm"
+      );
+
+
+    if (form) {
+
+      form.reset();
+
+    }
+
+  }
+
+
+  /* =========================================================
+     ADD STUDENT
+     ========================================================= */
+
+  function handleStudentSubmit(
+    event
+  ) {
+
+    event.preventDefault();
+
+
+    const name =
+      document
+        .getElementById(
+          "studentName"
+        )
+        .value
+        .trim();
+
+
+    const grade =
+      document
+        .getElementById(
+          "studentGrade"
+        )
+        .value;
+
+
+    const admission =
+      document
+        .getElementById(
+          "studentAdmission"
+        )
+        .value
+        .trim();
+
+
+    const gender =
+      document
+        .getElementById(
+          "studentGender"
+        )
+        .value;
+
+
+    if (!name) {
+
+      CBC_MASTER.notify(
+        "Student",
+        "Please enter the student's full name."
+      );
+
+      return;
+
+    }
+
+
+    const duplicate =
+      reportState.students.some(
+        student => {
+
+          return (
+
+            student.name
+              .toLowerCase() ===
+            name.toLowerCase()
+
+            &&
+
+            student.grade ===
+            grade
+
+          );
+
+        }
+      );
+
+
+    if (duplicate) {
+
+      CBC_MASTER.notify(
+        "Student",
+        "A learner with this name already exists in this grade."
+      );
+
+      return;
+
+    }
+
+
+    const student = {
+
+      id:
+        createStudentId(),
+
+      name,
+
+      grade,
+
+      admission,
+
+      gender,
+
+      createdAt:
+        new Date().toISOString(),
+
+      updatedAt:
+        new Date().toISOString()
+
+    };
+
+
+    reportState.students.push(
+      student
+    );
+
+
+    saveReportState();
+
+
+    /*
+       Keep the report page on
+       the selected grade if the
+       new learner matches it.
+    */
+
+    reportState.selectedGrade =
+      grade;
+
+
+    saveReportState();
+
+
+    closeStudentModal();
+
+    renderReportBooks();
+
+
+    CBC_MASTER.notify(
+      "Student Added",
+      name +
+      " has been added to " +
+      grade +
+      "."
+    );
+
+  }
+
+
+  /* =========================================================
+     STUDENT ACTIONS
+     ========================================================= */
+
+  function handleStudentAction(
+    action,
+    id
+  ) {
+
+    const student =
+      reportState.students.find(
+        item =>
+          item.id === id
+      );
+
+
+    if (!student) {
+      return;
+    }
+
+
+    if (action === "assess") {
+
+      openAssessmentFoundation(
+        student
+      );
+
+      return;
+
+    }
+
+
+    if (action === "view") {
+
+      openReportFoundation(
+        student
+      );
+
+      return;
+
+    }
+
+
+    if (action === "delete") {
+
+      deleteStudent(
+        student
+      );
+
+    }
+
+  }
+
+
+  /* =========================================================
+     DELETE STUDENT
+     ========================================================= */
+
+  function deleteStudent(
+    student
+  ) {
+
+    const confirmed =
+      window.confirm(
+
+        "Delete " +
+        student.name +
+        " from " +
+        student.grade +
+        "?\n\n" +
+        "This removes the learner from the local Report Books data."
+
+      );
+
+
+    if (!confirmed) {
+      return;
+    }
+
+
+    reportState.students =
+      reportState.students.filter(
+        item =>
+          item.id !== student.id
+      );
+
+
+    deleteStudentAssessments(
+      student.id
+    );
+
+
+    saveReportState();
+
+    renderReportBooks();
+
+
+    CBC_MASTER.notify(
+      "Student Removed",
+      student.name +
+      " has been removed."
+    );
+
+  }
+
+
+  /* =========================================================
+     DELETE ASSESSMENTS FOR STUDENT
+     ========================================================= */
+
+  function deleteStudentAssessments(
+    studentId
+  ) {
+
+    const assessments =
+      reportState.assessments || {};
+
+
+    Object.keys(
+      assessments
+    ).forEach(key => {
+
+      if (
+        key.startsWith(
+          studentId + "::"
+        )
+      ) {
+
+        delete assessments[key];
+
+      }
+
+    });
+
+
+    reportState.assessments =
+      assessments;
+
+  }
+
+
+  /* =========================================================
+     ASSESSMENT FOUNDATION
+     ========================================================= */
+
+  function openAssessmentFoundation(
+    student
+  ) {
+
+    reportState.selectedStudent =
+      student.id;
+
+
+    saveReportState();
+
+
+    CBC_MASTER.notify(
+
+      "Assessment",
+
+      student.name +
+      " is ready for assessment. " +
+      "The detailed assessment engine will plug into this Report Book."
+
+    );
+
+  }
+
+
+  /* =========================================================
+     REPORT FOUNDATION
+     ========================================================= */
+
+  function openReportFoundation(
+    student
+  ) {
+
+    reportState.selectedStudent =
+      student.id;
+
+
+    saveReportState();
+
+
+    CBC_MASTER.notify(
+
+      "Report Preview",
+
+      "Report preview for " +
+      student.name +
+      " is ready for the Report Preview module."
+
+    );
+
+  }
+
+
+  /* =========================================================
+     ASSESSMENT STORAGE
+     ========================================================= */
+
+  function saveAssessment(
+    studentId,
+    subject,
+    assessment
+  ) {
+
+    if (
+      !reportState.assessments
+    ) {
+
+      reportState.assessments =
+        {};
+
+    }
+
+
+    const key =
+
+      studentId +
+      "::" +
+      reportState.selectedTerm +
+      "::" +
+      reportState.selectedYear +
+      "::" +
+      subject;
+
+
+    reportState.assessments[key] = {
+
+      studentId,
+
+      subject,
+
+      term:
+        reportState.selectedTerm,
+
+      year:
+        reportState.selectedYear,
+
+      data:
+        assessment,
+
+      updatedAt:
+        new Date().toISOString()
+
+    };
+
+
+    saveReportState();
+
+  }
+
+
+  /* =========================================================
+     GET ASSESSMENT
+     ========================================================= */
+
+  function getAssessment(
+    studentId,
+    subject
+  ) {
+
+    const key =
+
+      studentId +
+      "::" +
+      reportState.selectedTerm +
+      "::" +
+      reportState.selectedYear +
+      "::" +
+      subject;
+
+
+    return (
+      reportState.assessments[key]
+      || null
+    );
+
+  }
+
+
+  /* =========================================================
+     COUNT ASSESSMENTS
+     ========================================================= */
+
+  function countAssessments() {
+
+    return Object.keys(
+      reportState.assessments || {}
+    ).length;
+
+  }
+
+
+  /* =========================================================
+     STUDENT ASSESSMENT COUNT
+     ========================================================= */
+
+  function getStudentAssessmentCount(
+    studentId
+  ) {
+
+    const prefix =
+      studentId +
+      "::" +
+      reportState.selectedTerm +
+      "::" +
+      reportState.selectedYear +
+      "::";
+
+
+    return Object.keys(
+      reportState.assessments || {}
+    )
+    .filter(
+      key =>
+        key.startsWith(prefix)
+    )
+    .length;
+
+  }
+
+
+  /* =========================================================
+     COUNT REPORTS
+     ========================================================= */
+
+  function countReports() {
+
+    return Object.keys(
+      reportState.reports || {}
+    ).length;
+
+  }
+
+
+  /* =========================================================
+     CREATE REPORT RECORD
+     ========================================================= */
+
+  function createReportRecord(
+    studentId
+  ) {
+
+    const student =
+      reportState.students.find(
+        item =>
+          item.id === studentId
+      );
+
+
+    if (!student) {
+      return null;
+    }
+
+
+    const reportId =
+
+      studentId +
+      "::" +
+      reportState.selectedTerm +
+      "::" +
+      reportState.selectedYear;
+
+
+    const report = {
+
+      id:
+        reportId,
+
+      studentId,
+
+      studentName:
+        student.name,
+
+      grade:
+        student.grade,
+
+      term:
+        reportState.selectedTerm,
+
+      year:
+        reportState.selectedYear,
+
+      createdAt:
+        new Date().toISOString(),
+
+      updatedAt:
+        new Date().toISOString()
+
+    };
+
+
+    reportState.reports[
+      reportId
+    ] = report;
+
+
+    saveReportState();
+
+
+    return report;
+
+  }
+
+
+  /* =========================================================
+     EXPORT STUDENTS
+     ========================================================= */
+
+  function exportStudents() {
+
+    const students =
+      getFilteredStudents();
+
+
+    if (!students.length) {
+
+      CBC_MASTER.notify(
+        "Export",
+        "There are no learners to export."
+      );
+
+      return;
+
+    }
+
+
+    const rows = [
+
+      [
+        "No.",
+        "Student Name",
+        "Grade",
+        "Admission Number",
+        "Gender"
+      ],
+
+      ...students.map(
+        (student, index) => [
+
+          index + 1,
+
+          student.name,
+
+          student.grade,
+
+          student.admission || "",
+
+          student.gender || ""
+
+        ]
+      )
+
+    ];
+
+
+    const csv =
+      rows
+        .map(row =>
+          row
+            .map(csvEscape)
+            .join(",")
+        )
+        .join("\n");
+
+
+    const blob =
+      new Blob(
+        [csv],
+        {
+          type:
+            "text/csv;charset=utf-8;"
+        }
+      );
+
+
+    const url =
+      URL.createObjectURL(
+        blob
+      );
+
+
+    const link =
+      document.createElement(
+        "a"
+      );
+
+
+    link.href =
+      url;
+
+
+    link.download =
+
+      "CBC_MASTER_" +
+      reportState.selectedGrade
+        .replace(/\s+/g, "_") +
+      "_Students.csv";
+
+
+    document.body.appendChild(
+      link
+    );
+
+
+    link.click();
+
+
+    link.remove();
+
+
+    URL.revokeObjectURL(
+      url
+    );
+
+
+    CBC_MASTER.notify(
+      "Export Complete",
+      students.length +
+      " learner records exported."
+    );
+
+  }
+
+
+  /* =========================================================
+     CSV ESCAPE
+     ========================================================= */
+
+  function csvEscape(
+    value
+  ) {
+
+    const string =
+      String(
+        value ?? ""
+      );
+
+
+    if (
+      /[",\n]/.test(string)
+    ) {
+
+      return '"' +
+        string.replace(
+          /"/g,
+          '""'
+        ) +
+        '"';
+
+    }
+
+
+    return string;
+
+  }
+
+
+  /* =========================================================
+     INITIALS
+     ========================================================= */
+
+  function getInitials(
+    name
+  ) {
+
+    return String(name)
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map(
+        word =>
+          word.charAt(0)
+            .toUpperCase()
+      )
+      .join("");
+
+  }
+
+
+  /* =========================================================
+     HTML ESCAPE
+     ========================================================= */
+
+  function escapeHtml(
+    value
+  ) {
+
+    return String(
+      value ?? ""
+    )
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /'/g,
+      "&#039;"
+    );
+
+  }
+
+
+  /* 
+    
