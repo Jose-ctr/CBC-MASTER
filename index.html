@@ -4,7 +4,7 @@
 
   <!-- =========================================================
        CBC MASTER V2
-       PART 1 — FOUNDATION
+       FOUNDATION
        Kenyan CBC Toolkit • PP1 to Grade 12
        ========================================================= -->
 
@@ -15,7 +15,8 @@
                  initial-scale=1,
                  viewport-fit=cover">
 
-  <meta name="theme-color" content="#0B1F33">
+  <meta name="theme-color"
+        content="#0B1F33">
 
   <meta name="apple-mobile-web-app-capable"
         content="yes">
@@ -27,15 +28,20 @@
         content="CBC MASTER V2 — Kenyan CBC Toolkit for PP1 to Grade 12">
 
   <title>CBC MASTER V2</title>
-  <link rel="icon" href="icons/icon-192.png" type="image/png">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
 
+  <link rel="icon"
+        href="icons/icon-192.png"
+        type="image/png">
 
-  <!-- =========================================================
-       PART 1A — FOUNDATION CSS
-       ========================================================= -->
-  <link rel="stylesheet" href="css/app.css">
-  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon"
+        href="icons/icon-192.png">
+
+  <link rel="stylesheet"
+        href="css/app.css">
+
+  <link rel="manifest"
+        href="manifest.json">
+
 </head>
 
 
@@ -90,12 +96,18 @@
         </div>
 
 
-        <nav class="sidebar-nav">
+        <nav class="sidebar-nav"
+             aria-label="Workspace">
+
+
+          <!-- Dashboard -->
 
           <button class="sidebar-link active"
+                  type="button"
                   data-page="dashboard">
 
-            <span class="sidebar-link-icon">
+            <span class="sidebar-link-icon"
+                  aria-hidden="true">
               🏠
             </span>
 
@@ -106,10 +118,14 @@
           </button>
 
 
+          <!-- Report Books -->
+
           <button class="sidebar-link"
+                  type="button"
                   data-page="report-books">
 
-            <span class="sidebar-link-icon">
+            <span class="sidebar-link-icon"
+                  aria-hidden="true">
               📋
             </span>
 
@@ -120,10 +136,14 @@
           </button>
 
 
+          <!-- Schemes -->
+
           <button class="sidebar-link"
+                  type="button"
                   data-page="schemes">
 
-            <span class="sidebar-link-icon">
+            <span class="sidebar-link-icon"
+                  aria-hidden="true">
               📅
             </span>
 
@@ -134,10 +154,14 @@
           </button>
 
 
+          <!-- Lesson Plans -->
+
           <button class="sidebar-link"
+                  type="button"
                   data-page="lesson-plans">
 
-            <span class="sidebar-link-icon">
+            <span class="sidebar-link-icon"
+                  aria-hidden="true">
               📖
             </span>
 
@@ -148,10 +172,14 @@
           </button>
 
 
+          <!-- Assessment Rubrics -->
+
           <button class="sidebar-link"
+                  type="button"
                   data-page="rubrics">
 
-            <span class="sidebar-link-icon">
+            <span class="sidebar-link-icon"
+                  aria-hidden="true">
               ☑️
             </span>
 
@@ -162,10 +190,14 @@
           </button>
 
 
+          <!-- Students -->
+
           <button class="sidebar-link"
+                  type="button"
                   data-page="students">
 
-            <span class="sidebar-link-icon">
+            <span class="sidebar-link-icon"
+                  aria-hidden="true">
               👥
             </span>
 
@@ -176,10 +208,14 @@
           </button>
 
 
+          <!-- Documents -->
+
           <button class="sidebar-link"
+                  type="button"
                   data-page="documents">
 
-            <span class="sidebar-link-icon">
+            <span class="sidebar-link-icon"
+                  aria-hidden="true">
               📄
             </span>
 
@@ -190,15 +226,21 @@
           </button>
 
 
+          <!-- Account -->
+
           <div class="sidebar-section-title">
             Account
           </div>
 
 
+          <!-- Analytics -->
+
           <button class="sidebar-link"
+                  type="button"
                   data-page="analytics">
 
-            <span class="sidebar-link-icon">
+            <span class="sidebar-link-icon"
+                  aria-hidden="true">
               📊
             </span>
 
@@ -209,10 +251,14 @@
           </button>
 
 
+          <!-- Teacher Profile -->
+
           <button class="sidebar-link"
+                  type="button"
                   data-page="profile">
 
-            <span class="sidebar-link-icon">
+            <span class="sidebar-link-icon"
+                  aria-hidden="true">
               👤
             </span>
 
@@ -223,10 +269,14 @@
           </button>
 
 
+          <!-- Settings -->
+
           <button class="sidebar-link"
+                  type="button"
                   data-page="settings">
 
-            <span class="sidebar-link-icon">
+            <span class="sidebar-link-icon"
+                  aria-hidden="true">
               ⚙️
             </span>
 
@@ -298,19 +348,27 @@
 
           <div class="header-actions">
 
+            <!-- Notifications -->
+
             <button class="icon-button"
                     type="button"
                     aria-label="Notifications"
                     id="notificationButton">
+
               🔔
+
             </button>
 
+
+            <!-- Settings -->
 
             <button class="icon-button"
                     type="button"
                     aria-label="Settings"
                     id="settingsButton">
+
               ⚙️
+
             </button>
 
           </div>
@@ -357,7 +415,9 @@
 
               <div class="welcome-badge"
                    aria-hidden="true">
+
                 ☀️
+
               </div>
 
             </section>
@@ -394,7 +454,9 @@
 
                 <div class="card-icon"
                      aria-hidden="true">
+
                   📋
+
                 </div>
 
                 <h3 class="card-title">
@@ -422,7 +484,9 @@
 
                 <div class="card-icon"
                      aria-hidden="true">
+
                   📅
+
                 </div>
 
                 <h3 class="card-title">
@@ -450,7 +514,9 @@
 
                 <div class="card-icon"
                      aria-hidden="true">
+
                   📖
+
                 </div>
 
                 <h3 class="card-title">
@@ -478,7 +544,9 @@
 
                 <div class="card-icon"
                      aria-hidden="true">
+
                   ☑️
+
                 </div>
 
                 <h3 class="card-title">
@@ -517,6 +585,8 @@
             <section class="stats-grid">
 
 
+              <!-- Students -->
+
               <div class="stat-card">
 
                 <div class="stat-label">
@@ -533,6 +603,8 @@
 
               </div>
 
+
+              <!-- Report Books -->
 
               <div class="stat-card">
 
@@ -551,6 +623,8 @@
               </div>
 
 
+              <!-- Schemes -->
+
               <div class="stat-card">
 
                 <div class="stat-label">
@@ -567,6 +641,8 @@
 
               </div>
 
+
+              <!-- Documents -->
 
               <div class="stat-card">
 
@@ -606,11 +682,14 @@
         <div class="bottom-nav-inner">
 
 
+          <!-- Home -->
+
           <button class="bottom-nav-item active"
                   type="button"
                   data-page="dashboard">
 
-            <span class="bottom-nav-icon">
+            <span class="bottom-nav-icon"
+                  aria-hidden="true">
               🏠
             </span>
 
@@ -621,11 +700,14 @@
           </button>
 
 
+          <!-- Documents -->
+
           <button class="bottom-nav-item"
                   type="button"
                   data-page="documents">
 
-            <span class="bottom-nav-icon">
+            <span class="bottom-nav-icon"
+                  aria-hidden="true">
               📄
             </span>
 
@@ -636,11 +718,14 @@
           </button>
 
 
+          <!-- Analytics -->
+
           <button class="bottom-nav-item"
                   type="button"
                   data-page="analytics">
 
-            <span class="bottom-nav-icon">
+            <span class="bottom-nav-icon"
+                  aria-hidden="true">
               📊
             </span>
 
@@ -651,11 +736,14 @@
           </button>
 
 
+          <!-- Profile -->
+
           <button class="bottom-nav-item"
                   type="button"
                   data-page="profile">
 
-            <span class="bottom-nav-icon">
+            <span class="bottom-nav-icon"
+                  aria-hidden="true">
               👤
             </span>
 
@@ -676,200 +764,13 @@
   </div>
 
 
+
   <!-- =========================================================
-       PART 1 END
-
-       NO APPLICATION JAVASCRIPT IN PART 1.
-
-       Part 2 will handle:
-       - Navigation
-       - LocalStorage
-       - App state
-       - Module routing
+       APPLICATION JAVASCRIPT
        ========================================================= -->
-<!-- =========================================================
-     CBC MASTER V2
-     PART 2 — CORE APP ENGINE
-     =========================================================
 
-     RESPONSIBILITIES:
-     • Application state
-     • LocalStorage
-     • Navigation
-     • Dashboard module routing
-     • Mobile navigation
-     • Sidebar navigation
-     • Teacher profile basics
-     • Notifications/settings hooks
+  <script src="js/app.js"></script>
 
-     NO REPORT BOOK ENGINE HERE.
-     NO SCHEMES ENGINE HERE.
-     NO LESSON PLAN ENGINE HERE.
-     NO RUBRICS ENGINE HERE.
 
-     Those will be added in later parts.
-     ========================================================= -->
-<!-- =========================================================
-     CBC MASTER V2
-     PART 3 — REPORT BOOKS ENGINE
-     
-     PP1 → GRADE 12
-     ========================================================= -->
-<!-- =========================================================
-     PART 3B — REPORT BOOKS ENGINE
-     ========================================================= -->
-<!-- =========================================================
-     PART 3 END
-     ========================================================= --> 
-      <!-- =========================================================
-     CBC MASTER V2
-     PART 4 — SCHEMES OF WORK ENGINE
-     
-     PP1 → GRADE 12
-     ========================================================= -->
-<!-- =========================================================
-     PART 4 END
-     ========================================================= -->
-      <!-- =========================================================
-     CBC MASTER V2
-     PART 5 — LESSON PLANNER ENGINE
-     ========================================================= -->
-<!-- =========================================================
-     END PART 5
-     ========================================================= -->
-  <!-- =========================================================
-     CBC MASTER V2
-     PART 6A — SCHEME OF WORK DATA + STORAGE ENGINE
-     ========================================================= -->
-<!-- =========================================================
-     END PART 6A
-     ========================================================= -->
-  <!-- =========================================================
-     CBC MASTER V2
-     PART 6B — SCHEME OF WORK UI + CRUD ENGINE
-     ========================================================= -->
-<!-- =========================================================
-     END PART 6B
-     ========================================================= -->
- <!-- =========================================================
-     CBC MASTER V2
-     PART 7A — ASSESSMENT & RESULTS
-     DATA + STORAGE ENGINE
-     ========================================================= -->
-<!-- =========================================================
-     END PART 7A
-     ========================================================= --> 
- <!-- =========================================================
-     CBC MASTER V2
-     PART 7B — ASSESSMENT & RESULTS UI + CRUD
-     ========================================================= -->
-<!-- =========================================================
-     END PART 7B
-
-<!-- =========================================================
-     CBC MASTER V2
-     PART 8A — ASSESSMENT DATA ENGINE V2
-     
-     IMPORTANT:
-     - Works alongside existing PART 7A + 7B
-     - Does NOT overwrite window.CBC_ASSESSMENTS
-     - Uses separate CBC_ASSESSMENTS_V2 namespace
-     - LocalStorage based
-     - Ready for PART 8B UI
-     ========================================================= -->
-<!-- =========================================================
-     END PART 8A — ASSESSMENT DATA ENGINE V2
-     ========================================================= -->
- <!-- =========================================================
-     CBC MASTER V2
-     PART 8B — ASSESSMENT ANALYTICS UI + REPORTING DASHBOARD
-     ========================================================= -->
-<!-- =========================================================
-     END PART 8B
-     ========================================================= --> 
- <!-- =========================================================
-     CBC MASTER V2
-     PART 9A — ATTENDANCE DATA + STORAGE ENGINE V2
-     ========================================================= -->
-<!-- =========================================================
-     END PART 9A — ATTENDANCE DATA + STORAGE ENGINE V2
-     ========================================================= --> 
-  
-  <!-- =========================================================
-     CBC MASTER V2
-     PART 9B — ATTENDANCE UI + CRUD ENGINE V2
-     ========================================================= -->
-<!-- =========================================================
-     END PART 9B
-     ========================================================= -->
-  <!-- =========================================================
-     CBC MASTER V2
-     PART 10A — ATTENDANCE DATA + STORAGE ENGINE V2
-     ========================================================= -->
-<!-- =========================================================
-     END PART 10A — ATTENDANCE DATA + STORAGE ENGINE V2
-     ========================================================= -->
-  <!-- =========================================================
-     CBC MASTER V2
-     PART 10B — ATTENDANCE UI + CRUD ENGINE
-     ========================================================= -->
-<!-- =========================================================
-     END PART 10B
-     ========================================================= -->
-  <!-- =========================================================
-     CBC MASTER V2
-     PART 11A — DATA + STORAGE ENGINE
-     ========================================================= -->
-<!-- =========================================================
-     END PART 11A
-     ========================================================= -->
-  <!-- =========================================================
-     CBC MASTER V2
-     PART 11B — UI + CRUD
-     ========================================================= -->
-<!-- =========================================================
-     END PART 11B
-     ========================================================= -->
- <!-- =========================================================
-     CBC MASTER V2
-     PART 12A — REPORT GENERATION DATA + STORAGE ENGINE
-     ========================================================= -->
-<!-- =========================================================
-     END PART 12A
-     ========================================================= --> 
-<!-- =========================================================
-     CBC MASTER V2
-     PART 12B — REPORT GENERATION UI + CRUD
-     ========================================================= -->
-<!-- =========================================================
-     END PART 12B
-     ========================================================= -->  
-  <!-- =========================================================
-     CBC MASTER V2
-     PART 13A — TEACHER PROFILE DATA + STORAGE ENGINE V2
-     ========================================================= -->
-<!-- =========================================================
-     END PART 13A — TEACHER PROFILE DATA + STORAGE ENGINE V2
-     ========================================================= -->
-  <!-- =========================================================
-     CBC MASTER V2
-     PART 13B — TEACHER PROFILE UI + CRUD
-     ========================================================= -->
-<!-- =========================================================
-     END PART 13B — TEACHER PROFILE UI + CRUD
-     ========================================================= -->
- <!-- =========================================================
-     CBC MASTER V2
-     STUDENTS MODULE — ADD / EDIT / VIEW
-     FINAL REPAIR PATCH
-     
-     Add this AFTER ALL existing CBC MASTER code,
-     immediately before   <script src="js/app.js" defer></script>
-</body>.
-     ========================================================= -->
-<!-- =========================================================
-     END STUDENTS MODULE REPAIR
-     ========================================================= --> 
-  <script src="js/app.js" defer></script>
 </body>
 </html>
