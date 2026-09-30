@@ -3,23 +3,26 @@
 /*
 |--------------------------------------------------------------------------
 | CBC MASTER V2
-| Privacy-First Local Application Engine
+| Local-first application engine
 |--------------------------------------------------------------------------
-|
 | Privacy principles:
-| - Teaching data stays in the browser.
-| - No analytics.
-| - No advertising trackers.
-| - No third-party scripts.
-| - No personal-data logging.
-| - No automatic network transmission of workspace data.
-| - Export and deletion remain under the teacher's control.
-|
+| - No third-party analytics
+| - No advertising trackers
+| - No automatic cloud sync
+| - No personal-data console logging
+| - Core workspace stored locally
 |--------------------------------------------------------------------------
 */
 
 const STORAGE_KEY = "cbc_master_v2";
 const STORAGE_VERSION = 2;
+
+
+/*
+|--------------------------------------------------------------------------
+| Page metadata
+|--------------------------------------------------------------------------
+*/
 
 const PAGE_TITLES = {
   dashboard: {
@@ -76,7 +79,7 @@ const PAGE_TITLES = {
 
 /*
 |--------------------------------------------------------------------------
-| DEFAULT LOCAL DATA
+| Default local data
 |--------------------------------------------------------------------------
 */
 
@@ -109,109 +112,177 @@ const DEFAULT_DATA = {
 
 /*
 |--------------------------------------------------------------------------
-| APPLICATION STATE
+| Application state
 |--------------------------------------------------------------------------
 */
 
-let appData = null;
-let toastTimer = null;
+let appData = loadData();
 
 
 /*
 |--------------------------------------------------------------------------
-| START APPLICATION
+| DOM helpers
 |--------------------------------------------------------------------------
 */
 
-document.addEventListener("DOMContentLoaded", () => {
-  appData = loadData();
-
-  cacheElements();
-  bindNavigation();
-  bindDashboardModules();
-  bindQuickActions();
-  bindHeaderActions();
-  bindKeyboardAccessibility();
-
-  updateHomeDashboard();
-  navigateToPage("dashboard");
-
-  registerServiceWorker();
-});
+function $(selector) {
+  return document.querySelector(selector);
+}
 
 
-/*
-|--------------------------------------------------------------------------
-| DOM CACHE
-|--------------------------------------------------------------------------
-*/
-
-const elements = {
-  pageTitle: null,
-  pageSubtitle: null,
-  notificationButton: null,
-  settingsButton: null
-};
-
-
-function cacheElements() {
-  elements.pageTitle = document.getElementById("pageTitle");
-  elements.pageSubtitle = document.getElementById("pageSubtitle");
-  elements.notificationButton = document.getElementById(
-    "notificationButton"
-  );
-  elements.settingsButton = document.getElementById(
-    "settingsButton"
-  );
+function $$(selector) {
+  return Array.from(document.querySelectorAll(selector));
 }
 
 
 /*
 |--------------------------------------------------------------------------
-| LOCAL DATA
+| Safe text helper
+|--------------------------------------------------------------------------
+*/
+
+function cleanDisplayText(value, fallback = "") {
+  if (value === null || value === undefined) {
+    return fallback;
+  }
+
+  return String(value)
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Clone default data
+|--------------------------------------------------------------------------
+*/
+
+function cloneDefaultData() {
+  return JSON.parse(JSON.stringify(DEFAULT_DATA));
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Generate local record ID
+|--------------------------------------------------------------------------
+*/
+
+function createId() {
+  if (
+    window.crypto &&
+    typeof window.crypto.randomUUID === "function"
+  ) {
+    return window.crypto.randomUUID();
+  }
+
+  if (
+    window.crypto &&
+    typeof window.crypto.getRandomValues === "function"
+  ) {
+    const bytes = new Uint8Array(16);
+    window.crypto.getRandomValues(bytes);
+
+    return Array.from(bytes)
+      .map((byte) => byte.toString(16).padStart(2, "0"))
+      .join("");
+  }
+
+  return `${Date.now()}-${Math.random()
+    .toString(36)
+    .slice(2, 10)}`;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Basic data validation
+|--------------------------------------------------------------------------
+*/
+
+function isObject(value) {
+  return (
+    value !== null &&
+    typeof value === "object" &&
+    !Array.isArray(value)
+  );
+}
+
+
+function ensureArray(value) {
+  return Array.isArray(value) ? value : [];
+}
+
+
+function normaliseData(rawData) {
+  const defaults = cloneDefaultData();
+
+  if (!isObject(rawData)) {
+    return defaults;
+  }
+
+  const data = {
+    ...defaults,
+    ...rawData
+  };
+
+  data.version = STORAGE_VERSION;
+
+  data.teacher = {
+    ...defaults.teacher,
+    ...(isObject(rawData.teacher) ? rawData.teacher : {})
+  };
+
+  data.preferences = {
+    ...defaults.preferences,
+    ...(isObject(rawData.preferences)
+      ? rawData.preferences
+      : {})
+  };
+
+  data.students = ensureArray(rawData.students);
+  data.reportBooks = ensureArray(rawData.reportBooks);
+  data.schemes = ensureArray(rawData.schemes);
+  data.lessonPlans = ensureArray(rawData.lessonPlans);
+  data.rubrics = ensureArray(rawData.rubrics);
+  data.documents = ensureArray(rawData.documents);
+  data.activity = ensureArray(rawData.activity);
+
+  return data;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Load data
 |--------------------------------------------------------------------------
 */
 
 function loadData() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const stored = localStorage.getItem(STORAGE_KEY);
 
-    if (!raw) {
-      const freshData = cloneDefaultData();
-
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(freshData)
-      );
-
-      return freshData;
-    }
-
-    const parsed = JSON.parse(raw);
-
-    if (!isValidDataObject(parsed)) {
+    if (!stored) {
       return cloneDefaultData();
     }
 
-    return mergeData(DEFAULT_DATA, parsed);
+    const parsed = JSON.parse(stored);
 
+    return normaliseData(parsed);
   } catch {
-    /*
-    |--------------------------------------------------------------------------
-    | Deliberately do not log storage contents.
-    |--------------------------------------------------------------------------
-    */
-
     return cloneDefaultData();
   }
 }
 
 
-function saveData() {
-  if (!appData) {
-    return false;
-  }
+/*
+|--------------------------------------------------------------------------
+| Save data
+|--------------------------------------------------------------------------
+*/
 
+function saveData() {
   try {
     localStorage.setItem(
       STORAGE_KEY,
@@ -219,10 +290,10 @@ function saveData() {
     );
 
     return true;
-
   } catch {
     showToast(
-      "Unable to save data on this device."
+      "Unable to save local data. Storage may be full.",
+      "error"
     );
 
     return false;
@@ -230,108 +301,282 @@ function saveData() {
 }
 
 
-function cloneDefaultData() {
-  return JSON.parse(
-    JSON.stringify(DEFAULT_DATA)
-  );
+/*
+|--------------------------------------------------------------------------
+| Get current data
+|--------------------------------------------------------------------------
+*/
+
+function getData() {
+  return appData;
 }
 
 
-function mergeData(defaults, saved) {
-  const result = cloneDefaultData();
+/*
+|--------------------------------------------------------------------------
+| Activity
+|--------------------------------------------------------------------------
+*/
 
-  if (!saved || typeof saved !== "object") {
-    return result;
+function addActivity(message) {
+  const safeMessage = cleanDisplayText(message);
+
+  if (!safeMessage) {
+    return;
   }
 
-  if (
-    saved.teacher &&
-    typeof saved.teacher === "object" &&
-    !Array.isArray(saved.teacher)
-  ) {
-    result.teacher = {
-      ...defaults.teacher,
-      ...saved.teacher
-    };
-  }
-
-  if (
-    saved.preferences &&
-    typeof saved.preferences === "object" &&
-    !Array.isArray(saved.preferences)
-  ) {
-    result.preferences = {
-      ...defaults.preferences,
-      ...saved.preferences
-    };
-  }
-
-  const collections = [
-    "students",
-    "reportBooks",
-    "schemes",
-    "lessonPlans",
-    "rubrics",
-    "documents",
-    "activity"
-  ];
-
-  collections.forEach((collection) => {
-    if (Array.isArray(saved[collection])) {
-      result[collection] = saved[collection];
-    }
+  appData.activity.unshift({
+    id: createId(),
+    message: safeMessage,
+    createdAt: new Date().toISOString()
   });
 
-  result.version = STORAGE_VERSION;
-
-  return result;
+  /*
+   * Keep only the latest 50 generic activity records.
+   * Personal information is deliberately not included here.
+   */
+  appData.activity = appData.activity.slice(0, 50);
 }
 
 
-function isValidDataObject(data) {
-  return (
-    data !== null &&
-    typeof data === "object" &&
-    !Array.isArray(data)
+/*
+|--------------------------------------------------------------------------
+| Generic record helper
+|--------------------------------------------------------------------------
+*/
+
+function addRecord(collectionName, record, activityMessage) {
+  if (!Array.isArray(appData[collectionName])) {
+    appData[collectionName] = [];
+  }
+
+  const safeRecord = isObject(record)
+    ? { ...record }
+    : {};
+
+  const newRecord = {
+    id: safeRecord.id || createId(),
+    createdAt:
+      safeRecord.createdAt ||
+      new Date().toISOString(),
+    ...safeRecord
+  };
+
+  appData[collectionName].push(newRecord);
+
+  if (activityMessage) {
+    addActivity(activityMessage);
+  }
+
+  saveData();
+  refresh();
+
+  return newRecord;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Add student
+|--------------------------------------------------------------------------
+*/
+
+function addStudent(student = {}) {
+  return addRecord(
+    "students",
+    student,
+    "Student record added."
   );
 }
 
 
 /*
 |--------------------------------------------------------------------------
-| NAVIGATION
+| Add report book
 |--------------------------------------------------------------------------
 */
 
-function bindNavigation() {
-  document
-    .querySelectorAll("[data-page]")
-    .forEach((button) => {
-      button.addEventListener("click", () => {
-        const page = button.dataset.page;
-
-        navigateToPage(page);
-      });
-    });
+function addReportBook(reportBook = {}) {
+  return addRecord(
+    "reportBooks",
+    reportBook,
+    "Report book added."
+  );
 }
 
 
-function navigateToPage(page) {
-  if (!PAGE_TITLES[page]) {
-    return;
+/*
+|--------------------------------------------------------------------------
+| Add scheme
+|--------------------------------------------------------------------------
+*/
+
+function addScheme(scheme = {}) {
+  return addRecord(
+    "schemes",
+    scheme,
+    "Scheme of work added."
+  );
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Add lesson plan
+|--------------------------------------------------------------------------
+*/
+
+function addLessonPlan(lessonPlan = {}) {
+  return addRecord(
+    "lessonPlans",
+    lessonPlan,
+    "Lesson plan added."
+  );
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Add rubric
+|--------------------------------------------------------------------------
+*/
+
+function addRubric(rubric = {}) {
+  return addRecord(
+    "rubrics",
+    rubric,
+    "Assessment rubric added."
+  );
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Add document
+|--------------------------------------------------------------------------
+*/
+
+function addDocument(documentData = {}) {
+  return addRecord(
+    "documents",
+    documentData,
+    "Document saved."
+  );
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Update teacher profile
+|--------------------------------------------------------------------------
+*/
+
+function updateTeacher(teacher = {}) {
+  if (!isObject(teacher)) {
+    return false;
   }
 
-  updatePageTitle(page);
-  updateActiveNavigation(page);
-  showPage(page);
+  appData.teacher = {
+    ...appData.teacher,
+    ...teacher
+  };
 
-  if (page === "dashboard") {
-    updateHomeDashboard();
+  addActivity("Teacher profile updated.");
+
+  saveData();
+  refresh();
+
+  return true;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Update preferences
+|--------------------------------------------------------------------------
+*/
+
+function updatePreferences(preferences = {}) {
+  if (!isObject(preferences)) {
+    return false;
   }
 
-  if (page === "students") {
-    renderStudentsPage();
+  appData.preferences = {
+    ...appData.preferences,
+    ...preferences
+  };
+
+  addActivity("Teaching preferences updated.");
+
+  saveData();
+  refresh();
+
+  return true;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Navigation
+|--------------------------------------------------------------------------
+*/
+
+function navigate(pageName) {
+  const page = PAGE_TITLES[pageName]
+    ? pageName
+    : "dashboard";
+
+  $$("[data-page-section]").forEach((section) => {
+    section.hidden =
+      section.dataset.pageSection !== page;
+  });
+
+
+  /*
+   * Sidebar navigation
+   */
+
+  $$(".nav-item[data-page]").forEach((button) => {
+    button.classList.toggle(
+      "active",
+      button.dataset.page === page
+    );
+  });
+
+
+  /*
+   * Bottom navigation
+   */
+
+  $$(".bottom-nav-item[data-page]").forEach((button) => {
+    button.classList.toggle(
+      "active",
+      button.dataset.page === page
+    );
+  });
+
+
+  /*
+   * Header
+   */
+
+  const metadata = PAGE_TITLES[page];
+
+  const pageTitle = $("#pageTitle");
+  const pageSubtitle = $("#pageSubtitle");
+
+  if (pageTitle) {
+    pageTitle.textContent = metadata.title;
   }
+
+  if (pageSubtitle) {
+    pageSubtitle.textContent = metadata.subtitle;
+  }
+
+
+  /*
+   * Page-specific rendering
+   */
 
   if (page === "settings") {
     renderSettingsPage();
@@ -344,283 +589,201 @@ function navigateToPage(page) {
   if (page === "analytics") {
     renderAnalyticsPage();
   }
-}
 
-
-function showPage(page) {
-  document
-    .querySelectorAll(".app-page")
-    .forEach((pageElement) => {
-      pageElement.classList.add("page-hidden");
-    });
-
-  const pageElement = getPageElement(page);
-
-  if (pageElement) {
-    pageElement.classList.remove("page-hidden");
+  if (page === "students") {
+    renderStudentsPage();
   }
-}
-
-
-function getPageElement(page) {
-  const pageMap = {
-    dashboard: "dashboardPage",
-    "report-books": "reportBooksPage",
-    schemes: "schemesPage",
-    "lesson-plans": "lessonPlansPage",
-    rubrics: "rubricsPage",
-    students: "studentsPage",
-    documents: "documentsPage",
-    analytics: "analyticsPage",
-    profile: "profilePage",
-    settings: "settingsPage"
-  };
-
-  const elementId = pageMap[page];
-
-  return elementId
-    ? document.getElementById(elementId)
-    : null;
-}
-
-
-function updatePageTitle(page) {
-  const pageInfo = PAGE_TITLES[page];
-
-  if (!pageInfo) {
-    return;
-  }
-
-  if (elements.pageTitle) {
-    elements.pageTitle.textContent = pageInfo.title;
-  }
-
-  if (elements.pageSubtitle) {
-    elements.pageSubtitle.textContent =
-      pageInfo.subtitle;
-  }
-
-  document.title =
-    `${pageInfo.title} • CBC MASTER V2`;
-}
-
-
-function updateActiveNavigation(page) {
-  document
-    .querySelectorAll("[data-page]")
-    .forEach((button) => {
-      const isActive =
-        button.dataset.page === page;
-
-      button.classList.toggle(
-        "active",
-        isActive
-      );
-
-      if (isActive) {
-        button.setAttribute(
-          "aria-current",
-          "page"
-        );
-      } else {
-        button.removeAttribute(
-          "aria-current"
-        );
-      }
-    });
 }
 
 
 /*
 |--------------------------------------------------------------------------
-| DASHBOARD MODULE NAVIGATION
+| Bind navigation
 |--------------------------------------------------------------------------
 */
 
-function bindDashboardModules() {
-  document
-    .querySelectorAll("[data-module]")
-    .forEach((card) => {
-      card.addEventListener("click", () => {
-        navigateToPage(
-          card.dataset.module
-        );
-      });
+function bindNavigation() {
+  $$("[data-page]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const page = button.dataset.page;
+
+      if (PAGE_TITLES[page]) {
+        navigate(page);
+      }
     });
+  });
 }
 
 
 /*
 |--------------------------------------------------------------------------
-| QUICK ACTIONS
+| Module navigation
+|--------------------------------------------------------------------------
+*/
+
+function bindModuleCards() {
+  $$("[data-module]").forEach((card) => {
+    card.addEventListener("click", () => {
+      const module = card.dataset.module;
+
+      if (PAGE_TITLES[module]) {
+        navigate(module);
+      }
+    });
+  });
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Quick actions
 |--------------------------------------------------------------------------
 */
 
 function bindQuickActions() {
-  document
-    .querySelectorAll("[data-action]")
-    .forEach((button) => {
-      button.addEventListener("click", () => {
-        handleQuickAction(
-          button.dataset.action
-        );
-      });
+  $$("[data-action]").forEach((button) => {
+    button.addEventListener("click", () => {
+
+      const action = button.dataset.action;
+
+      switch (action) {
+
+        case "add-student":
+          navigate("students");
+          showToast(
+            "Students is ready for learner records."
+          );
+          break;
+
+        case "create-report-book":
+          navigate("report-books");
+          showToast(
+            "Report Books is ready."
+          );
+          break;
+
+        case "create-scheme":
+          navigate("schemes");
+          showToast(
+            "Schemes of Work is ready."
+          );
+          break;
+
+        case "create-lesson-plan":
+          navigate("lesson-plans");
+          showToast(
+            "Lesson Plans is ready."
+          );
+          break;
+
+        default:
+          break;
+      }
     });
-}
-
-
-function handleQuickAction(action) {
-  const actions = {
-    "add-student": {
-      page: "students",
-      message: "Student workspace opened."
-    },
-
-    "create-report-book": {
-      page: "report-books",
-      message: "Report Books workspace opened."
-    },
-
-    "create-scheme": {
-      page: "schemes",
-      message: "Schemes workspace opened."
-    },
-
-    "create-lesson-plan": {
-      page: "lesson-plans",
-      message: "Lesson Plans workspace opened."
-    }
-  };
-
-  const selectedAction =
-    actions[action];
-
-  if (!selectedAction) {
-    return;
-  }
-
-  navigateToPage(
-    selectedAction.page
-  );
-
-  showToast(
-    selectedAction.message
-  );
+  });
 }
 
 
 /*
 |--------------------------------------------------------------------------
-| HEADER ACTIONS
+| Header actions
 |--------------------------------------------------------------------------
 */
 
 function bindHeaderActions() {
-  if (elements.notificationButton) {
-    elements.notificationButton.addEventListener(
+
+  const notificationButton =
+    $("#notificationButton");
+
+  if (notificationButton) {
+    notificationButton.addEventListener(
       "click",
-      showNotifications
+      () => {
+        showToast(
+          "Notifications are not connected to a cloud service."
+        );
+      }
     );
   }
 
-  if (elements.settingsButton) {
-    elements.settingsButton.addEventListener(
+
+  const settingsButton =
+    $("#settingsButton");
+
+  if (settingsButton) {
+    settingsButton.addEventListener(
       "click",
       () => {
-        navigateToPage("settings");
+        navigate("settings");
       }
     );
   }
 }
 
 
-function showNotifications() {
-  const notifications =
-    getNotifications();
+/*
+|--------------------------------------------------------------------------
+| Dashboard statistics
+|--------------------------------------------------------------------------
+*/
 
-  if (!notifications.length) {
-    showToast(
-      "No new notifications."
-    );
+function updateDashboardStats() {
 
-    return;
-  }
+  const stats = {
+    students: appData.students.length,
+    "report-books": appData.reportBooks.length,
+    schemes: appData.schemes.length,
+    documents: appData.documents.length
+  };
 
-  showToast(
-    notifications[0]
+
+  Object.entries(stats).forEach(
+    ([key, value]) => {
+
+      const element =
+        document.querySelector(
+          `[data-stat="${key}"]`
+        );
+
+      if (element) {
+        element.textContent = String(value);
+      }
+
+    }
   );
-}
-
-
-function getNotifications() {
-  const notifications = [];
-
-  if (
-    Array.isArray(appData.students) &&
-    appData.students.length === 0
-  ) {
-    notifications.push(
-      "Your student list is empty."
-    );
-  }
-
-  if (
-    Array.isArray(appData.documents) &&
-    appData.documents.length === 0
-  ) {
-    notifications.push(
-      "You have no saved documents yet."
-    );
-  }
-
-  return notifications;
 }
 
 
 /*
 |--------------------------------------------------------------------------
-| HOME DASHBOARD
+| Sidebar profile
 |--------------------------------------------------------------------------
 */
 
-function updateHomeDashboard() {
-  updateTeacherIdentity();
-  updateWelcomeArea();
-  updateModuleCounts();
-  updateQuickStatistics();
-}
-
-
-function updateTeacherIdentity() {
-  const teacher =
-    appData.teacher || {};
+function updateSidebarProfile() {
 
   const name =
     cleanDisplayText(
-      teacher.name,
+      appData.teacher.name,
       "Teacher"
     );
 
   const role =
     cleanDisplayText(
-      teacher.role,
+      appData.teacher.role,
       "CBC MASTER User"
     );
 
+
   const nameElement =
-    document.getElementById(
-      "sidebarProfileName"
-    );
+    $("#sidebarProfileName");
 
   const roleElement =
-    document.getElementById(
-      "sidebarProfileRole"
-    );
+    $("#sidebarProfileRole");
 
   const avatarElement =
-    document.getElementById(
-      "sidebarProfileAvatar"
-    );
+    $("#sidebarProfileAvatar");
+
 
   if (nameElement) {
     nameElement.textContent = name;
@@ -632,729 +795,367 @@ function updateTeacherIdentity() {
 
   if (avatarElement) {
     avatarElement.textContent =
-      getInitials(name);
+      name.charAt(0).toUpperCase() || "T";
   }
-}
-
-
-function updateWelcomeArea() {
-  const titleElement =
-    document.getElementById(
-      "welcomeTitle"
-    );
-
-  const textElement =
-    document.getElementById(
-      "welcomeText"
-    );
-
-  if (!titleElement || !textElement) {
-    return;
-  }
-
-  const teacherName =
-    cleanDisplayText(
-      appData.teacher?.name,
-      "Teacher"
-    );
-
-  const firstName =
-    teacherName
-      .trim()
-      .split(/\s+/)[0] ||
-      "Teacher";
-
-  titleElement.textContent =
-    `${getGreeting()}, ${firstName}`;
-
-  const grade =
-    cleanDisplayText(
-      appData.preferences?.grade,
-      "Grade 5"
-    );
-
-  const term =
-    cleanDisplayText(
-      appData.preferences?.term,
-      "Term 1"
-    );
-
-  textElement.textContent =
-    `Your ${grade} • ${term} teaching workspace.`;
-}
-
-
-function getGreeting() {
-  const hour =
-    new Date().getHours();
-
-  if (hour < 12) {
-    return "Good morning";
-  }
-
-  if (hour < 18) {
-    return "Good afternoon";
-  }
-
-  return "Good evening";
-}
-
-
-function updateModuleCounts() {
-  const counts = {
-    "report-books":
-      getCollectionLength(
-        "reportBooks"
-      ),
-
-    schemes:
-      getCollectionLength(
-        "schemes"
-      ),
-
-    "lesson-plans":
-      getCollectionLength(
-        "lessonPlans"
-      ),
-
-    rubrics:
-      getCollectionLength(
-        "rubrics"
-      )
-  };
-
-  Object.entries(counts)
-    .forEach(([key, value]) => {
-      document
-        .querySelectorAll(
-          `[data-count="${key}"]`
-        )
-        .forEach((element) => {
-          element.textContent =
-            String(value);
-        });
-    });
-}
-
-
-function updateQuickStatistics() {
-  const statistics = {
-    students:
-      getCollectionLength(
-        "students"
-      ),
-
-    "report-books":
-      getCollectionLength(
-        "reportBooks"
-      ),
-
-    schemes:
-      getCollectionLength(
-        "schemes"
-      ),
-
-    documents:
-      getCollectionLength(
-        "documents"
-      )
-  };
-
-  Object.entries(statistics)
-    .forEach(([key, value]) => {
-      document
-        .querySelectorAll(
-          `[data-stat="${key}"]`
-        )
-        .forEach((element) => {
-          element.textContent =
-            String(value);
-        });
-    });
-}
-
-
-function getCollectionLength(
-  collectionName
-) {
-  return Array.isArray(
-    appData?.[collectionName]
-  )
-    ? appData[collectionName].length
-    : 0;
 }
 
 
 /*
 |--------------------------------------------------------------------------
-| PRIVACY-SAFE DISPLAY CLEANING
+| Settings rendering
 |--------------------------------------------------------------------------
 */
 
-function cleanDisplayText(
-  value,
-  fallback = ""
-) {
-  if (
-    typeof value !== "string"
-  ) {
-    return fallback;
-  }
+function renderSettingsPage() {
 
-  const cleaned =
-    value
-      .trim()
-      .replace(/\s+/g, " ");
+  const preferences =
+    appData.preferences || {};
 
-  return cleaned || fallback;
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| INITIALS
-|--------------------------------------------------------------------------
-*/
-
-function getInitials(name) {
-  const safeName =
-    cleanDisplayText(
-      name,
-      "Teacher"
-    );
-
-  const parts =
-    safeName
-      .split(" ")
-      .filter(Boolean);
-
-  if (!parts.length) {
-    return "T";
-  }
-
-  if (parts.length === 1) {
-    return parts[0]
-      .charAt(0)
-      .toUpperCase();
-  }
-
-  return (
-    parts[0].charAt(0) +
-    parts[parts.length - 1].charAt(0)
-  ).toUpperCase();
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| ACTIVITY
-|--------------------------------------------------------------------------
-*/
-
-function addActivity(
-  type,
-  message
-) {
-  if (
-    typeof type !== "string" ||
-    typeof message !== "string"
-  ) {
-    return false;
-  }
-
-  const activity = {
-    id: createId(),
-    type: type.slice(0, 50),
-    message: message.slice(0, 250),
-    createdAt:
-      new Date().toISOString()
-  };
-
-  if (!Array.isArray(
-    appData.activity
-  )) {
-    appData.activity = [];
-  }
-
-  appData.activity.unshift(
-    activity
-  );
 
   /*
-  |--------------------------------------------------------------------------
-  | Keep only recent local activity.
-  |--------------------------------------------------------------------------
-  */
+   * Preference controls
+   */
 
-  appData.activity =
-    appData.activity.slice(0, 100);
+  const grade =
+    $("#settingsGrade");
 
-  return saveData();
+  const term =
+    $("#settingsTerm");
+
+  const academicYear =
+    $("#settingsAcademicYear");
+
+  const lowDataMode =
+    $("#settingsLowDataMode");
+
+
+  if (grade) {
+    grade.value =
+      preferences.grade || "Grade 5";
+  }
+
+  if (term) {
+    term.value =
+      preferences.term || "Term 1";
+  }
+
+  if (academicYear) {
+    academicYear.value =
+      preferences.academicYear || "2026";
+  }
+
+  if (lowDataMode) {
+    lowDataMode.checked =
+      Boolean(preferences.lowDataMode);
+  }
+
+
+  /*
+   * Storage counts
+   */
+
+  const counts = {
+    settingsStudentCount:
+      appData.students.length,
+
+    settingsReportBookCount:
+      appData.reportBooks.length,
+
+    settingsSchemeCount:
+      appData.schemes.length,
+
+    settingsLessonPlanCount:
+      appData.lessonPlans.length,
+
+    settingsRubricCount:
+      appData.rubrics.length,
+
+    settingsDocumentCount:
+      appData.documents.length
+  };
+
+
+  Object.entries(counts).forEach(
+    ([id, value]) => {
+
+      const element = document.getElementById(id);
+
+      if (element) {
+        element.textContent =
+          String(value);
+      }
+
+    }
+  );
 }
 
 
 /*
 |--------------------------------------------------------------------------
-| STUDENTS
+| Bind Settings controls
 |--------------------------------------------------------------------------
 */
 
-function addStudent(student) {
-  if (
-    !student ||
-    typeof student !== "object"
-  ) {
-    return null;
+function bindSettingsControls() {
+
+  const saveButton =
+    $("#saveSettingsButton");
+
+
+  if (saveButton) {
+
+    saveButton.addEventListener(
+      "click",
+      saveSettingsFromForm
+    );
+
   }
 
-  const record = {
-    id: createId(),
 
-    name: cleanDisplayText(
-      student.name
-    ),
+  const exportButton =
+    $("#exportDataButton");
 
-    grade: cleanDisplayText(
-      student.grade,
-      appData.preferences.grade
-    ),
 
-    className: cleanDisplayText(
-      student.className
-    ),
+  if (exportButton) {
 
-    admissionNumber:
-      cleanDisplayText(
-        student.admissionNumber
-      ),
+    exportButton.addEventListener(
+      "click",
+      exportData
+    );
 
-    createdAt:
-      new Date().toISOString()
-  };
-
-  if (!record.name) {
-    return null;
   }
 
-  appData.students.push(record);
 
-  addActivity(
-    "student",
-    "Student record added."
-  );
+  const importInput =
+    $("#importDataInput");
 
-  saveData();
-  updateHomeDashboard();
 
-  return record;
+  if (importInput) {
+
+    importInput.addEventListener(
+      "change",
+      async (event) => {
+
+        const file =
+          event.target.files &&
+          event.target.files[0];
+
+        if (!file) {
+          return;
+        }
+
+        await importDataFile(file);
+
+        /*
+         * Reset input so the same file can be
+         * selected again later.
+         */
+
+        event.target.value = "";
+
+      }
+    );
+
+  }
+
+
+  const deleteButton =
+    $("#deleteAllDataButton");
+
+
+  if (deleteButton) {
+
+    deleteButton.addEventListener(
+      "click",
+      deleteAllData
+    );
+
+  }
 }
 
 
 /*
 |--------------------------------------------------------------------------
-| REPORT BOOKS
+| Save Settings form
 |--------------------------------------------------------------------------
 */
 
-function addReportBook(
-  reportBook
-) {
-  if (
-    !reportBook ||
-    typeof reportBook !== "object"
-  ) {
-    return null;
-  }
+function saveSettingsFromForm() {
 
-  const record = {
-    id: createId(),
-    ...reportBook,
-    createdAt:
-      new Date().toISOString()
+  const grade =
+    $("#settingsGrade");
+
+  const term =
+    $("#settingsTerm");
+
+  const academicYear =
+    $("#settingsAcademicYear");
+
+  const lowDataMode =
+    $("#settingsLowDataMode");
+
+
+  const preferences = {
+    grade:
+      grade?.value || "Grade 5",
+
+    term:
+      term?.value || "Term 1",
+
+    academicYear:
+      academicYear?.value || "2026",
+
+    lowDataMode:
+      Boolean(lowDataMode?.checked)
   };
 
-  appData.reportBooks.push(
-    record
+
+  updatePreferences(preferences);
+
+  showToast(
+    "Preferences saved on this device."
   );
-
-  addActivity(
-    "report-book",
-    "Report book created."
-  );
-
-  saveData();
-  updateHomeDashboard();
-
-  return record;
 }
 
 
 /*
 |--------------------------------------------------------------------------
-| SCHEMES
-|--------------------------------------------------------------------------
-*/
-
-function addScheme(scheme) {
-  if (
-    !scheme ||
-    typeof scheme !== "object"
-  ) {
-    return null;
-  }
-
-  const record = {
-    id: createId(),
-    ...scheme,
-    createdAt:
-      new Date().toISOString()
-  };
-
-  appData.schemes.push(record);
-
-  addActivity(
-    "scheme",
-    "Scheme created."
-  );
-
-  saveData();
-  updateHomeDashboard();
-
-  return record;
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| LESSON PLANS
-|--------------------------------------------------------------------------
-*/
-
-function addLessonPlan(
-  lessonPlan
-) {
-  if (
-    !lessonPlan ||
-    typeof lessonPlan !== "object"
-  ) {
-    return null;
-  }
-
-  const record = {
-    id: createId(),
-    ...lessonPlan,
-    createdAt:
-      new Date().toISOString()
-  };
-
-  appData.lessonPlans.push(
-    record
-  );
-
-  addActivity(
-    "lesson-plan",
-    "Lesson plan created."
-  );
-
-  saveData();
-  updateHomeDashboard();
-
-  return record;
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| RUBRICS
-|--------------------------------------------------------------------------
-*/
-
-function addRubric(rubric) {
-  if (
-    !rubric ||
-    typeof rubric !== "object"
-  ) {
-    return null;
-  }
-
-  const record = {
-    id: createId(),
-    ...rubric,
-    createdAt:
-      new Date().toISOString()
-  };
-
-  appData.rubrics.push(record);
-
-  addActivity(
-    "rubric",
-    "Assessment rubric created."
-  );
-
-  saveData();
-  updateHomeDashboard();
-
-  return record;
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| DOCUMENTS
-|--------------------------------------------------------------------------
-*/
-
-function addDocument(
-  documentData
-) {
-  if (
-    !documentData ||
-    typeof documentData !== "object"
-  ) {
-    return null;
-  }
-
-  const record = {
-    id: createId(),
-    ...documentData,
-    createdAt:
-      new Date().toISOString()
-  };
-
-  appData.documents.push(
-    record
-  );
-
-  addActivity(
-    "document",
-    "Document saved."
-  );
-
-  saveData();
-  updateHomeDashboard();
-
-  return record;
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| TEACHER PROFILE
-|--------------------------------------------------------------------------
-*/
-
-function updateTeacher(
-  teacher
-) {
-  if (
-    !teacher ||
-    typeof teacher !== "object"
-  ) {
-    return false;
-  }
-
-  appData.teacher = {
-    ...appData.teacher,
-    name: cleanDisplayText(
-      teacher.name,
-      "Teacher"
-    ),
-    school: cleanDisplayText(
-      teacher.school
-    ),
-    county: cleanDisplayText(
-      teacher.county
-    ),
-    role: cleanDisplayText(
-      teacher.role,
-      "CBC MASTER User"
-    )
-  };
-
-  addActivity(
-    "profile",
-    "Teacher profile updated."
-  );
-
-  saveData();
-  updateHomeDashboard();
-
-  return true;
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| PREFERENCES
-|--------------------------------------------------------------------------
-*/
-
-function updatePreferences(
-  preferences
-) {
-  if (
-    !preferences ||
-    typeof preferences !== "object"
-  ) {
-    return false;
-  }
-
-  appData.preferences = {
-    ...appData.preferences,
-    ...preferences
-  };
-
-  saveData();
-  updateHomeDashboard();
-
-  return true;
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| EXPORT / BACKUP
-|--------------------------------------------------------------------------
-|
-| The export is generated locally in the browser.
-| Nothing is uploaded.
+| Export local backup
 |--------------------------------------------------------------------------
 */
 
 function exportData() {
-  if (!appData) {
-    return false;
-  }
 
   try {
-    const exportObject = {
+
+    const backup = {
       app: "CBC MASTER V2",
       version: STORAGE_VERSION,
-      exportedAt:
-        new Date().toISOString(),
+      exportedAt: new Date().toISOString(),
       data: appData
     };
 
+
     const json =
       JSON.stringify(
-        exportObject,
+        backup,
         null,
         2
       );
+
 
     const blob =
       new Blob(
         [json],
         {
-          type:
-            "application/json"
+          type: "application/json"
         }
       );
+
 
     const url =
       URL.createObjectURL(blob);
 
+
     const link =
-      document.createElement(
-        "a"
-      );
+      document.createElement("a");
+
 
     const date =
       new Date()
         .toISOString()
         .slice(0, 10);
 
-    link.href = url;
-    link.download =
-      `cbc-master-backup-${date}.json`;
 
-    document.body.appendChild(
-      link
-    );
+    link.href = url;
+
+    link.download =
+      `cbc-master-v2-backup-${date}.json`;
+
+
+    document.body.appendChild(link);
 
     link.click();
 
     link.remove();
 
-    URL.revokeObjectURL(url);
+
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+    }, 1000);
+
 
     showToast(
-      "Backup created on this device."
+      "Backup exported successfully."
     );
-
-    return true;
 
   } catch {
+
     showToast(
-      "Unable to create backup."
+      "Backup could not be created.",
+      "error"
     );
 
-    return false;
   }
 }
 
 
 /*
 |--------------------------------------------------------------------------
-| IMPORT / RESTORE
+| Validate imported backup
 |--------------------------------------------------------------------------
 */
 
-function importDataFile(file) {
-  if (!(file instanceof File)) {
+function validateImportedData(candidate) {
+
+  if (!isObject(candidate)) {
     return false;
   }
 
-  const reader =
-    new FileReader();
 
-  reader.onload = () => {
-    try {
-      const parsed =
-        JSON.parse(
-          reader.result
-        );
+  /*
+   * Accept both:
+   *
+   * {
+   *   app: "CBC MASTER V2",
+   *   data: {...}
+   * }
+   *
+   * and a direct workspace object.
+   */
 
-      if (
-        !parsed ||
-        typeof parsed !== "object" ||
-        !parsed.data ||
-        !isValidDataObject(
-          parsed.data
-        )
-      ) {
-        throw new Error(
-          "Invalid backup"
-        );
-      }
+  const workspace =
+    isObject(candidate.data)
+      ? candidate.data
+      : candidate;
 
-      appData =
-        mergeData(
-          DEFAULT_DATA,
-          parsed.data
-        );
 
-      saveData();
-      updateHomeDashboard();
+  if (!isObject(workspace)) {
+    return false;
+  }
 
-      showToast(
-        "Backup restored locally."
-      );
 
-    } catch {
-      showToast(
-        "Invalid CBC MASTER backup."
-      );
+  const requiredArrays = [
+    "students",
+    "reportBooks",
+    "schemes",
+    "lessonPlans",
+    "rubrics",
+    "documents"
+  ];
+
+
+  for (const key of requiredArrays) {
+
+    if (
+      key in workspace &&
+      !Array.isArray(workspace[key])
+    ) {
+      return false;
     }
-  };
 
-  reader.onerror = () => {
-    showToast(
-      "Unable to read backup."
-    );
-  };
+  }
 
-  reader.readAsText(file);
 
   return true;
 }
@@ -1362,221 +1163,346 @@ function importDataFile(file) {
 
 /*
 |--------------------------------------------------------------------------
-| DELETE ALL LOCAL DATA
+| Import backup
 |--------------------------------------------------------------------------
 */
 
-function deleteAllData() {
-  const confirmed =
-    window.confirm(
-      "Delete all CBC MASTER data stored on this device? This cannot be undone unless you have a backup."
-    );
+async function importDataFile(file) {
 
-  if (!confirmed) {
-    return false;
+  if (!(file instanceof File)) {
+    return;
   }
 
-  try {
-    localStorage.removeItem(
-      STORAGE_KEY
+
+  if (
+    file.type !== "application/json" &&
+    !file.name.toLowerCase().endsWith(".json")
+  ) {
+
+    showToast(
+      "Please select a CBC MASTER JSON backup.",
+      "error"
     );
+
+    return;
+  }
+
+
+  try {
+
+    const text =
+      await file.text();
+
+
+    if (text.length > 10 * 1024 * 1024) {
+
+      showToast(
+        "Backup file is too large.",
+        "error"
+      );
+
+      return;
+    }
+
+
+    const parsed =
+      JSON.parse(text);
+
+
+    if (!validateImportedData(parsed)) {
+
+      showToast(
+        "This backup file is not valid.",
+        "error"
+      );
+
+      return;
+    }
+
+
+    const confirmed =
+      window.confirm(
+        "Import this backup? Your current local workspace will be replaced."
+      );
+
+
+    if (!confirmed) {
+      return;
+    }
+
+
+    const importedWorkspace =
+      isObject(parsed.data)
+        ? parsed.data
+        : parsed;
+
 
     appData =
-      cloneDefaultData();
+      normaliseData(
+        importedWorkspace
+      );
 
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(appData)
+
+    addActivity(
+      "Workspace backup imported."
     );
 
-    updateHomeDashboard();
-    navigateToPage("dashboard");
+
+    saveData();
+
+    refresh();
+
+    navigate("settings");
+
 
     showToast(
-      "All local CBC MASTER data was deleted."
+      "Backup restored successfully."
     );
-
-    return true;
 
   } catch {
+
     showToast(
-      "Unable to delete local data."
+      "The backup could not be read.",
+      "error"
     );
 
-    return false;
   }
 }
 
 
 /*
 |--------------------------------------------------------------------------
-| STORAGE INFORMATION
+| Delete all local data
+|--------------------------------------------------------------------------
+*/
+
+function deleteAllData() {
+
+  const confirmed =
+    window.confirm(
+      "Delete ALL CBC MASTER data stored on this device? This cannot be undone unless you have a backup."
+    );
+
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  const secondConfirmation =
+    window.confirm(
+      "Final confirmation: permanently delete your local CBC MASTER workspace?"
+    );
+
+
+  if (!secondConfirmation) {
+    return;
+  }
+
+
+  try {
+
+    localStorage.removeItem(
+      STORAGE_KEY
+    );
+
+
+    appData =
+      cloneDefaultData();
+
+
+    refresh();
+
+    navigate("settings");
+
+
+    showToast(
+      "All local CBC MASTER data has been deleted."
+    );
+
+  } catch {
+
+    showToast(
+      "Local data could not be deleted.",
+      "error"
+    );
+
+  }
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Storage summary
 |--------------------------------------------------------------------------
 */
 
 function getStorageSummary() {
+
   return {
     students:
-      getCollectionLength(
-        "students"
-      ),
+      appData.students.length,
 
     reportBooks:
-      getCollectionLength(
-        "reportBooks"
-      ),
+      appData.reportBooks.length,
 
     schemes:
-      getCollectionLength(
-        "schemes"
-      ),
+      appData.schemes.length,
 
     lessonPlans:
-      getCollectionLength(
-        "lessonPlans"
-      ),
+      appData.lessonPlans.length,
 
     rubrics:
-      getCollectionLength(
-        "rubrics"
-      ),
+      appData.rubrics.length,
 
     documents:
-      getCollectionLength(
-        "documents"
-      )
+      appData.documents.length,
+
+    activity:
+      appData.activity.length
   };
 }
 
 
 /*
 |--------------------------------------------------------------------------
-| ID GENERATION
+| Placeholder page renderers
 |--------------------------------------------------------------------------
 */
 
-function createId() {
-  if (
-    window.crypto &&
-    typeof window.crypto.randomUUID ===
-      "function"
-  ) {
-    return window.crypto.randomUUID();
-  }
+function renderStudentsPage() {
 
-  return (
-    Date.now().toString(36) +
-    "-" +
-    Math.random()
-      .toString(36)
-      .slice(2, 10)
-  );
+  /*
+   * Students module will be built next.
+   */
+
+}
+
+
+function renderProfilePage() {
+
+  /*
+   * Profile module will be expanded later.
+   */
+
+}
+
+
+function renderAnalyticsPage() {
+
+  /*
+   * Analytics will use real local workspace data.
+   */
+
 }
 
 
 /*
 |--------------------------------------------------------------------------
-| TOAST
+| Refresh application
 |--------------------------------------------------------------------------
 */
 
-function showToast(message) {
+function refresh() {
+
+  updateDashboardStats();
+
+  updateSidebarProfile();
+
+  renderSettingsPage();
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Toast
+|--------------------------------------------------------------------------
+*/
+
+let toastTimer = null;
+
+
+function showToast(message, type = "success") {
+
   const toast =
-    document.getElementById(
-      "cbcToast"
-    );
+    $("#cbcToast");
+
 
   if (!toast) {
     return;
   }
 
-  window.clearTimeout(
-    toastTimer
-  );
 
   toast.textContent =
-    cleanDisplayText(
-      message,
-      "Done."
-    );
+    cleanDisplayText(message);
 
-  toast.classList.add(
-    "show"
+
+  toast.classList.remove(
+    "show",
+    "error"
   );
 
+
+  if (type === "error") {
+    toast.classList.add("error");
+  }
+
+
+  /*
+   * Force reflow so repeated messages
+   * can animate correctly.
+   */
+
+  void toast.offsetWidth;
+
+
+  toast.classList.add("show");
+
+
+  if (toastTimer) {
+    clearTimeout(toastTimer);
+  }
+
+
   toastTimer =
-    window.setTimeout(() => {
+    setTimeout(() => {
+
       toast.classList.remove(
         "show"
       );
+
     }, 3000);
 }
 
 
 /*
 |--------------------------------------------------------------------------
-| KEYBOARD ACCESSIBILITY
-|--------------------------------------------------------------------------
-*/
-
-function bindKeyboardAccessibility() {
-  document.addEventListener(
-    "keydown",
-    (event) => {
-      if (
-        event.key === "Escape"
-      ) {
-        const toast =
-          document.getElementById(
-            "cbcToast"
-          );
-
-        if (toast) {
-          toast.classList.remove(
-            "show"
-          );
-        }
-      }
-    }
-  );
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| SERVICE WORKER
+| Service worker
 |--------------------------------------------------------------------------
 */
 
 function registerServiceWorker() {
+
   if (
     !("serviceWorker" in navigator)
   ) {
     return;
   }
 
-  /*
-  |--------------------------------------------------------------------------
-  | Service workers require a secure context.
-  |--------------------------------------------------------------------------
-  | HTTPS is used in production deployments such as GitHub Pages/Vercel.
-  |--------------------------------------------------------------------------
-  */
 
   window.addEventListener(
     "load",
     () => {
+
       navigator.serviceWorker
-        .register(
-          "./sw.js"
-        )
+        .register("./sw.js")
         .catch(() => {
           /*
-          |--------------------------------------------------------------------------
-          | Do not expose application state or personal data in errors.
-          |--------------------------------------------------------------------------
-          */
+           * Deliberately do not log
+           * application or user data.
+           */
         });
+
     }
   );
 }
@@ -1584,118 +1510,47 @@ function registerServiceWorker() {
 
 /*
 |--------------------------------------------------------------------------
-| FUTURE PAGE RENDERERS
-|--------------------------------------------------------------------------
-|
-| These functions are intentionally lightweight until each module is built.
+| Initialisation
 |--------------------------------------------------------------------------
 */
 
-function renderStudentsPage() {
-  const page =
-    document.getElementById(
-      "studentsPage"
-    );
+function init() {
 
-  if (!page) {
-    return;
-  }
+  bindNavigation();
 
-  /*
-  |--------------------------------------------------------------------------
-  | Students UI will be implemented in the Students module.
-  |--------------------------------------------------------------------------
-  */
+  bindModuleCards();
 
-  if (!page.dataset.initialized) {
-    page.dataset.initialized =
-      "true";
-  }
-}
+  bindQuickActions();
 
+  bindHeaderActions();
 
-function renderSettingsPage() {
-  const page =
-    document.getElementById(
-      "settingsPage"
-    );
+  bindSettingsControls();
 
-  if (!page) {
-    return;
-  }
+  refresh();
 
-  if (!page.dataset.initialized) {
-    page.dataset.initialized =
-      "true";
-  }
-}
+  navigate("dashboard");
 
-
-function renderProfilePage() {
-  const page =
-    document.getElementById(
-      "profilePage"
-    );
-
-  if (!page) {
-    return;
-  }
-
-  if (!page.dataset.initialized) {
-    page.dataset.initialized =
-      "true";
-  }
-}
-
-
-function renderAnalyticsPage() {
-  const page =
-    document.getElementById(
-      "analyticsPage"
-    );
-
-  if (!page) {
-    return;
-  }
-
-  if (!page.dataset.initialized) {
-    page.dataset.initialized =
-      "true";
-  }
+  registerServiceWorker();
 }
 
 
 /*
 |--------------------------------------------------------------------------
-| PUBLIC CBC MASTER API
-|--------------------------------------------------------------------------
-|
-| Exposed only for the application's own modules.
-| No data is automatically transmitted.
+| Public application API
 |--------------------------------------------------------------------------
 */
 
 window.CBCMaster = Object.freeze({
 
-  getData() {
-    return appData;
-  },
+  getData,
 
-  getStorageSummary() {
-    return getStorageSummary();
-  },
+  getStorageSummary,
 
-  saveData() {
-    return saveData();
-  },
+  saveData,
 
-  refresh() {
-    updateHomeDashboard();
-  },
+  refresh,
 
-  navigate(page) {
-    navigateToPage(page);
-  },
+  navigate,
 
   addStudent,
 
@@ -1720,3 +1575,28 @@ window.CBCMaster = Object.freeze({
   deleteAllData
 
 });
+
+
+/*
+|--------------------------------------------------------------------------
+| Start
+|--------------------------------------------------------------------------
+*/
+
+if (
+  document.readyState === "loading"
+) {
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    init,
+    {
+      once: true
+    }
+  );
+
+} else {
+
+  init();
+
+}
