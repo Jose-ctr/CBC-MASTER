@@ -5,7 +5,6 @@
 
   <!-- =========================================================
        CBC MASTER V2
-       FOUNDATION
        Kenyan CBC Toolkit • PP1 to Grade 12
        ========================================================= -->
 
@@ -49,7 +48,7 @@
 <body>
 
   <!-- =========================================================
-       CBC MASTER APP
+       APPLICATION
        ========================================================= -->
 
   <div id="app">
@@ -66,7 +65,7 @@
              aria-label="Main navigation">
 
 
-        <!-- Brand -->
+        <!-- BRAND -->
 
         <div class="sidebar-brand">
 
@@ -90,7 +89,7 @@
         </div>
 
 
-        <!-- Main navigation -->
+        <!-- WORKSPACE -->
 
         <div class="sidebar-section-title">
           Workspace
@@ -100,8 +99,6 @@
         <nav class="sidebar-nav"
              aria-label="Workspace">
 
-
-          <!-- Dashboard -->
 
           <button class="sidebar-link active"
                   type="button"
@@ -119,8 +116,6 @@
           </button>
 
 
-          <!-- Report Books -->
-
           <button class="sidebar-link"
                   type="button"
                   data-page="report-books">
@@ -136,8 +131,6 @@
 
           </button>
 
-
-          <!-- Schemes -->
 
           <button class="sidebar-link"
                   type="button"
@@ -155,8 +148,6 @@
           </button>
 
 
-          <!-- Lesson Plans -->
-
           <button class="sidebar-link"
                   type="button"
                   data-page="lesson-plans">
@@ -172,8 +163,6 @@
 
           </button>
 
-
-          <!-- Assessment Rubrics -->
 
           <button class="sidebar-link"
                   type="button"
@@ -191,8 +180,6 @@
           </button>
 
 
-          <!-- Students -->
-
           <button class="sidebar-link"
                   type="button"
                   data-page="students">
@@ -208,8 +195,6 @@
 
           </button>
 
-
-          <!-- Documents -->
 
           <button class="sidebar-link"
                   type="button"
@@ -227,16 +212,12 @@
           </button>
 
 
-          <!-- =================================================
-               ACCOUNT
-               ================================================= -->
+          <!-- ACCOUNT -->
 
           <div class="sidebar-section-title">
             Account
           </div>
 
-
-          <!-- Analytics -->
 
           <button class="sidebar-link"
                   type="button"
@@ -254,8 +235,6 @@
           </button>
 
 
-          <!-- Teacher Profile -->
-
           <button class="sidebar-link"
                   type="button"
                   data-page="profile">
@@ -271,8 +250,6 @@
 
           </button>
 
-
-          <!-- Settings -->
 
           <button class="sidebar-link"
                   type="button"
@@ -292,9 +269,7 @@
         </nav>
 
 
-        <!-- =====================================================
-             SIDEBAR PROFILE
-             ===================================================== -->
+        <!-- SIDEBAR PROFILE -->
 
         <div class="sidebar-footer">
 
@@ -332,9 +307,7 @@
             id="mainContent">
 
 
-        <!-- ===================================================
-             TOP HEADER
-             =================================================== -->
+        <!-- TOP HEADER -->
 
         <header class="top-header">
 
@@ -353,27 +326,19 @@
 
           <div class="header-actions">
 
-            <!-- Notifications -->
-
             <button class="icon-button"
                     type="button"
                     aria-label="Notifications"
                     id="notificationButton">
-
               🔔
-
             </button>
 
-
-            <!-- Settings -->
 
             <button class="icon-button"
                     type="button"
                     aria-label="Settings"
                     id="settingsButton">
-
               ⚙️
-
             </button>
 
           </div>
@@ -382,22 +347,23 @@
 
 
 
-        <!-- ===================================================
-             CONTENT
-             =================================================== -->
+        <!-- =====================================================
+             PAGE CONTAINER
+             ===================================================== -->
 
         <section class="content"
                  id="pageContainer">
 
 
-          <!-- =================================================
-               DASHBOARD PAGE
-               ================================================= -->
+          <!-- ===================================================
+               HOME / DASHBOARD
+               =================================================== -->
 
-          <div id="dashboardPage">
+          <div class="app-page"
+               id="dashboardPage">
 
 
-            <!-- Welcome -->
+            <!-- WELCOME -->
 
             <section class="welcome-card">
 
@@ -420,18 +386,14 @@
 
               <div class="welcome-badge"
                    aria-hidden="true">
-
                 ☀️
-
               </div>
 
             </section>
 
 
 
-            <!-- =================================================
-                 DASHBOARD SECTION
-                 ================================================= -->
+            <!-- MODULES -->
 
             <div class="section-header">
 
@@ -446,16 +408,11 @@
             </div>
 
 
-
-            <!-- =================================================
-                 DASHBOARD CARDS
-                 ================================================= -->
-
             <section class="dashboard-grid"
                      aria-label="CBC Master modules">
 
 
-              <!-- Report Books -->
+              <!-- REPORT BOOKS -->
 
               <button class="dashboard-card"
                       type="button"
@@ -476,19 +433,17 @@
                 </p>
 
                 <div class="card-stat">
-
-                  <strong>
+                  <strong
+                    data-count="report-books">
                     0
                   </strong>
-
                   students
-
                 </div>
 
               </button>
 
 
-              <!-- Schemes -->
+              <!-- SCHEMES -->
 
               <button class="dashboard-card"
                       type="button"
@@ -509,19 +464,17 @@
                 </p>
 
                 <div class="card-stat">
-
-                  <strong>
+                  <strong
+                    data-count="schemes">
                     0
                   </strong>
-
                   active schemes
-
                 </div>
 
               </button>
 
 
-              <!-- Lesson Plans -->
+              <!-- LESSON PLANS -->
 
               <button class="dashboard-card"
                       type="button"
@@ -542,19 +495,17 @@
                 </p>
 
                 <div class="card-stat">
-
-                  <strong>
+                  <strong
+                    data-count="lesson-plans">
                     0
                   </strong>
-
                   drafts
-
                 </div>
 
               </button>
 
 
-              <!-- Rubrics -->
+              <!-- RUBRICS -->
 
               <button class="dashboard-card"
                       type="button"
@@ -575,13 +526,11 @@
                 </p>
 
                 <div class="card-stat">
-
-                  <strong>
+                  <strong
+                    data-count="rubrics">
                     0
                   </strong>
-
                   rubrics
-
                 </div>
 
               </button>
@@ -590,9 +539,7 @@
 
 
 
-            <!-- =================================================
-                 QUICK STATS
-                 ================================================= -->
+            <!-- OVERVIEW -->
 
             <div class="section-header">
 
@@ -603,10 +550,11 @@
             </div>
 
 
-            <section class="stats-grid">
+            <section class="stats-grid"
+                     aria-label="Teaching statistics">
 
 
-              <!-- Students -->
+              <!-- STUDENTS -->
 
               <div class="stat-card">
 
@@ -614,7 +562,8 @@
                   Students
                 </div>
 
-                <div class="stat-value">
+                <div class="stat-value"
+                     data-stat="students">
                   0
                 </div>
 
@@ -625,7 +574,7 @@
               </div>
 
 
-              <!-- Report Books -->
+              <!-- REPORT BOOKS -->
 
               <div class="stat-card">
 
@@ -633,7 +582,8 @@
                   Report Books
                 </div>
 
-                <div class="stat-value">
+                <div class="stat-value"
+                     data-stat="report-books">
                   0
                 </div>
 
@@ -644,7 +594,7 @@
               </div>
 
 
-              <!-- Schemes -->
+              <!-- SCHEMES -->
 
               <div class="stat-card">
 
@@ -652,7 +602,8 @@
                   Schemes
                 </div>
 
-                <div class="stat-value">
+                <div class="stat-value"
+                     data-stat="schemes">
                   0
                 </div>
 
@@ -663,7 +614,7 @@
               </div>
 
 
-              <!-- Documents -->
+              <!-- DOCUMENTS -->
 
               <div class="stat-card">
 
@@ -671,7 +622,8 @@
                   Documents
                 </div>
 
-                <div class="stat-value">
+                <div class="stat-value"
+                     data-stat="documents">
                   0
                 </div>
 
@@ -681,10 +633,61 @@
 
               </div>
 
-
             </section>
 
+
           </div>
+
+
+
+          <!-- ===================================================
+               FUTURE MODULE CONTAINERS
+               =================================================== -->
+
+          <div class="app-page page-hidden"
+               id="reportBooksPage">
+          </div>
+
+
+          <div class="app-page page-hidden"
+               id="schemesPage">
+          </div>
+
+
+          <div class="app-page page-hidden"
+               id="lessonPlansPage">
+          </div>
+
+
+          <div class="app-page page-hidden"
+               id="rubricsPage">
+          </div>
+
+
+          <div class="app-page page-hidden"
+               id="studentsPage">
+          </div>
+
+
+          <div class="app-page page-hidden"
+               id="documentsPage">
+          </div>
+
+
+          <div class="app-page page-hidden"
+               id="analyticsPage">
+          </div>
+
+
+          <div class="app-page page-hidden"
+               id="profilePage">
+          </div>
+
+
+          <div class="app-page page-hidden"
+               id="settingsPage">
+          </div>
+
 
         </section>
 
@@ -703,8 +706,6 @@
         <div class="bottom-nav-inner">
 
 
-          <!-- Home -->
-
           <button class="bottom-nav-item active"
                   type="button"
                   data-page="dashboard">
@@ -720,8 +721,6 @@
 
           </button>
 
-
-          <!-- Documents -->
 
           <button class="bottom-nav-item"
                   type="button"
@@ -739,8 +738,6 @@
           </button>
 
 
-          <!-- Analytics -->
-
           <button class="bottom-nav-item"
                   type="button"
                   data-page="analytics">
@@ -757,8 +754,6 @@
           </button>
 
 
-          <!-- Profile -->
-
           <button class="bottom-nav-item"
                   type="button"
                   data-page="profile">
@@ -773,7 +768,6 @@
             </span>
 
           </button>
-
 
         </div>
 
