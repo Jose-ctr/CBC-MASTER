@@ -5,7 +5,8 @@
 
   <!-- =========================================================
        CBC MASTER V2
-       Kenyan CBC Toolkit • PP1 to Grade 12
+       Kenyan CBC Teacher Toolkit
+       Privacy-First • Offline-First PWA
        ========================================================= -->
 
   <meta charset="utf-8">
@@ -14,38 +15,72 @@
     name="viewport"
     content="width=device-width,
              initial-scale=1,
-             viewport-fit=cover"
-  >
+             viewport-fit=cover">
 
   <meta
     name="theme-color"
-    content="#0B1F33"
-  >
+    content="#0B1F33">
 
   <meta
     name="description"
-    content="CBC MASTER V2 — Kenyan CBC Toolkit for PP1 to Grade 12."
-  >
+    content="CBC MASTER V2 — Private, offline-first Kenyan CBC teacher toolkit for PP1 to Grade 12.">
+
+  <!-- =========================================================
+       MOBILE / PWA
+       ========================================================= -->
 
   <meta
     name="mobile-web-app-capable"
-    content="yes"
-  >
+    content="yes">
 
   <meta
     name="apple-mobile-web-app-capable"
-    content="yes"
-  >
+    content="yes">
 
   <meta
     name="apple-mobile-web-app-status-bar-style"
-    content="black-translucent"
-  >
+    content="black-translucent">
 
   <meta
     name="apple-mobile-web-app-title"
-    content="CBC MASTER"
-  >
+    content="CBC MASTER">
+
+  <!-- =========================================================
+       PRIVACY
+       ========================================================= -->
+
+  <meta
+    name="referrer"
+    content="no-referrer">
+
+  <!-- =========================================================
+       CONTENT SECURITY POLICY
+       =========================================================
+       CBC MASTER currently uses only local application resources.
+       No external scripts, analytics, advertising or tracking.
+       ========================================================= -->
+
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="
+      default-src 'self';
+      script-src 'self';
+      style-src 'self';
+      img-src 'self' data:;
+      font-src 'self';
+      connect-src 'self';
+      worker-src 'self';
+      manifest-src 'self';
+      object-src 'none';
+      base-uri 'self';
+      form-action 'self';
+      frame-ancestors 'none';
+      upgrade-insecure-requests;
+    ">
+
+  <!-- =========================================================
+       TITLE
+       ========================================================= -->
 
   <title>CBC MASTER V2</title>
 
@@ -56,13 +91,11 @@
   <link
     rel="icon"
     type="image/png"
-    href="icons/icon-192.png"
-  >
+    href="icons/icon-192.png">
 
   <link
     rel="apple-touch-icon"
-    href="icons/icon-192.png"
-  >
+    href="icons/icon-192.png">
 
   <!-- =========================================================
        STYLES
@@ -70,31 +103,27 @@
 
   <link
     rel="stylesheet"
-    href="css/app.css"
-  >
+    href="css/app.css">
 
   <!-- =========================================================
-       PWA
+       PWA MANIFEST
        ========================================================= -->
 
   <link
     rel="manifest"
-    href="manifest.json"
-  >
+    href="manifest.json">
 
 </head>
-
 
 <body>
 
   <!-- =========================================================
-       APP
+       APPLICATION
        ========================================================= -->
 
   <div id="app">
 
     <div class="app-shell">
-
 
       <!-- =====================================================
            SIDEBAR
@@ -103,14 +132,15 @@
       <aside
         class="sidebar"
         id="sidebar"
-        aria-label="Main navigation"
-      >
+        aria-label="Main navigation">
 
         <!-- Brand -->
 
         <div class="sidebar-brand">
 
-          <div class="brand-mark">
+          <div
+            class="brand-mark"
+            aria-hidden="true">
             🎓
           </div>
 
@@ -129,29 +159,25 @@
         </div>
 
 
-        <!-- Workspace Navigation -->
+        <!-- ===================================================
+             WORKSPACE NAVIGATION
+             =================================================== -->
 
         <nav
           class="sidebar-nav"
-          aria-label="Workspace"
-        >
+          aria-label="Workspace">
 
           <p class="nav-label">
             WORKSPACE
           </p>
 
-
           <button
             class="nav-item active"
             type="button"
-            data-page="dashboard"
-          >
+            data-page="dashboard">
 
-            <span class="nav-icon">
-              🏠
-            </span>
-
-            <span class="nav-text">
+            🏠
+            <span>
               Dashboard
             </span>
 
@@ -161,14 +187,10 @@
           <button
             class="nav-item"
             type="button"
-            data-page="report-books"
-          >
+            data-page="report-books">
 
-            <span class="nav-icon">
-              📘
-            </span>
-
-            <span class="nav-text">
+            📘
+            <span>
               Report Books
             </span>
 
@@ -178,14 +200,10 @@
           <button
             class="nav-item"
             type="button"
-            data-page="schemes"
-          >
+            data-page="schemes">
 
-            <span class="nav-icon">
-              📚
-            </span>
-
-            <span class="nav-text">
+            📚
+            <span>
               Schemes of Work
             </span>
 
@@ -195,14 +213,10 @@
           <button
             class="nav-item"
             type="button"
-            data-page="lesson-plans"
-          >
+            data-page="lesson-plans">
 
-            <span class="nav-icon">
-              📝
-            </span>
-
-            <span class="nav-text">
+            📝
+            <span>
               Lesson Plans
             </span>
 
@@ -212,14 +226,10 @@
           <button
             class="nav-item"
             type="button"
-            data-page="rubrics"
-          >
+            data-page="rubrics">
 
-            <span class="nav-icon">
-              ☑️
-            </span>
-
-            <span class="nav-text">
+            ☑️
+            <span>
               Assessment Rubrics
             </span>
 
@@ -229,14 +239,10 @@
           <button
             class="nav-item"
             type="button"
-            data-page="students"
-          >
+            data-page="students">
 
-            <span class="nav-icon">
-              👨‍🎓
-            </span>
-
-            <span class="nav-text">
+            👨‍🎓
+            <span>
               Students
             </span>
 
@@ -246,14 +252,10 @@
           <button
             class="nav-item"
             type="button"
-            data-page="documents"
-          >
+            data-page="documents">
 
-            <span class="nav-icon">
-              📄
-            </span>
-
-            <span class="nav-text">
+            📄
+            <span>
               Saved Documents
             </span>
 
@@ -262,12 +264,13 @@
         </nav>
 
 
-        <!-- Account Navigation -->
+        <!-- ===================================================
+             ACCOUNT NAVIGATION
+             =================================================== -->
 
         <nav
           class="sidebar-nav sidebar-nav-account"
-          aria-label="Account"
-        >
+          aria-label="Account">
 
           <p class="nav-label">
             ACCOUNT
@@ -277,14 +280,10 @@
           <button
             class="nav-item"
             type="button"
-            data-page="analytics"
-          >
+            data-page="analytics">
 
-            <span class="nav-icon">
-              📊
-            </span>
-
-            <span class="nav-text">
+            📊
+            <span>
               Analytics
             </span>
 
@@ -294,14 +293,10 @@
           <button
             class="nav-item"
             type="button"
-            data-page="profile"
-          >
+            data-page="profile">
 
-            <span class="nav-icon">
-              👤
-            </span>
-
-            <span class="nav-text">
+            👤
+            <span>
               Teacher Profile
             </span>
 
@@ -311,14 +306,10 @@
           <button
             class="nav-item"
             type="button"
-            data-page="settings"
-          >
+            data-page="settings">
 
-            <span class="nav-icon">
-              ⚙️
-            </span>
-
-            <span class="nav-text">
+            ⚙️
+            <span>
               Settings
             </span>
 
@@ -327,16 +318,21 @@
         </nav>
 
 
-        <!-- Sidebar Profile -->
+        <!-- ===================================================
+             SIDEBAR PROFILE
+             =================================================== -->
 
         <div class="sidebar-profile">
 
           <div
             class="profile-avatar"
             id="sidebarProfileAvatar"
-          >
+            aria-hidden="true">
+
             T
+
           </div>
+
 
           <div class="profile-info">
 
@@ -356,11 +352,10 @@
 
 
       <!-- =====================================================
-           MAIN
+           MAIN CONTENT
            ===================================================== -->
 
       <main class="main-content">
-
 
         <!-- ===================================================
              TOP HEADER
@@ -388,9 +383,10 @@
               type="button"
               id="notificationButton"
               aria-label="Notifications"
-              title="Notifications"
-            >
+              title="Notifications">
+
               🔔
+
             </button>
 
 
@@ -399,9 +395,10 @@
               type="button"
               id="settingsButton"
               aria-label="Settings"
-              title="Settings"
-            >
+              title="Settings">
+
               ⚙️
+
             </button>
 
           </div>
@@ -415,18 +412,16 @@
 
         <section
           class="content"
-          id="pageContainer"
-        >
+          id="pageContainer">
 
 
           <!-- =================================================
-               HOME / DASHBOARD
+               DASHBOARD
                ================================================= -->
 
           <div
             class="app-page"
-            id="dashboardPage"
-          >
+            id="dashboardPage">
 
 
             <!-- ===============================================
@@ -443,16 +438,18 @@
 
                 <h2
                   class="welcome-title"
-                  id="welcomeTitle"
-                >
+                  id="welcomeTitle">
+
                   Good morning, Teacher
+
                 </h2>
 
                 <p
                   class="welcome-text"
-                  id="welcomeText"
-                >
+                  id="welcomeText">
+
                   Here's your teaching overview for today.
+
                 </p>
 
               </div>
@@ -460,16 +457,17 @@
 
               <div
                 class="welcome-badge"
-                aria-hidden="true"
-              >
+                aria-hidden="true">
+
                 ☀️
+
               </div>
 
             </section>
 
 
             <!-- ===============================================
-                 CBC MODULES
+                 TEACHING TOOLS
                  =============================================== -->
 
             <section class="dashboard-section">
@@ -503,74 +501,88 @@
                 <button
                   class="dashboard-card"
                   type="button"
-                  data-module="report-books"
-                >
+                  data-module="report-books">
 
-                  <div class="dashboard-card-top">
+                  <span
+                    class="dashboard-card-icon"
+                    aria-hidden="true">
 
-                    <span class="dashboard-card-icon">
-                      📘
-                    </span>
+                    📘
 
-                    <span
-                      class="dashboard-card-count"
-                      data-count="report-books"
-                    >
-                      0
-                    </span>
+                  </span>
 
-                  </div>
+                  <span class="dashboard-card-content">
 
-                  <h3>
-                    Report Books
-                  </h3>
+                    <strong>
+                      Report Books
+                    </strong>
 
-                  <p>
-                    Manage learner assessment records,
-                    grades and report information.
-                  </p>
+                    <small>
+                      Manage learner assessment records.
+                    </small>
 
-                  <span class="dashboard-card-link">
-                    Open Report Books →
+                  </span>
+
+                  <span
+                    class="dashboard-card-count"
+                    data-count="report-books">
+
+                    0
+
+                  </span>
+
+                  <span
+                    class="dashboard-card-link"
+                    aria-hidden="true">
+
+                    Open →
+
                   </span>
 
                 </button>
 
 
-                <!-- Schemes of Work -->
+                <!-- Schemes -->
 
                 <button
                   class="dashboard-card"
                   type="button"
-                  data-module="schemes"
-                >
+                  data-module="schemes">
 
-                  <div class="dashboard-card-top">
+                  <span
+                    class="dashboard-card-icon"
+                    aria-hidden="true">
 
-                    <span class="dashboard-card-icon">
-                      📚
-                    </span>
+                    📚
 
-                    <span
-                      class="dashboard-card-count"
-                      data-count="schemes"
-                    >
-                      0
-                    </span>
+                  </span>
 
-                  </div>
+                  <span class="dashboard-card-content">
 
-                  <h3>
-                    Schemes of Work
-                  </h3>
+                    <strong>
+                      Schemes of Work
+                    </strong>
 
-                  <p>
-                    Organise CBC learning outcomes,
-                    activities and teaching plans.
-                  </p>
+                    <small>
+                      Organize CBC teaching plans by term.
+                    </small>
 
-                  <span class="dashboard-card-link">
-                    Open Schemes →
+                  </span>
+
+                  <span
+                    class="dashboard-card-count"
+                    data-count="schemes">
+
+                    0
+
+                  </span>
+
+                  <span
+                    class="dashboard-card-link"
+                    aria-hidden="true">
+
+                    Open →
+
                   </span>
 
                 </button>
@@ -581,78 +593,91 @@
                 <button
                   class="dashboard-card"
                   type="button"
-                  data-module="lesson-plans"
-                >
+                  data-module="lesson-plans">
 
-                  <div class="dashboard-card-top">
+                  <span
+                    class="dashboard-card-icon"
+                    aria-hidden="true">
 
-                    <span class="dashboard-card-icon">
-                      📝
-                    </span>
+                    📝
 
-                    <span
-                      class="dashboard-card-count"
-                      data-count="lesson-plans"
-                    >
-                      0
-                    </span>
+                  </span>
 
-                  </div>
+                  <span class="dashboard-card-content">
 
-                  <h3>
-                    Lesson Plans
-                  </h3>
+                    <strong>
+                      Lesson Plans
+                    </strong>
 
-                  <p>
-                    Create, save and organise daily
-                    CBC lesson plans.
-                  </p>
+                    <small>
+                      Prepare and save daily lessons.
+                    </small>
 
-                  <span class="dashboard-card-link">
-                    Open Lesson Plans →
+                  </span>
+
+                  <span
+                    class="dashboard-card-count"
+                    data-count="lesson-plans">
+
+                    0
+
+                  </span>
+
+                  <span
+                    class="dashboard-card-link"
+                    aria-hidden="true">
+
+                    Open →
+
                   </span>
 
                 </button>
 
 
-                <!-- Assessment Rubrics -->
+                <!-- Rubrics -->
 
                 <button
                   class="dashboard-card"
                   type="button"
-                  data-module="rubrics"
-                >
+                  data-module="rubrics">
 
-                  <div class="dashboard-card-top">
+                  <span
+                    class="dashboard-card-icon"
+                    aria-hidden="true">
 
-                    <span class="dashboard-card-icon">
-                      ☑️
-                    </span>
+                    ☑️
 
-                    <span
-                      class="dashboard-card-count"
-                      data-count="rubrics"
-                    >
-                      0
-                    </span>
+                  </span>
 
-                  </div>
+                  <span class="dashboard-card-content">
 
-                  <h3>
-                    Assessment Rubrics
-                  </h3>
+                    <strong>
+                      Assessment Rubrics
+                    </strong>
 
-                  <p>
-                    Build and save competency-based
-                    assessment rubrics.
-                  </p>
+                    <small>
+                      Create reusable assessment criteria.
+                    </small>
 
-                  <span class="dashboard-card-link">
-                    Open Rubrics →
+                  </span>
+
+                  <span
+                    class="dashboard-card-count"
+                    data-count="rubrics">
+
+                    0
+
+                  </span>
+
+                  <span
+                    class="dashboard-card-link"
+                    aria-hidden="true">
+
+                    Open →
+
                   </span>
 
                 </button>
-
 
               </div>
 
@@ -660,7 +685,7 @@
 
 
             <!-- ===============================================
-                 OVERVIEW STATISTICS
+                 STATISTICS
                  =============================================== -->
 
             <section class="dashboard-section">
@@ -693,8 +718,12 @@
 
                 <article class="stat-card">
 
-                  <div class="stat-icon">
+                  <div
+                    class="stat-icon"
+                    aria-hidden="true">
+
                     👨‍🎓
+
                   </div>
 
                   <div class="stat-content">
@@ -716,8 +745,12 @@
 
                 <article class="stat-card">
 
-                  <div class="stat-icon">
+                  <div
+                    class="stat-icon"
+                    aria-hidden="true">
+
                     📘
+
                   </div>
 
                   <div class="stat-content">
@@ -739,8 +772,12 @@
 
                 <article class="stat-card">
 
-                  <div class="stat-icon">
+                  <div
+                    class="stat-icon"
+                    aria-hidden="true">
+
                     📚
+
                   </div>
 
                   <div class="stat-content">
@@ -762,8 +799,12 @@
 
                 <article class="stat-card">
 
-                  <div class="stat-icon">
+                  <div
+                    class="stat-icon"
+                    aria-hidden="true">
+
                     📄
+
                   </div>
 
                   <div class="stat-content">
@@ -779,7 +820,6 @@
                   </div>
 
                 </article>
-
 
               </div>
 
@@ -821,11 +861,14 @@
                 <button
                   class="quick-action-card"
                   type="button"
-                  data-action="add-student"
-                >
+                  data-action="add-student">
 
-                  <span class="quick-action-icon">
+                  <span
+                    class="quick-action-icon"
+                    aria-hidden="true">
+
                     👨‍🎓
+
                   </span>
 
                   <span class="quick-action-content">
@@ -840,8 +883,12 @@
 
                   </span>
 
-                  <span class="quick-action-arrow">
+                  <span
+                    class="quick-action-arrow"
+                    aria-hidden="true">
+
                     →
+
                   </span>
 
                 </button>
@@ -852,11 +899,14 @@
                 <button
                   class="quick-action-card"
                   type="button"
-                  data-action="create-report-book"
-                >
+                  data-action="create-report-book">
 
-                  <span class="quick-action-icon">
+                  <span
+                    class="quick-action-icon"
+                    aria-hidden="true">
+
                     📘
+
                   </span>
 
                   <span class="quick-action-content">
@@ -871,8 +921,12 @@
 
                   </span>
 
-                  <span class="quick-action-arrow">
+                  <span
+                    class="quick-action-arrow"
+                    aria-hidden="true">
+
                     →
+
                   </span>
 
                 </button>
@@ -883,11 +937,14 @@
                 <button
                   class="quick-action-card"
                   type="button"
-                  data-action="create-scheme"
-                >
+                  data-action="create-scheme">
 
-                  <span class="quick-action-icon">
+                  <span
+                    class="quick-action-icon"
+                    aria-hidden="true">
+
                     📚
+
                   </span>
 
                   <span class="quick-action-content">
@@ -902,23 +959,30 @@
 
                   </span>
 
-                  <span class="quick-action-arrow">
+                  <span
+                    class="quick-action-arrow"
+                    aria-hidden="true">
+
                     →
+
                   </span>
 
                 </button>
 
 
-                <!-- Create Lesson Plan -->
+                <!-- Lesson Plan -->
 
                 <button
                   class="quick-action-card"
                   type="button"
-                  data-action="create-lesson-plan"
-                >
+                  data-action="create-lesson-plan">
 
-                  <span class="quick-action-icon">
+                  <span
+                    class="quick-action-icon"
+                    aria-hidden="true">
+
                     📝
+
                   </span>
 
                   <span class="quick-action-content">
@@ -933,17 +997,19 @@
 
                   </span>
 
-                  <span class="quick-action-arrow">
+                  <span
+                    class="quick-action-arrow"
+                    aria-hidden="true">
+
                     →
+
                   </span>
 
                 </button>
 
-
               </div>
 
             </section>
-
 
           </div>
 
@@ -954,19 +1020,17 @@
 
           <div
             class="app-page page-hidden"
-            id="reportBooksPage"
-          >
+            id="reportBooksPage">
           </div>
 
 
           <!-- =================================================
-               SCHEMES OF WORK
+               SCHEMES
                ================================================= -->
 
           <div
             class="app-page page-hidden"
-            id="schemesPage"
-          >
+            id="schemesPage">
           </div>
 
 
@@ -976,19 +1040,17 @@
 
           <div
             class="app-page page-hidden"
-            id="lessonPlansPage"
-          >
+            id="lessonPlansPage">
           </div>
 
 
           <!-- =================================================
-               ASSESSMENT RUBRICS
+               RUBRICS
                ================================================= -->
 
           <div
             class="app-page page-hidden"
-            id="rubricsPage"
-          >
+            id="rubricsPage">
           </div>
 
 
@@ -998,19 +1060,17 @@
 
           <div
             class="app-page page-hidden"
-            id="studentsPage"
-          >
+            id="studentsPage">
           </div>
 
 
           <!-- =================================================
-               SAVED DOCUMENTS
+               DOCUMENTS
                ================================================= -->
 
           <div
             class="app-page page-hidden"
-            id="documentsPage"
-          >
+            id="documentsPage">
           </div>
 
 
@@ -1020,19 +1080,17 @@
 
           <div
             class="app-page page-hidden"
-            id="analyticsPage"
-          >
+            id="analyticsPage">
           </div>
 
 
           <!-- =================================================
-               TEACHER PROFILE
+               PROFILE
                ================================================= -->
 
           <div
             class="app-page page-hidden"
-            id="profilePage"
-          >
+            id="profilePage">
           </div>
 
 
@@ -1042,10 +1100,8 @@
 
           <div
             class="app-page page-hidden"
-            id="settingsPage"
-          >
+            id="settingsPage">
           </div>
-
 
         </section>
 
@@ -1056,17 +1112,15 @@
 
         <nav
           class="bottom-nav"
-          aria-label="Mobile navigation"
-        >
+          aria-label="Mobile navigation">
 
 
           <button
             class="bottom-nav-item active"
             type="button"
-            data-page="dashboard"
-          >
+            data-page="dashboard">
 
-            <span class="bottom-nav-icon">
+            <span aria-hidden="true">
               🏠
             </span>
 
@@ -1080,10 +1134,9 @@
           <button
             class="bottom-nav-item"
             type="button"
-            data-page="documents"
-          >
+            data-page="documents">
 
-            <span class="bottom-nav-icon">
+            <span aria-hidden="true">
               📄
             </span>
 
@@ -1097,10 +1150,9 @@
           <button
             class="bottom-nav-item"
             type="button"
-            data-page="analytics"
-          >
+            data-page="analytics">
 
-            <span class="bottom-nav-icon">
+            <span aria-hidden="true">
               📊
             </span>
 
@@ -1114,10 +1166,9 @@
           <button
             class="bottom-nav-item"
             type="button"
-            data-page="profile"
-          >
+            data-page="profile">
 
-            <span class="bottom-nav-icon">
+            <span aria-hidden="true">
               👤
             </span>
 
@@ -1127,9 +1178,7 @@
 
           </button>
 
-
         </nav>
-
 
       </main>
 
@@ -1139,13 +1188,26 @@
 
 
   <!-- =========================================================
-       JAVASCRIPT
+       TOAST
+       ========================================================= -->
+
+  <div
+    id="cbcToast"
+    class="toast"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true">
+  </div>
+
+
+  <!-- =========================================================
+       APPLICATION JAVASCRIPT
        ========================================================= -->
 
   <script
     src="js/app.js"
-    defer
-  ></script>
+    defer>
+  </script>
 
 </body>
 
