@@ -1,21 +1,87 @@
-/* =========================================================
-   CBC MASTER V2
-   APPLICATION ENGINE
-   Home Dashboard • Navigation • Local Data
-   ========================================================= */
-
 "use strict";
 
-
-/* =========================================================
-   1. STORAGE
-   ========================================================= */
+/*
+|--------------------------------------------------------------------------
+| CBC MASTER V2
+| Privacy-First Local Application Engine
+|--------------------------------------------------------------------------
+|
+| Privacy principles:
+| - Teaching data stays in the browser.
+| - No analytics.
+| - No advertising trackers.
+| - No third-party scripts.
+| - No personal-data logging.
+| - No automatic network transmission of workspace data.
+| - Export and deletion remain under the teacher's control.
+|
+|--------------------------------------------------------------------------
+*/
 
 const STORAGE_KEY = "cbc_master_v2";
+const STORAGE_VERSION = 2;
 
+const PAGE_TITLES = {
+  dashboard: {
+    title: "Dashboard",
+    subtitle: "Your CBC teaching workspace"
+  },
+
+  "report-books": {
+    title: "Report Books",
+    subtitle: "Manage learner assessment records"
+  },
+
+  schemes: {
+    title: "Schemes of Work",
+    subtitle: "Plan CBC teaching activities"
+  },
+
+  "lesson-plans": {
+    title: "Lesson Plans",
+    subtitle: "Prepare and manage daily lessons"
+  },
+
+  rubrics: {
+    title: "Assessment Rubrics",
+    subtitle: "Create reusable assessment criteria"
+  },
+
+  students: {
+    title: "Students",
+    subtitle: "Manage your learner records"
+  },
+
+  documents: {
+    title: "Saved Documents",
+    subtitle: "Manage your saved teaching documents"
+  },
+
+  analytics: {
+    title: "Analytics",
+    subtitle: "Review your teaching workspace"
+  },
+
+  profile: {
+    title: "Teacher Profile",
+    subtitle: "Manage your local teacher information"
+  },
+
+  settings: {
+    title: "Settings",
+    subtitle: "Manage your CBC MASTER preferences and data"
+  }
+};
+
+
+/*
+|--------------------------------------------------------------------------
+| DEFAULT LOCAL DATA
+|--------------------------------------------------------------------------
+*/
 
 const DEFAULT_DATA = {
-  version: 2,
+  version: STORAGE_VERSION,
 
   teacher: {
     name: "Teacher",
@@ -37,250 +103,116 @@ const DEFAULT_DATA = {
   lessonPlans: [],
   rubrics: [],
   documents: [],
-
   activity: []
 };
 
 
-/* =========================================================
-   2. APPLICATION STATE
-   ========================================================= */
+/*
+|--------------------------------------------------------------------------
+| APPLICATION STATE
+|--------------------------------------------------------------------------
+*/
 
-let appData = loadData();
+let appData = null;
+let toastTimer = null;
 
-let currentPage = "dashboard";
+
+/*
+|--------------------------------------------------------------------------
+| START APPLICATION
+|--------------------------------------------------------------------------
+*/
+
+document.addEventListener("DOMContentLoaded", () => {
+  appData = loadData();
+
+  cacheElements();
+  bindNavigation();
+  bindDashboardModules();
+  bindQuickActions();
+  bindHeaderActions();
+  bindKeyboardAccessibility();
+
+  updateHomeDashboard();
+  navigateToPage("dashboard");
+
+  registerServiceWorker();
+});
 
 
-const PAGE_TITLES = {
+/*
+|--------------------------------------------------------------------------
+| DOM CACHE
+|--------------------------------------------------------------------------
+*/
 
-  dashboard: "Dashboard",
-
-  "report-books": "Report Books",
-
-  schemes: "Schemes of Work",
-
-  "lesson-plans": "Lesson Plans",
-
-  rubrics: "Assessment Rubrics",
-
-  students: "Students",
-
-  documents: "Saved Documents",
-
-  analytics: "Analytics",
-
-  profile: "Teacher Profile",
-
-  settings: "Settings"
-
+const elements = {
+  pageTitle: null,
+  pageSubtitle: null,
+  notificationButton: null,
+  settingsButton: null
 };
 
 
-/* =========================================================
-   3. DOM REFERENCES
-   ========================================================= */
-
-let pageTitle;
-let notificationButton;
-let settingsButton;
-
-
-/* =========================================================
-   4. INITIALIZE
-   ========================================================= */
-
-document.addEventListener(
-  "DOMContentLoaded",
-  initApp
-);
-
-
-function initApp() {
-
-  pageTitle =
-    document.getElementById(
-      "pageTitle"
-    );
-
-  notificationButton =
-    document.getElementById(
-      "notificationButton"
-    );
-
-  settingsButton =
-    document.getElementById(
-      "settingsButton"
-    );
-
-
-  bindNavigation();
-
-  bindDashboardModules();
-
-  bindQuickActions();
-
-  bindHeaderActions();
-
-  updateHomeDashboard();
-
-  navigateToPage(
-    "dashboard"
+function cacheElements() {
+  elements.pageTitle = document.getElementById("pageTitle");
+  elements.pageSubtitle = document.getElementById("pageSubtitle");
+  elements.notificationButton = document.getElementById(
+    "notificationButton"
   );
-
+  elements.settingsButton = document.getElementById(
+    "settingsButton"
+  );
 }
 
 
-/* =========================================================
-   5. LOAD DATA
-   ========================================================= */
+/*
+|--------------------------------------------------------------------------
+| LOCAL DATA
+|--------------------------------------------------------------------------
+*/
 
 function loadData() {
-
   try {
+    const raw = localStorage.getItem(STORAGE_KEY);
 
-    const saved =
-      localStorage.getItem(
-        STORAGE_KEY
-      );
-
-
-    if (!saved) {
-
-      const fresh =
-        cloneDefaults();
+    if (!raw) {
+      const freshData = cloneDefaultData();
 
       localStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify(fresh)
+        JSON.stringify(freshData)
       );
 
-      return fresh;
-
+      return freshData;
     }
 
+    const parsed = JSON.parse(raw);
 
-    const parsed =
-      JSON.parse(saved);
+    if (!isValidDataObject(parsed)) {
+      return cloneDefaultData();
+    }
 
+    return mergeData(DEFAULT_DATA, parsed);
 
-    return mergeData(
-      cloneDefaults(),
-      parsed
-    );
+  } catch {
+    /*
+    |--------------------------------------------------------------------------
+    | Deliberately do not log storage contents.
+    |--------------------------------------------------------------------------
+    */
 
-
-  } catch (error) {
-
-    console.error(
-      "CBC MASTER V2: Failed to load local data.",
-      error
-    );
-
-    return cloneDefaults();
-
+    return cloneDefaultData();
   }
-
 }
 
-
-/* =========================================================
-   6. CLONE DEFAULT DATA
-   ========================================================= */
-
-function cloneDefaults() {
-
-  return JSON.parse(
-    JSON.stringify(
-      DEFAULT_DATA
-    )
-  );
-
-}
-
-
-/* =========================================================
-   7. MERGE SAVED DATA
-   ========================================================= */
-
-function mergeData(
-  defaults,
-  saved
-) {
-
-  if (
-    !saved ||
-    typeof saved !== "object"
-  ) {
-
-    return defaults;
-
-  }
-
-
-  Object.keys(defaults)
-    .forEach((key) => {
-
-      if (
-        saved[key] === undefined ||
-        saved[key] === null
-      ) {
-
-        return;
-
-      }
-
-
-      if (
-        isPlainObject(defaults[key]) &&
-        isPlainObject(saved[key])
-      ) {
-
-        defaults[key] = {
-
-          ...defaults[key],
-
-          ...saved[key]
-
-        };
-
-      } else {
-
-        defaults[key] =
-          saved[key];
-
-      }
-
-    });
-
-
-  return defaults;
-
-}
-
-
-/* =========================================================
-   8. OBJECT CHECK
-   ========================================================= */
-
-function isPlainObject(value) {
-
-  return (
-    value !== null &&
-    typeof value === "object" &&
-    !Array.isArray(value)
-  );
-
-}
-
-
-/* =========================================================
-   9. SAVE DATA
-   ========================================================= */
 
 function saveData() {
+  if (!appData) {
+    return false;
+  }
 
   try {
-
     localStorage.setItem(
       STORAGE_KEY,
       JSON.stringify(appData)
@@ -288,1442 +220,1482 @@ function saveData() {
 
     return true;
 
-  } catch (error) {
-
-    console.error(
-      "CBC MASTER V2: Failed to save local data.",
-      error
-    );
-
+  } catch {
     showToast(
-      "Unable to save local data."
+      "Unable to save data on this device."
     );
 
     return false;
-
   }
-
 }
 
 
-/* =========================================================
-   10. NAVIGATION BINDING
-   ========================================================= */
+function cloneDefaultData() {
+  return JSON.parse(
+    JSON.stringify(DEFAULT_DATA)
+  );
+}
+
+
+function mergeData(defaults, saved) {
+  const result = cloneDefaultData();
+
+  if (!saved || typeof saved !== "object") {
+    return result;
+  }
+
+  if (
+    saved.teacher &&
+    typeof saved.teacher === "object" &&
+    !Array.isArray(saved.teacher)
+  ) {
+    result.teacher = {
+      ...defaults.teacher,
+      ...saved.teacher
+    };
+  }
+
+  if (
+    saved.preferences &&
+    typeof saved.preferences === "object" &&
+    !Array.isArray(saved.preferences)
+  ) {
+    result.preferences = {
+      ...defaults.preferences,
+      ...saved.preferences
+    };
+  }
+
+  const collections = [
+    "students",
+    "reportBooks",
+    "schemes",
+    "lessonPlans",
+    "rubrics",
+    "documents",
+    "activity"
+  ];
+
+  collections.forEach((collection) => {
+    if (Array.isArray(saved[collection])) {
+      result[collection] = saved[collection];
+    }
+  });
+
+  result.version = STORAGE_VERSION;
+
+  return result;
+}
+
+
+function isValidDataObject(data) {
+  return (
+    data !== null &&
+    typeof data === "object" &&
+    !Array.isArray(data)
+  );
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| NAVIGATION
+|--------------------------------------------------------------------------
+*/
 
 function bindNavigation() {
-
-  const buttons =
-    document.querySelectorAll(
-      "[data-page]"
-    );
-
-
-  buttons.forEach((button) => {
-
-    button.addEventListener(
-      "click",
-      () => {
-
-        const page =
-          button.dataset.page;
-
-
-        if (!page) {
-          return;
-        }
-
+  document
+    .querySelectorAll("[data-page]")
+    .forEach((button) => {
+      button.addEventListener("click", () => {
+        const page = button.dataset.page;
 
         navigateToPage(page);
-
-      }
-    );
-
-  });
-
+      });
+    });
 }
 
-
-/* =========================================================
-   11. DASHBOARD MODULE BINDING
-   ========================================================= */
-
-function bindDashboardModules() {
-
-  const buttons =
-    document.querySelectorAll(
-      "[data-module]"
-    );
-
-
-  buttons.forEach((button) => {
-
-    button.addEventListener(
-      "click",
-      () => {
-
-        const module =
-          button.dataset.module;
-
-
-        if (!module) {
-          return;
-        }
-
-
-        navigateToPage(module);
-
-      }
-    );
-
-  });
-
-}
-
-
-/* =========================================================
-   12. QUICK ACTION BINDING
-   ========================================================= */
-
-function bindQuickActions() {
-
-  const buttons =
-    document.querySelectorAll(
-      "[data-action]"
-    );
-
-
-  buttons.forEach((button) => {
-
-    button.addEventListener(
-      "click",
-      () => {
-
-        const action =
-          button.dataset.action;
-
-
-        handleQuickAction(
-          action
-        );
-
-      }
-    );
-
-  });
-
-}
-
-
-/* =========================================================
-   13. QUICK ACTION HANDLER
-   ========================================================= */
-
-function handleQuickAction(action) {
-
-  switch (action) {
-
-    case "add-student":
-
-      navigateToPage(
-        "students"
-      );
-
-      showToast(
-        "Student workspace opened."
-      );
-
-      break;
-
-
-    case "create-report-book":
-
-      navigateToPage(
-        "report-books"
-      );
-
-      showToast(
-        "Report Books workspace opened."
-      );
-
-      break;
-
-
-    case "create-scheme":
-
-      navigateToPage(
-        "schemes"
-      );
-
-      showToast(
-        "Schemes of Work workspace opened."
-      );
-
-      break;
-
-
-    case "create-lesson-plan":
-
-      navigateToPage(
-        "lesson-plans"
-      );
-
-      showToast(
-        "Lesson Plans workspace opened."
-      );
-
-      break;
-
-
-    default:
-
-      console.warn(
-        "CBC MASTER V2: Unknown quick action:",
-        action
-      );
-
-  }
-
-}
-
-
-/* =========================================================
-   14. NAVIGATE TO PAGE
-   ========================================================= */
 
 function navigateToPage(page) {
-
-  if (
-    !Object.prototype.hasOwnProperty.call(
-      PAGE_TITLES,
-      page
-    )
-  ) {
-
-    page = "dashboard";
-
-  }
-
-
-  currentPage =
-    page;
-
-
-  updatePageTitle(
-    page
-  );
-
-  updateActiveNavigation(
-    page
-  );
-
-  showPage(
-    page
-  );
-
-
-  if (
-    page === "dashboard"
-  ) {
-
-    updateHomeDashboard();
-
-  }
-
-}
-
-
-/* =========================================================
-   15. SHOW PAGE
-   ========================================================= */
-
-function showPage(page) {
-
-  const pages =
-    document.querySelectorAll(
-      ".app-page"
-    );
-
-
-  pages.forEach(
-    (pageElement) => {
-
-      pageElement.classList.add(
-        "page-hidden"
-      );
-
-    }
-  );
-
-
-  const pageElement =
-    getPageElement(
-      page
-    );
-
-
-  if (pageElement) {
-
-    pageElement.classList.remove(
-      "page-hidden"
-    );
-
-  }
-
-}
-
-
-/* =========================================================
-   16. PAGE ELEMENT MAP
-   ========================================================= */
-
-function getPageElement(page) {
-
-  const pageMap = {
-
-    dashboard:
-      "dashboardPage",
-
-    "report-books":
-      "reportBooksPage",
-
-    schemes:
-      "schemesPage",
-
-    "lesson-plans":
-      "lessonPlansPage",
-
-    rubrics:
-      "rubricsPage",
-
-    students:
-      "studentsPage",
-
-    documents:
-      "documentsPage",
-
-    analytics:
-      "analyticsPage",
-
-    profile:
-      "profilePage",
-
-    settings:
-      "settingsPage"
-
-  };
-
-
-  const id =
-    pageMap[page];
-
-
-  if (!id) {
-    return null;
-  }
-
-
-  return document.getElementById(
-    id
-  );
-
-}
-
-
-/* =========================================================
-   17. PAGE TITLE
-   ========================================================= */
-
-function updatePageTitle(page) {
-
-  if (!pageTitle) {
+  if (!PAGE_TITLES[page]) {
     return;
   }
 
+  updatePageTitle(page);
+  updateActiveNavigation(page);
+  showPage(page);
 
-  pageTitle.textContent =
-    PAGE_TITLES[page] ||
-    "CBC MASTER";
+  if (page === "dashboard") {
+    updateHomeDashboard();
+  }
 
+  if (page === "students") {
+    renderStudentsPage();
+  }
+
+  if (page === "settings") {
+    renderSettingsPage();
+  }
+
+  if (page === "profile") {
+    renderProfilePage();
+  }
+
+  if (page === "analytics") {
+    renderAnalyticsPage();
+  }
 }
 
 
-/* =========================================================
-   18. ACTIVE NAVIGATION
-   ========================================================= */
+function showPage(page) {
+  document
+    .querySelectorAll(".app-page")
+    .forEach((pageElement) => {
+      pageElement.classList.add("page-hidden");
+    });
+
+  const pageElement = getPageElement(page);
+
+  if (pageElement) {
+    pageElement.classList.remove("page-hidden");
+  }
+}
+
+
+function getPageElement(page) {
+  const pageMap = {
+    dashboard: "dashboardPage",
+    "report-books": "reportBooksPage",
+    schemes: "schemesPage",
+    "lesson-plans": "lessonPlansPage",
+    rubrics: "rubricsPage",
+    students: "studentsPage",
+    documents: "documentsPage",
+    analytics: "analyticsPage",
+    profile: "profilePage",
+    settings: "settingsPage"
+  };
+
+  const elementId = pageMap[page];
+
+  return elementId
+    ? document.getElementById(elementId)
+    : null;
+}
+
+
+function updatePageTitle(page) {
+  const pageInfo = PAGE_TITLES[page];
+
+  if (!pageInfo) {
+    return;
+  }
+
+  if (elements.pageTitle) {
+    elements.pageTitle.textContent = pageInfo.title;
+  }
+
+  if (elements.pageSubtitle) {
+    elements.pageSubtitle.textContent =
+      pageInfo.subtitle;
+  }
+
+  document.title =
+    `${pageInfo.title} • CBC MASTER V2`;
+}
+
 
 function updateActiveNavigation(page) {
-
-  const navLinks =
-    document.querySelectorAll(
-      "[data-page]"
-    );
-
-
-  navLinks.forEach(
-    (button) => {
+  document
+    .querySelectorAll("[data-page]")
+    .forEach((button) => {
+      const isActive =
+        button.dataset.page === page;
 
       button.classList.toggle(
         "active",
-        button.dataset.page === page
+        isActive
       );
 
+      if (isActive) {
+        button.setAttribute(
+          "aria-current",
+          "page"
+        );
+      } else {
+        button.removeAttribute(
+          "aria-current"
+        );
+      }
+    });
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| DASHBOARD MODULE NAVIGATION
+|--------------------------------------------------------------------------
+*/
+
+function bindDashboardModules() {
+  document
+    .querySelectorAll("[data-module]")
+    .forEach((card) => {
+      card.addEventListener("click", () => {
+        navigateToPage(
+          card.dataset.module
+        );
+      });
+    });
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| QUICK ACTIONS
+|--------------------------------------------------------------------------
+*/
+
+function bindQuickActions() {
+  document
+    .querySelectorAll("[data-action]")
+    .forEach((button) => {
+      button.addEventListener("click", () => {
+        handleQuickAction(
+          button.dataset.action
+        );
+      });
+    });
+}
+
+
+function handleQuickAction(action) {
+  const actions = {
+    "add-student": {
+      page: "students",
+      message: "Student workspace opened."
+    },
+
+    "create-report-book": {
+      page: "report-books",
+      message: "Report Books workspace opened."
+    },
+
+    "create-scheme": {
+      page: "schemes",
+      message: "Schemes workspace opened."
+    },
+
+    "create-lesson-plan": {
+      page: "lesson-plans",
+      message: "Lesson Plans workspace opened."
     }
+  };
+
+  const selectedAction =
+    actions[action];
+
+  if (!selectedAction) {
+    return;
+  }
+
+  navigateToPage(
+    selectedAction.page
   );
 
+  showToast(
+    selectedAction.message
+  );
 }
 
 
-/* =========================================================
-   19. HEADER ACTIONS
-   ========================================================= */
+/*
+|--------------------------------------------------------------------------
+| HEADER ACTIONS
+|--------------------------------------------------------------------------
+*/
 
 function bindHeaderActions() {
-
-  if (notificationButton) {
-
-    notificationButton.addEventListener(
+  if (elements.notificationButton) {
+    elements.notificationButton.addEventListener(
       "click",
-      handleNotifications
+      showNotifications
     );
-
   }
 
-
-  if (settingsButton) {
-
-    settingsButton.addEventListener(
+  if (elements.settingsButton) {
+    elements.settingsButton.addEventListener(
       "click",
       () => {
-
-        navigateToPage(
-          "settings"
-        );
-
+        navigateToPage("settings");
       }
     );
-
   }
-
 }
 
 
-/* =========================================================
-   20. NOTIFICATIONS
-   ========================================================= */
-
-function handleNotifications() {
-
+function showNotifications() {
   const notifications =
     getNotifications();
 
-
-  if (
-    notifications.length === 0
-  ) {
-
+  if (!notifications.length) {
     showToast(
       "No new notifications."
     );
 
     return;
-
   }
 
-
   showToast(
-    `${notifications.length} notification${
-      notifications.length === 1
-        ? ""
-        : "s"
-    } available.`
+    notifications[0]
   );
-
 }
 
 
 function getNotifications() {
-
   const notifications = [];
 
-
   if (
-    getArrayLength(
-      appData.students
-    ) === 0
+    Array.isArray(appData.students) &&
+    appData.students.length === 0
   ) {
-
-    notifications.push({
-
-      type: "info",
-
-      message:
-        "Add your first learner to begin building your CBC records."
-
-    });
-
+    notifications.push(
+      "Your student list is empty."
+    );
   }
 
-
   if (
-    getArrayLength(
-      appData.documents
-    ) === 0
+    Array.isArray(appData.documents) &&
+    appData.documents.length === 0
   ) {
-
-    notifications.push({
-
-      type: "info",
-
-      message:
-        "Saved CBC documents will appear here."
-
-    });
-
+    notifications.push(
+      "You have no saved documents yet."
+    );
   }
-
 
   return notifications;
-
 }
 
 
-/* =========================================================
-   21. HOME DASHBOARD
-   ========================================================= */
+/*
+|--------------------------------------------------------------------------
+| HOME DASHBOARD
+|--------------------------------------------------------------------------
+*/
 
 function updateHomeDashboard() {
-
   updateTeacherIdentity();
-
   updateWelcomeArea();
-
   updateModuleCounts();
-
   updateQuickStatistics();
-
 }
 
 
-/* =========================================================
-   22. TEACHER IDENTITY
-   ========================================================= */
-
 function updateTeacherIdentity() {
-
   const teacher =
-    appData.teacher ||
-    DEFAULT_DATA.teacher;
-
+    appData.teacher || {};
 
   const name =
-    teacher.name &&
-    teacher.name.trim()
-      ? teacher.name.trim()
-      : "Teacher";
+    cleanDisplayText(
+      teacher.name,
+      "Teacher"
+    );
 
+  const role =
+    cleanDisplayText(
+      teacher.role,
+      "CBC MASTER User"
+    );
 
-  const profileName =
+  const nameElement =
     document.getElementById(
       "sidebarProfileName"
     );
 
-
-  const profileRole =
+  const roleElement =
     document.getElementById(
       "sidebarProfileRole"
     );
 
-
-  const profileAvatar =
+  const avatarElement =
     document.getElementById(
       "sidebarProfileAvatar"
     );
 
-
-  const welcomeTitle =
-    document.querySelector(
-      ".welcome-title"
-    );
-
-
-  if (profileName) {
-
-    profileName.textContent =
-      name;
-
+  if (nameElement) {
+    nameElement.textContent = name;
   }
 
-
-  if (profileRole) {
-
-    profileRole.textContent =
-      teacher.role ||
-      "CBC MASTER User";
-
+  if (roleElement) {
+    roleElement.textContent = role;
   }
 
-
-  if (profileAvatar) {
-
-    profileAvatar.textContent =
-      getInitials(
-        name
-      );
-
+  if (avatarElement) {
+    avatarElement.textContent =
+      getInitials(name);
   }
-
-
-  if (welcomeTitle) {
-
-    welcomeTitle.textContent =
-      `${getGreeting()}, ${name}`;
-
-  }
-
 }
 
 
-/* =========================================================
-   23. INITIALS
-   ========================================================= */
+function updateWelcomeArea() {
+  const titleElement =
+    document.getElementById(
+      "welcomeTitle"
+    );
 
-function getInitials(name) {
+  const textElement =
+    document.getElementById(
+      "welcomeText"
+    );
 
-  const parts =
-    String(name)
-      .trim()
-      .split(/\s+/)
-      .filter(Boolean);
-
-
-  if (
-    parts.length === 0
-  ) {
-
-    return "T";
-
+  if (!titleElement || !textElement) {
+    return;
   }
 
+  const teacherName =
+    cleanDisplayText(
+      appData.teacher?.name,
+      "Teacher"
+    );
 
+  const firstName =
+    teacherName
+      .trim()
+      .split(/\s+/)[0] ||
+      "Teacher";
+
+  titleElement.textContent =
+    `${getGreeting()}, ${firstName}`;
+
+  const grade =
+    cleanDisplayText(
+      appData.preferences?.grade,
+      "Grade 5"
+    );
+
+  const term =
+    cleanDisplayText(
+      appData.preferences?.term,
+      "Term 1"
+    );
+
+  textElement.textContent =
+    `Your ${grade} • ${term} teaching workspace.`;
+}
+
+
+function getGreeting() {
+  const hour =
+    new Date().getHours();
+
+  if (hour < 12) {
+    return "Good morning";
+  }
+
+  if (hour < 18) {
+    return "Good afternoon";
+  }
+
+  return "Good evening";
+}
+
+
+function updateModuleCounts() {
+  const counts = {
+    "report-books":
+      getCollectionLength(
+        "reportBooks"
+      ),
+
+    schemes:
+      getCollectionLength(
+        "schemes"
+      ),
+
+    "lesson-plans":
+      getCollectionLength(
+        "lessonPlans"
+      ),
+
+    rubrics:
+      getCollectionLength(
+        "rubrics"
+      )
+  };
+
+  Object.entries(counts)
+    .forEach(([key, value]) => {
+      document
+        .querySelectorAll(
+          `[data-count="${key}"]`
+        )
+        .forEach((element) => {
+          element.textContent =
+            String(value);
+        });
+    });
+}
+
+
+function updateQuickStatistics() {
+  const statistics = {
+    students:
+      getCollectionLength(
+        "students"
+      ),
+
+    "report-books":
+      getCollectionLength(
+        "reportBooks"
+      ),
+
+    schemes:
+      getCollectionLength(
+        "schemes"
+      ),
+
+    documents:
+      getCollectionLength(
+        "documents"
+      )
+  };
+
+  Object.entries(statistics)
+    .forEach(([key, value]) => {
+      document
+        .querySelectorAll(
+          `[data-stat="${key}"]`
+        )
+        .forEach((element) => {
+          element.textContent =
+            String(value);
+        });
+    });
+}
+
+
+function getCollectionLength(
+  collectionName
+) {
+  return Array.isArray(
+    appData?.[collectionName]
+  )
+    ? appData[collectionName].length
+    : 0;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| PRIVACY-SAFE DISPLAY CLEANING
+|--------------------------------------------------------------------------
+*/
+
+function cleanDisplayText(
+  value,
+  fallback = ""
+) {
   if (
-    parts.length === 1
+    typeof value !== "string"
   ) {
+    return fallback;
+  }
 
+  const cleaned =
+    value
+      .trim()
+      .replace(/\s+/g, " ");
+
+  return cleaned || fallback;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| INITIALS
+|--------------------------------------------------------------------------
+*/
+
+function getInitials(name) {
+  const safeName =
+    cleanDisplayText(
+      name,
+      "Teacher"
+    );
+
+  const parts =
+    safeName
+      .split(" ")
+      .filter(Boolean);
+
+  if (!parts.length) {
+    return "T";
+  }
+
+  if (parts.length === 1) {
     return parts[0]
       .charAt(0)
       .toUpperCase();
-
   }
-
 
   return (
     parts[0].charAt(0) +
     parts[parts.length - 1].charAt(0)
   ).toUpperCase();
-
 }
 
 
-/* =========================================================
-   24. GREETING
-   ========================================================= */
-
-function getGreeting() {
-
-  const hour =
-    new Date().getHours();
-
-
-  if (
-    hour < 12
-  ) {
-
-    return "Good morning";
-
-  }
-
-
-  if (
-    hour < 17
-  ) {
-
-    return "Good afternoon";
-
-  }
-
-
-  return "Good evening";
-
-}
-
-
-/* =========================================================
-   25. WELCOME AREA
-   ========================================================= */
-
-function updateWelcomeArea() {
-
-  const welcomeText =
-    document.querySelector(
-      ".welcome-text"
-    );
-
-
-  if (!welcomeText) {
-    return;
-  }
-
-
-  const preferences =
-    appData.preferences ||
-    DEFAULT_DATA.preferences;
-
-
-  const grade =
-    preferences.grade ||
-    "Grade 5";
-
-
-  const term =
-    preferences.term ||
-    "Term 1";
-
-
-  welcomeText.textContent =
-    `Here's your teaching overview for ${grade}, ${term}.`;
-
-}
-
-
-/* =========================================================
-   26. MODULE COUNTS
-   ========================================================= */
-
-function updateModuleCounts() {
-
-  const counts = {
-
-    "report-books":
-      getArrayLength(
-        appData.reportBooks
-      ),
-
-    schemes:
-      getArrayLength(
-        appData.schemes
-      ),
-
-    "lesson-plans":
-      getArrayLength(
-        appData.lessonPlans
-      ),
-
-    rubrics:
-      getArrayLength(
-        appData.rubrics
-      )
-
-  };
-
-
-  Object.entries(
-    counts
-  ).forEach(
-    ([module, count]) => {
-
-      const element =
-        document.querySelector(
-          `[data-count="${module}"]`
-        );
-
-
-      if (element) {
-
-        element.textContent =
-          formatNumber(
-            count
-          );
-
-      }
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   27. QUICK STATISTICS
-   ========================================================= */
-
-function updateQuickStatistics() {
-
-  const statistics = {
-
-    students:
-      getArrayLength(
-        appData.students
-      ),
-
-    "report-books":
-      getArrayLength(
-        appData.reportBooks
-      ),
-
-    schemes:
-      getArrayLength(
-        appData.schemes
-      ),
-
-    documents:
-      getArrayLength(
-        appData.documents
-      )
-
-  };
-
-
-  Object.entries(
-    statistics
-  ).forEach(
-    ([key, value]) => {
-
-      const element =
-        document.querySelector(
-          `[data-stat="${key}"]`
-        );
-
-
-      if (element) {
-
-        element.textContent =
-          formatNumber(
-            value
-          );
-
-      }
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   28. ARRAY LENGTH
-   ========================================================= */
-
-function getArrayLength(value) {
-
-  return Array.isArray(value)
-    ? value.length
-    : 0;
-
-}
-
-
-/* =========================================================
-   29. NUMBER FORMAT
-   ========================================================= */
-
-function formatNumber(value) {
-
-  return new Intl.NumberFormat(
-    "en-KE"
-  ).format(
-    Number(value) || 0
-  );
-
-}
-
-
-/* =========================================================
-   30. ACTIVITY
-   ========================================================= */
+/*
+|--------------------------------------------------------------------------
+| ACTIVITY
+|--------------------------------------------------------------------------
+*/
 
 function addActivity(
   type,
   message
 ) {
-
   if (
-    !Array.isArray(
-      appData.activity
-    )
+    typeof type !== "string" ||
+    typeof message !== "string"
   ) {
-
-    appData.activity = [];
-
+    return false;
   }
 
-
-  appData.activity.unshift({
-
+  const activity = {
     id: createId(),
-
-    type,
-
-    message,
-
+    type: type.slice(0, 50),
+    message: message.slice(0, 250),
     createdAt:
       new Date().toISOString()
+  };
 
-  });
-
-
-  /*
-   * Keep the local activity history
-   * lightweight for the offline PWA.
-   */
-
-  if (
-    appData.activity.length > 100
-  ) {
-
-    appData.activity =
-      appData.activity.slice(
-        0,
-        100
-      );
-
+  if (!Array.isArray(
+    appData.activity
+  )) {
+    appData.activity = [];
   }
 
+  appData.activity.unshift(
+    activity
+  );
+
+  /*
+  |--------------------------------------------------------------------------
+  | Keep only recent local activity.
+  |--------------------------------------------------------------------------
+  */
+
+  appData.activity =
+    appData.activity.slice(0, 100);
+
+  return saveData();
 }
 
 
-/* =========================================================
-   31. ADD STUDENT
-   ========================================================= */
+/*
+|--------------------------------------------------------------------------
+| STUDENTS
+|--------------------------------------------------------------------------
+*/
 
 function addStudent(student) {
-
   if (
     !student ||
     typeof student !== "object"
   ) {
-
-    return false;
-
+    return null;
   }
 
+  const record = {
+    id: createId(),
 
-  appData.students.push({
+    name: cleanDisplayText(
+      student.name
+    ),
 
-    id:
-      createId(),
+    grade: cleanDisplayText(
+      student.grade,
+      appData.preferences.grade
+    ),
+
+    className: cleanDisplayText(
+      student.className
+    ),
+
+    admissionNumber:
+      cleanDisplayText(
+        student.admissionNumber
+      ),
 
     createdAt:
-      new Date().toISOString(),
+      new Date().toISOString()
+  };
 
-    ...student
+  if (!record.name) {
+    return null;
+  }
 
-  });
-
+  appData.students.push(record);
 
   addActivity(
     "student",
-    "Student added."
+    "Student record added."
   );
 
+  saveData();
+  updateHomeDashboard();
 
-  if (
-    saveData()
-  ) {
-
-    updateHomeDashboard();
-
-    return true;
-
-  }
-
-
-  return false;
-
+  return record;
 }
 
 
-/* =========================================================
-   32. ADD REPORT BOOK
-   ========================================================= */
+/*
+|--------------------------------------------------------------------------
+| REPORT BOOKS
+|--------------------------------------------------------------------------
+*/
 
 function addReportBook(
   reportBook
 ) {
-
   if (
     !reportBook ||
     typeof reportBook !== "object"
   ) {
-
-    return false;
-
+    return null;
   }
 
-
-  appData.reportBooks.push({
-
-    id:
-      createId(),
-
+  const record = {
+    id: createId(),
+    ...reportBook,
     createdAt:
-      new Date().toISOString(),
+      new Date().toISOString()
+  };
 
-    ...reportBook
-
-  });
-
+  appData.reportBooks.push(
+    record
+  );
 
   addActivity(
     "report-book",
     "Report book created."
   );
 
+  saveData();
+  updateHomeDashboard();
 
-  if (
-    saveData()
-  ) {
-
-    updateHomeDashboard();
-
-    return true;
-
-  }
-
-
-  return false;
-
+  return record;
 }
 
 
-/* =========================================================
-   33. ADD SCHEME
-   ========================================================= */
+/*
+|--------------------------------------------------------------------------
+| SCHEMES
+|--------------------------------------------------------------------------
+*/
 
-function addScheme(
-  scheme
-) {
-
+function addScheme(scheme) {
   if (
     !scheme ||
     typeof scheme !== "object"
   ) {
-
-    return false;
-
+    return null;
   }
 
-
-  appData.schemes.push({
-
-    id:
-      createId(),
-
+  const record = {
+    id: createId(),
+    ...scheme,
     createdAt:
-      new Date().toISOString(),
+      new Date().toISOString()
+  };
 
-    ...scheme
-
-  });
-
+  appData.schemes.push(record);
 
   addActivity(
     "scheme",
-    "Scheme of Work created."
+    "Scheme created."
   );
 
+  saveData();
+  updateHomeDashboard();
 
-  if (
-    saveData()
-  ) {
-
-    updateHomeDashboard();
-
-    return true;
-
-  }
-
-
-  return false;
-
+  return record;
 }
 
 
-/* =========================================================
-   34. ADD LESSON PLAN
-   ========================================================= */
+/*
+|--------------------------------------------------------------------------
+| LESSON PLANS
+|--------------------------------------------------------------------------
+*/
 
 function addLessonPlan(
   lessonPlan
 ) {
-
   if (
     !lessonPlan ||
     typeof lessonPlan !== "object"
   ) {
-
-    return false;
-
+    return null;
   }
 
-
-  appData.lessonPlans.push({
-
-    id:
-      createId(),
-
+  const record = {
+    id: createId(),
+    ...lessonPlan,
     createdAt:
-      new Date().toISOString(),
+      new Date().toISOString()
+  };
 
-    ...lessonPlan
-
-  });
-
+  appData.lessonPlans.push(
+    record
+  );
 
   addActivity(
     "lesson-plan",
     "Lesson plan created."
   );
 
+  saveData();
+  updateHomeDashboard();
 
-  if (
-    saveData()
-  ) {
-
-    updateHomeDashboard();
-
-    return true;
-
-  }
-
-
-  return false;
-
+  return record;
 }
 
 
-/* =========================================================
-   35. ADD RUBRIC
-   ========================================================= */
+/*
+|--------------------------------------------------------------------------
+| RUBRICS
+|--------------------------------------------------------------------------
+*/
 
-function addRubric(
-  rubric
-) {
-
+function addRubric(rubric) {
   if (
     !rubric ||
     typeof rubric !== "object"
   ) {
-
-    return false;
-
+    return null;
   }
 
-
-  appData.rubrics.push({
-
-    id:
-      createId(),
-
+  const record = {
+    id: createId(),
+    ...rubric,
     createdAt:
-      new Date().toISOString(),
+      new Date().toISOString()
+  };
 
-    ...rubric
-
-  });
-
+  appData.rubrics.push(record);
 
   addActivity(
     "rubric",
     "Assessment rubric created."
   );
 
+  saveData();
+  updateHomeDashboard();
 
-  if (
-    saveData()
-  ) {
-
-    updateHomeDashboard();
-
-    return true;
-
-  }
-
-
-  return false;
-
+  return record;
 }
 
 
-/* =========================================================
-   36. ADD DOCUMENT
-   ========================================================= */
+/*
+|--------------------------------------------------------------------------
+| DOCUMENTS
+|--------------------------------------------------------------------------
+*/
 
 function addDocument(
   documentData
 ) {
-
   if (
     !documentData ||
     typeof documentData !== "object"
   ) {
-
-    return false;
-
+    return null;
   }
 
-
-  appData.documents.push({
-
-    id:
-      createId(),
-
+  const record = {
+    id: createId(),
+    ...documentData,
     createdAt:
-      new Date().toISOString(),
+      new Date().toISOString()
+  };
 
-    ...documentData
-
-  });
-
+  appData.documents.push(
+    record
+  );
 
   addActivity(
     "document",
     "Document saved."
   );
 
+  saveData();
+  updateHomeDashboard();
 
-  if (
-    saveData()
-  ) {
-
-    updateHomeDashboard();
-
-    return true;
-
-  }
-
-
-  return false;
-
+  return record;
 }
 
 
-/* =========================================================
-   37. UPDATE TEACHER
-   ========================================================= */
+/*
+|--------------------------------------------------------------------------
+| TEACHER PROFILE
+|--------------------------------------------------------------------------
+*/
 
 function updateTeacher(
   teacher
 ) {
-
   if (
     !teacher ||
     typeof teacher !== "object"
   ) {
-
     return false;
-
   }
 
-
   appData.teacher = {
-
     ...appData.teacher,
-
-    ...teacher
-
+    name: cleanDisplayText(
+      teacher.name,
+      "Teacher"
+    ),
+    school: cleanDisplayText(
+      teacher.school
+    ),
+    county: cleanDisplayText(
+      teacher.county
+    ),
+    role: cleanDisplayText(
+      teacher.role,
+      "CBC MASTER User"
+    )
   };
-
 
   addActivity(
     "profile",
     "Teacher profile updated."
   );
 
+  saveData();
+  updateHomeDashboard();
 
-  if (
-    saveData()
-  ) {
-
-    updateHomeDashboard();
-
-    return true;
-
-  }
-
-
-  return false;
-
+  return true;
 }
 
 
-/* =========================================================
-   38. UPDATE PREFERENCES
-   ========================================================= */
+/*
+|--------------------------------------------------------------------------
+| PREFERENCES
+|--------------------------------------------------------------------------
+*/
 
 function updatePreferences(
   preferences
 ) {
-
   if (
     !preferences ||
     typeof preferences !== "object"
   ) {
-
     return false;
-
   }
-
 
   appData.preferences = {
-
     ...appData.preferences,
-
     ...preferences
-
   };
 
+  saveData();
+  updateHomeDashboard();
 
-  addActivity(
-    "settings",
-    "Preferences updated."
-  );
-
-
-  if (
-    saveData()
-  ) {
-
-    updateHomeDashboard();
-
-    return true;
-
-  }
-
-
-  return false;
-
+  return true;
 }
 
 
-/* =========================================================
-   39. CREATE LOCAL ID
-   ========================================================= */
+/*
+|--------------------------------------------------------------------------
+| EXPORT / BACKUP
+|--------------------------------------------------------------------------
+|
+| The export is generated locally in the browser.
+| Nothing is uploaded.
+|--------------------------------------------------------------------------
+*/
+
+function exportData() {
+  if (!appData) {
+    return false;
+  }
+
+  try {
+    const exportObject = {
+      app: "CBC MASTER V2",
+      version: STORAGE_VERSION,
+      exportedAt:
+        new Date().toISOString(),
+      data: appData
+    };
+
+    const json =
+      JSON.stringify(
+        exportObject,
+        null,
+        2
+      );
+
+    const blob =
+      new Blob(
+        [json],
+        {
+          type:
+            "application/json"
+        }
+      );
+
+    const url =
+      URL.createObjectURL(blob);
+
+    const link =
+      document.createElement(
+        "a"
+      );
+
+    const date =
+      new Date()
+        .toISOString()
+        .slice(0, 10);
+
+    link.href = url;
+    link.download =
+      `cbc-master-backup-${date}.json`;
+
+    document.body.appendChild(
+      link
+    );
+
+    link.click();
+
+    link.remove();
+
+    URL.revokeObjectURL(url);
+
+    showToast(
+      "Backup created on this device."
+    );
+
+    return true;
+
+  } catch {
+    showToast(
+      "Unable to create backup."
+    );
+
+    return false;
+  }
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| IMPORT / RESTORE
+|--------------------------------------------------------------------------
+*/
+
+function importDataFile(file) {
+  if (!(file instanceof File)) {
+    return false;
+  }
+
+  const reader =
+    new FileReader();
+
+  reader.onload = () => {
+    try {
+      const parsed =
+        JSON.parse(
+          reader.result
+        );
+
+      if (
+        !parsed ||
+        typeof parsed !== "object" ||
+        !parsed.data ||
+        !isValidDataObject(
+          parsed.data
+        )
+      ) {
+        throw new Error(
+          "Invalid backup"
+        );
+      }
+
+      appData =
+        mergeData(
+          DEFAULT_DATA,
+          parsed.data
+        );
+
+      saveData();
+      updateHomeDashboard();
+
+      showToast(
+        "Backup restored locally."
+      );
+
+    } catch {
+      showToast(
+        "Invalid CBC MASTER backup."
+      );
+    }
+  };
+
+  reader.onerror = () => {
+    showToast(
+      "Unable to read backup."
+    );
+  };
+
+  reader.readAsText(file);
+
+  return true;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| DELETE ALL LOCAL DATA
+|--------------------------------------------------------------------------
+*/
+
+function deleteAllData() {
+  const confirmed =
+    window.confirm(
+      "Delete all CBC MASTER data stored on this device? This cannot be undone unless you have a backup."
+    );
+
+  if (!confirmed) {
+    return false;
+  }
+
+  try {
+    localStorage.removeItem(
+      STORAGE_KEY
+    );
+
+    appData =
+      cloneDefaultData();
+
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(appData)
+    );
+
+    updateHomeDashboard();
+    navigateToPage("dashboard");
+
+    showToast(
+      "All local CBC MASTER data was deleted."
+    );
+
+    return true;
+
+  } catch {
+    showToast(
+      "Unable to delete local data."
+    );
+
+    return false;
+  }
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| STORAGE INFORMATION
+|--------------------------------------------------------------------------
+*/
+
+function getStorageSummary() {
+  return {
+    students:
+      getCollectionLength(
+        "students"
+      ),
+
+    reportBooks:
+      getCollectionLength(
+        "reportBooks"
+      ),
+
+    schemes:
+      getCollectionLength(
+        "schemes"
+      ),
+
+    lessonPlans:
+      getCollectionLength(
+        "lessonPlans"
+      ),
+
+    rubrics:
+      getCollectionLength(
+        "rubrics"
+      ),
+
+    documents:
+      getCollectionLength(
+        "documents"
+      )
+  };
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| ID GENERATION
+|--------------------------------------------------------------------------
+*/
 
 function createId() {
+  if (
+    window.crypto &&
+    typeof window.crypto.randomUUID ===
+      "function"
+  ) {
+    return window.crypto.randomUUID();
+  }
 
   return (
     Date.now().toString(36) +
     "-" +
     Math.random()
       .toString(36)
-      .slice(
-        2,
-        10
-      )
+      .slice(2, 10)
   );
-
 }
 
 
-/* =========================================================
-   40. TOAST
-   ========================================================= */
+/*
+|--------------------------------------------------------------------------
+| TOAST
+|--------------------------------------------------------------------------
+*/
 
-function showToast(
-  message
-) {
-
-  let toast =
+function showToast(message) {
+  const toast =
     document.getElementById(
       "cbcToast"
     );
 
-
   if (!toast) {
-
-    toast =
-      document.createElement(
-        "div"
-      );
-
-    toast.id =
-      "cbcToast";
-
-
-    document.body.appendChild(
-      toast
-    );
-
+    return;
   }
 
+  window.clearTimeout(
+    toastTimer
+  );
 
   toast.textContent =
-    message;
-
+    cleanDisplayText(
+      message,
+      "Done."
+    );
 
   toast.classList.add(
     "show"
   );
 
-
-  clearTimeout(
-    toast._timeout
-  );
-
-
-  toast._timeout =
-    setTimeout(
-      () => {
-
-        toast.classList.remove(
-          "show"
-        );
-
-      },
-      2500
-    );
-
+  toastTimer =
+    window.setTimeout(() => {
+      toast.classList.remove(
+        "show"
+      );
+    }, 3000);
 }
 
 
-/* =========================================================
-   41. PUBLIC API
-   ========================================================= */
+/*
+|--------------------------------------------------------------------------
+| KEYBOARD ACCESSIBILITY
+|--------------------------------------------------------------------------
+*/
 
-window.CBCMaster = {
+function bindKeyboardAccessibility() {
+  document.addEventListener(
+    "keydown",
+    (event) => {
+      if (
+        event.key === "Escape"
+      ) {
+        const toast =
+          document.getElementById(
+            "cbcToast"
+          );
 
-  getData() {
-
-    return appData;
-
-  },
-
-
-  save() {
-
-    return saveData();
-
-  },
-
-
-  refresh() {
-
-    appData =
-      loadData();
-
-    updateHomeDashboard();
-
-  },
+        if (toast) {
+          toast.classList.remove(
+            "show"
+          );
+        }
+      }
+    }
+  );
+}
 
 
-  navigate(page) {
+/*
+|--------------------------------------------------------------------------
+| SERVICE WORKER
+|--------------------------------------------------------------------------
+*/
 
-    navigateToPage(
-      page
+function registerServiceWorker() {
+  if (
+    !("serviceWorker" in navigator)
+  ) {
+    return;
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | Service workers require a secure context.
+  |--------------------------------------------------------------------------
+  | HTTPS is used in production deployments such as GitHub Pages/Vercel.
+  |--------------------------------------------------------------------------
+  */
+
+  window.addEventListener(
+    "load",
+    () => {
+      navigator.serviceWorker
+        .register(
+          "./sw.js"
+        )
+        .catch(() => {
+          /*
+          |--------------------------------------------------------------------------
+          | Do not expose application state or personal data in errors.
+          |--------------------------------------------------------------------------
+          */
+        });
+    }
+  );
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| FUTURE PAGE RENDERERS
+|--------------------------------------------------------------------------
+|
+| These functions are intentionally lightweight until each module is built.
+|--------------------------------------------------------------------------
+*/
+
+function renderStudentsPage() {
+  const page =
+    document.getElementById(
+      "studentsPage"
     );
 
+  if (!page) {
+    return;
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | Students UI will be implemented in the Students module.
+  |--------------------------------------------------------------------------
+  */
+
+  if (!page.dataset.initialized) {
+    page.dataset.initialized =
+      "true";
+  }
+}
+
+
+function renderSettingsPage() {
+  const page =
+    document.getElementById(
+      "settingsPage"
+    );
+
+  if (!page) {
+    return;
+  }
+
+  if (!page.dataset.initialized) {
+    page.dataset.initialized =
+      "true";
+  }
+}
+
+
+function renderProfilePage() {
+  const page =
+    document.getElementById(
+      "profilePage"
+    );
+
+  if (!page) {
+    return;
+  }
+
+  if (!page.dataset.initialized) {
+    page.dataset.initialized =
+      "true";
+  }
+}
+
+
+function renderAnalyticsPage() {
+  const page =
+    document.getElementById(
+      "analyticsPage"
+    );
+
+  if (!page) {
+    return;
+  }
+
+  if (!page.dataset.initialized) {
+    page.dataset.initialized =
+      "true";
+  }
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| PUBLIC CBC MASTER API
+|--------------------------------------------------------------------------
+|
+| Exposed only for the application's own modules.
+| No data is automatically transmitted.
+|--------------------------------------------------------------------------
+*/
+
+window.CBCMaster = Object.freeze({
+
+  getData() {
+    return appData;
   },
 
+  getStorageSummary() {
+    return getStorageSummary();
+  },
+
+  saveData() {
+    return saveData();
+  },
+
+  refresh() {
+    updateHomeDashboard();
+  },
+
+  navigate(page) {
+    navigateToPage(page);
+  },
 
   addStudent,
 
@@ -1739,11 +1711,12 @@ window.CBCMaster = {
 
   updateTeacher,
 
-  updatePreferences
+  updatePreferences,
 
-};
+  exportData,
 
+  importDataFile,
 
-/* =========================================================
-   END CBC MASTER V2 APPLICATION ENGINE
-   ========================================================= */
+  deleteAllData
+
+});
