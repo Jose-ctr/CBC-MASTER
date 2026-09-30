@@ -1,7 +1,7 @@
 {
   "name": "CBC MASTER V2",
   "short_name": "CBC MASTER",
-  "description": "Kenyan CBC Toolkit for PP1 to Grade 12.",
+  "description": "Private, offline-first Kenyan CBC teacher toolkit for PP1 to Grade 12.",
   "lang": "en-KE",
   "dir": "ltr",
   "start_url": "./",
@@ -10,6 +10,10 @@
   "background_color": "#061321",
   "theme_color": "#0B1F33",
   "orientation": "portrait-primary",
+  "categories": [
+    "education",
+    "productivity"
+  ],
   "icons": [
     {
       "src": "icons/icon-192.png",
