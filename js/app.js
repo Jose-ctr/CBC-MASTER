@@ -98,7 +98,9 @@ document.addEventListener(
 function initApp() {
 
   pageTitle =
-    document.getElementById("pageTitle");
+    document.getElementById(
+      "pageTitle"
+    );
 
   notificationButton =
     document.getElementById(
@@ -115,11 +117,15 @@ function initApp() {
 
   bindDashboardModules();
 
+  bindQuickActions();
+
   bindHeaderActions();
 
   updateHomeDashboard();
 
-  navigateToPage("dashboard");
+  navigateToPage(
+    "dashboard"
+  );
 
 }
 
@@ -149,6 +155,7 @@ function loadData() {
       );
 
       return fresh;
+
     }
 
 
@@ -204,7 +211,9 @@ function mergeData(
     !saved ||
     typeof saved !== "object"
   ) {
+
     return defaults;
+
   }
 
 
@@ -215,7 +224,9 @@ function mergeData(
         saved[key] === undefined ||
         saved[key] === null
       ) {
+
         return;
+
       }
 
 
@@ -225,8 +236,11 @@ function mergeData(
       ) {
 
         defaults[key] = {
+
           ...defaults[key],
+
           ...saved[key]
+
         };
 
       } else {
@@ -367,7 +381,113 @@ function bindDashboardModules() {
 
 
 /* =========================================================
-   12. NAVIGATE TO PAGE
+   12. QUICK ACTION BINDING
+   ========================================================= */
+
+function bindQuickActions() {
+
+  const buttons =
+    document.querySelectorAll(
+      "[data-action]"
+    );
+
+
+  buttons.forEach((button) => {
+
+    button.addEventListener(
+      "click",
+      () => {
+
+        const action =
+          button.dataset.action;
+
+
+        handleQuickAction(
+          action
+        );
+
+      }
+    );
+
+  });
+
+}
+
+
+/* =========================================================
+   13. QUICK ACTION HANDLER
+   ========================================================= */
+
+function handleQuickAction(action) {
+
+  switch (action) {
+
+    case "add-student":
+
+      navigateToPage(
+        "students"
+      );
+
+      showToast(
+        "Student workspace opened."
+      );
+
+      break;
+
+
+    case "create-report-book":
+
+      navigateToPage(
+        "report-books"
+      );
+
+      showToast(
+        "Report Books workspace opened."
+      );
+
+      break;
+
+
+    case "create-scheme":
+
+      navigateToPage(
+        "schemes"
+      );
+
+      showToast(
+        "Schemes of Work workspace opened."
+      );
+
+      break;
+
+
+    case "create-lesson-plan":
+
+      navigateToPage(
+        "lesson-plans"
+      );
+
+      showToast(
+        "Lesson Plans workspace opened."
+      );
+
+      break;
+
+
+    default:
+
+      console.warn(
+        "CBC MASTER V2: Unknown quick action:",
+        action
+      );
+
+  }
+
+}
+
+
+/* =========================================================
+   14. NAVIGATE TO PAGE
    ========================================================= */
 
 function navigateToPage(page) {
@@ -384,17 +504,26 @@ function navigateToPage(page) {
   }
 
 
-  currentPage = page;
+  currentPage =
+    page;
 
 
-  updatePageTitle(page);
+  updatePageTitle(
+    page
+  );
 
-  updateActiveNavigation(page);
+  updateActiveNavigation(
+    page
+  );
 
-  showPage(page);
+  showPage(
+    page
+  );
 
 
-  if (page === "dashboard") {
+  if (
+    page === "dashboard"
+  ) {
 
     updateHomeDashboard();
 
@@ -404,7 +533,7 @@ function navigateToPage(page) {
 
 
 /* =========================================================
-   13. SHOW PAGE
+   15. SHOW PAGE
    ========================================================= */
 
 function showPage(page) {
@@ -415,17 +544,21 @@ function showPage(page) {
     );
 
 
-  pages.forEach((pageElement) => {
+  pages.forEach(
+    (pageElement) => {
 
-    pageElement.classList.add(
-      "page-hidden"
-    );
+      pageElement.classList.add(
+        "page-hidden"
+      );
 
-  });
+    }
+  );
 
 
   const pageElement =
-    getPageElement(page);
+    getPageElement(
+      page
+    );
 
 
   if (pageElement) {
@@ -440,7 +573,7 @@ function showPage(page) {
 
 
 /* =========================================================
-   14. PAGE ELEMENT MAP
+   16. PAGE ELEMENT MAP
    ========================================================= */
 
 function getPageElement(page) {
@@ -489,13 +622,15 @@ function getPageElement(page) {
   }
 
 
-  return document.getElementById(id);
+  return document.getElementById(
+    id
+  );
 
 }
 
 
 /* =========================================================
-   15. PAGE TITLE
+   17. PAGE TITLE
    ========================================================= */
 
 function updatePageTitle(page) {
@@ -513,47 +648,33 @@ function updatePageTitle(page) {
 
 
 /* =========================================================
-   16. ACTIVE NAVIGATION
+   18. ACTIVE NAVIGATION
    ========================================================= */
 
 function updateActiveNavigation(page) {
 
-  const sidebarLinks =
+  const navLinks =
     document.querySelectorAll(
-      ".sidebar-link"
+      "[data-page]"
     );
 
 
-  sidebarLinks.forEach((button) => {
+  navLinks.forEach(
+    (button) => {
 
-    button.classList.toggle(
-      "active",
-      button.dataset.page === page
-    );
+      button.classList.toggle(
+        "active",
+        button.dataset.page === page
+      );
 
-  });
-
-
-  const bottomLinks =
-    document.querySelectorAll(
-      ".bottom-nav-item"
-    );
-
-
-  bottomLinks.forEach((button) => {
-
-    button.classList.toggle(
-      "active",
-      button.dataset.page === page
-    );
-
-  });
+    }
+  );
 
 }
 
 
 /* =========================================================
-   17. HEADER ACTIONS
+   19. HEADER ACTIONS
    ========================================================= */
 
 function bindHeaderActions() {
@@ -587,7 +708,7 @@ function bindHeaderActions() {
 
 
 /* =========================================================
-   18. NOTIFICATIONS
+   20. NOTIFICATIONS
    ========================================================= */
 
 function handleNotifications() {
@@ -626,26 +747,36 @@ function getNotifications() {
 
 
   if (
-    appData.students.length === 0
+    getArrayLength(
+      appData.students
+    ) === 0
   ) {
 
     notifications.push({
+
       type: "info",
+
       message:
         "Add your first learner to begin building your CBC records."
+
     });
 
   }
 
 
   if (
-    appData.documents.length === 0
+    getArrayLength(
+      appData.documents
+    ) === 0
   ) {
 
     notifications.push({
+
       type: "info",
+
       message:
         "Saved CBC documents will appear here."
+
     });
 
   }
@@ -657,7 +788,7 @@ function getNotifications() {
 
 
 /* =========================================================
-   19. HOME DASHBOARD
+   21. HOME DASHBOARD
    ========================================================= */
 
 function updateHomeDashboard() {
@@ -674,7 +805,7 @@ function updateHomeDashboard() {
 
 
 /* =========================================================
-   20. TEACHER IDENTITY
+   22. TEACHER IDENTITY
    ========================================================= */
 
 function updateTeacherIdentity() {
@@ -692,14 +823,20 @@ function updateTeacherIdentity() {
 
 
   const profileName =
-    document.querySelector(
-      ".profile-name"
+    document.getElementById(
+      "sidebarProfileName"
+    );
+
+
+  const profileRole =
+    document.getElementById(
+      "sidebarProfileRole"
     );
 
 
   const profileAvatar =
-    document.querySelector(
-      ".profile-avatar"
+    document.getElementById(
+      "sidebarProfileAvatar"
     );
 
 
@@ -717,10 +854,21 @@ function updateTeacherIdentity() {
   }
 
 
+  if (profileRole) {
+
+    profileRole.textContent =
+      teacher.role ||
+      "CBC MASTER User";
+
+  }
+
+
   if (profileAvatar) {
 
     profileAvatar.textContent =
-      getInitials(name);
+      getInitials(
+        name
+      );
 
   }
 
@@ -736,7 +884,7 @@ function updateTeacherIdentity() {
 
 
 /* =========================================================
-   21. INITIALS
+   23. INITIALS
    ========================================================= */
 
 function getInitials(name) {
@@ -748,12 +896,18 @@ function getInitials(name) {
       .filter(Boolean);
 
 
-  if (parts.length === 0) {
+  if (
+    parts.length === 0
+  ) {
+
     return "T";
+
   }
 
 
-  if (parts.length === 1) {
+  if (
+    parts.length === 1
+  ) {
 
     return parts[0]
       .charAt(0)
@@ -771,7 +925,7 @@ function getInitials(name) {
 
 
 /* =========================================================
-   22. GREETING
+   24. GREETING
    ========================================================= */
 
 function getGreeting() {
@@ -780,13 +934,21 @@ function getGreeting() {
     new Date().getHours();
 
 
-  if (hour < 12) {
+  if (
+    hour < 12
+  ) {
+
     return "Good morning";
+
   }
 
 
-  if (hour < 17) {
+  if (
+    hour < 17
+  ) {
+
     return "Good afternoon";
+
   }
 
 
@@ -796,7 +958,7 @@ function getGreeting() {
 
 
 /* =========================================================
-   23. WELCOME AREA
+   25. WELCOME AREA
    ========================================================= */
 
 function updateWelcomeArea() {
@@ -834,7 +996,7 @@ function updateWelcomeArea() {
 
 
 /* =========================================================
-   24. MODULE COUNTS
+   26. MODULE COUNTS
    ========================================================= */
 
 function updateModuleCounts() {
@@ -864,31 +1026,34 @@ function updateModuleCounts() {
   };
 
 
-  Object.entries(counts)
-    .forEach(
-      ([module, count]) => {
+  Object.entries(
+    counts
+  ).forEach(
+    ([module, count]) => {
 
-        const element =
-          document.querySelector(
-            `[data-count="${module}"]`
+      const element =
+        document.querySelector(
+          `[data-count="${module}"]`
+        );
+
+
+      if (element) {
+
+        element.textContent =
+          formatNumber(
+            count
           );
 
-
-        if (element) {
-
-          element.textContent =
-            formatNumber(count);
-
-        }
-
       }
-    );
+
+    }
+  );
 
 }
 
 
 /* =========================================================
-   25. QUICK STATISTICS
+   27. QUICK STATISTICS
    ========================================================= */
 
 function updateQuickStatistics() {
@@ -918,31 +1083,34 @@ function updateQuickStatistics() {
   };
 
 
-  Object.entries(statistics)
-    .forEach(
-      ([key, value]) => {
+  Object.entries(
+    statistics
+  ).forEach(
+    ([key, value]) => {
 
-        const element =
-          document.querySelector(
-            `[data-stat="${key}"]`
+      const element =
+        document.querySelector(
+          `[data-stat="${key}"]`
+        );
+
+
+      if (element) {
+
+        element.textContent =
+          formatNumber(
+            value
           );
 
-
-        if (element) {
-
-          element.textContent =
-            formatNumber(value);
-
-        }
-
       }
-    );
+
+    }
+  );
 
 }
 
 
 /* =========================================================
-   26. ARRAY LENGTH
+   28. ARRAY LENGTH
    ========================================================= */
 
 function getArrayLength(value) {
@@ -955,7 +1123,7 @@ function getArrayLength(value) {
 
 
 /* =========================================================
-   27. NUMBER FORMAT
+   29. NUMBER FORMAT
    ========================================================= */
 
 function formatNumber(value) {
@@ -970,7 +1138,61 @@ function formatNumber(value) {
 
 
 /* =========================================================
-   28. ADD STUDENT
+   30. ACTIVITY
+   ========================================================= */
+
+function addActivity(
+  type,
+  message
+) {
+
+  if (
+    !Array.isArray(
+      appData.activity
+    )
+  ) {
+
+    appData.activity = [];
+
+  }
+
+
+  appData.activity.unshift({
+
+    id: createId(),
+
+    type,
+
+    message,
+
+    createdAt:
+      new Date().toISOString()
+
+  });
+
+
+  /*
+   * Keep the local activity history
+   * lightweight for the offline PWA.
+   */
+
+  if (
+    appData.activity.length > 100
+  ) {
+
+    appData.activity =
+      appData.activity.slice(
+        0,
+        100
+      );
+
+  }
+
+}
+
+
+/* =========================================================
+   31. ADD STUDENT
    ========================================================= */
 
 function addStudent(student) {
@@ -979,13 +1201,16 @@ function addStudent(student) {
     !student ||
     typeof student !== "object"
   ) {
+
     return false;
+
   }
 
 
   appData.students.push({
 
-    id: createId(),
+    id:
+      createId(),
 
     createdAt:
       new Date().toISOString(),
@@ -995,32 +1220,50 @@ function addStudent(student) {
   });
 
 
-  saveData();
+  addActivity(
+    "student",
+    "Student added."
+  );
 
-  updateHomeDashboard();
 
-  return true;
+  if (
+    saveData()
+  ) {
+
+    updateHomeDashboard();
+
+    return true;
+
+  }
+
+
+  return false;
 
 }
 
 
 /* =========================================================
-   29. ADD REPORT BOOK
+   32. ADD REPORT BOOK
    ========================================================= */
 
-function addReportBook(reportBook) {
+function addReportBook(
+  reportBook
+) {
 
   if (
     !reportBook ||
     typeof reportBook !== "object"
   ) {
+
     return false;
+
   }
 
 
   appData.reportBooks.push({
 
-    id: createId(),
+    id:
+      createId(),
 
     createdAt:
       new Date().toISOString(),
@@ -1030,32 +1273,50 @@ function addReportBook(reportBook) {
   });
 
 
-  saveData();
+  addActivity(
+    "report-book",
+    "Report book created."
+  );
 
-  updateHomeDashboard();
 
-  return true;
+  if (
+    saveData()
+  ) {
+
+    updateHomeDashboard();
+
+    return true;
+
+  }
+
+
+  return false;
 
 }
 
 
 /* =========================================================
-   30. ADD SCHEME
+   33. ADD SCHEME
    ========================================================= */
 
-function addScheme(scheme) {
+function addScheme(
+  scheme
+) {
 
   if (
     !scheme ||
     typeof scheme !== "object"
   ) {
+
     return false;
+
   }
 
 
   appData.schemes.push({
 
-    id: createId(),
+    id:
+      createId(),
 
     createdAt:
       new Date().toISOString(),
@@ -1065,32 +1326,50 @@ function addScheme(scheme) {
   });
 
 
-  saveData();
+  addActivity(
+    "scheme",
+    "Scheme of Work created."
+  );
 
-  updateHomeDashboard();
 
-  return true;
+  if (
+    saveData()
+  ) {
+
+    updateHomeDashboard();
+
+    return true;
+
+  }
+
+
+  return false;
 
 }
 
 
 /* =========================================================
-   31. ADD LESSON PLAN
+   34. ADD LESSON PLAN
    ========================================================= */
 
-function addLessonPlan(lessonPlan) {
+function addLessonPlan(
+  lessonPlan
+) {
 
   if (
     !lessonPlan ||
     typeof lessonPlan !== "object"
   ) {
+
     return false;
+
   }
 
 
   appData.lessonPlans.push({
 
-    id: createId(),
+    id:
+      createId(),
 
     createdAt:
       new Date().toISOString(),
@@ -1100,32 +1379,50 @@ function addLessonPlan(lessonPlan) {
   });
 
 
-  saveData();
+  addActivity(
+    "lesson-plan",
+    "Lesson plan created."
+  );
 
-  updateHomeDashboard();
 
-  return true;
+  if (
+    saveData()
+  ) {
+
+    updateHomeDashboard();
+
+    return true;
+
+  }
+
+
+  return false;
 
 }
 
 
 /* =========================================================
-   32. ADD RUBRIC
+   35. ADD RUBRIC
    ========================================================= */
 
-function addRubric(rubric) {
+function addRubric(
+  rubric
+) {
 
   if (
     !rubric ||
     typeof rubric !== "object"
   ) {
+
     return false;
+
   }
 
 
   appData.rubrics.push({
 
-    id: createId(),
+    id:
+      createId(),
 
     createdAt:
       new Date().toISOString(),
@@ -1135,32 +1432,50 @@ function addRubric(rubric) {
   });
 
 
-  saveData();
+  addActivity(
+    "rubric",
+    "Assessment rubric created."
+  );
 
-  updateHomeDashboard();
 
-  return true;
+  if (
+    saveData()
+  ) {
+
+    updateHomeDashboard();
+
+    return true;
+
+  }
+
+
+  return false;
 
 }
 
 
 /* =========================================================
-   33. ADD DOCUMENT
+   36. ADD DOCUMENT
    ========================================================= */
 
-function addDocument(documentData) {
+function addDocument(
+  documentData
+) {
 
   if (
     !documentData ||
     typeof documentData !== "object"
   ) {
+
     return false;
+
   }
 
 
   appData.documents.push({
 
-    id: createId(),
+    id:
+      createId(),
 
     createdAt:
       new Date().toISOString(),
@@ -1170,26 +1485,43 @@ function addDocument(documentData) {
   });
 
 
-  saveData();
+  addActivity(
+    "document",
+    "Document saved."
+  );
 
-  updateHomeDashboard();
 
-  return true;
+  if (
+    saveData()
+  ) {
+
+    updateHomeDashboard();
+
+    return true;
+
+  }
+
+
+  return false;
 
 }
 
 
 /* =========================================================
-   34. UPDATE TEACHER
+   37. UPDATE TEACHER
    ========================================================= */
 
-function updateTeacher(teacher) {
+function updateTeacher(
+  teacher
+) {
 
   if (
     !teacher ||
     typeof teacher !== "object"
   ) {
+
     return false;
+
   }
 
 
@@ -1202,17 +1534,30 @@ function updateTeacher(teacher) {
   };
 
 
-  saveData();
+  addActivity(
+    "profile",
+    "Teacher profile updated."
+  );
 
-  updateHomeDashboard();
 
-  return true;
+  if (
+    saveData()
+  ) {
+
+    updateHomeDashboard();
+
+    return true;
+
+  }
+
+
+  return false;
 
 }
 
 
 /* =========================================================
-   35. UPDATE PREFERENCES
+   38. UPDATE PREFERENCES
    ========================================================= */
 
 function updatePreferences(
@@ -1223,7 +1568,9 @@ function updatePreferences(
     !preferences ||
     typeof preferences !== "object"
   ) {
+
     return false;
+
   }
 
 
@@ -1236,17 +1583,30 @@ function updatePreferences(
   };
 
 
-  saveData();
+  addActivity(
+    "settings",
+    "Preferences updated."
+  );
 
-  updateHomeDashboard();
 
-  return true;
+  if (
+    saveData()
+  ) {
+
+    updateHomeDashboard();
+
+    return true;
+
+  }
+
+
+  return false;
 
 }
 
 
 /* =========================================================
-   36. LOCAL ID
+   39. CREATE LOCAL ID
    ========================================================= */
 
 function createId() {
@@ -1256,17 +1616,22 @@ function createId() {
     "-" +
     Math.random()
       .toString(36)
-      .slice(2, 10)
+      .slice(
+        2,
+        10
+      )
   );
 
 }
 
 
 /* =========================================================
-   37. TOAST
+   40. TOAST
    ========================================================= */
 
-function showToast(message) {
+function showToast(
+  message
+) {
 
   let toast =
     document.getElementById(
@@ -1285,51 +1650,6 @@ function showToast(message) {
       "cbcToast";
 
 
-    toast.style.position =
-      "fixed";
-
-    toast.style.left =
-      "50%";
-
-    toast.style.bottom =
-      "92px";
-
-    toast.style.transform =
-      "translateX(-50%)";
-
-    toast.style.zIndex =
-      "9999";
-
-    toast.style.maxWidth =
-      "calc(100vw - 32px)";
-
-    toast.style.padding =
-      "11px 16px";
-
-    toast.style.background =
-      "#123452";
-
-    toast.style.color =
-      "#F7FAFC";
-
-    toast.style.border =
-      "1px solid rgba(255,255,255,.12)";
-
-    toast.style.borderRadius =
-      "12px";
-
-    toast.style.fontSize =
-      "13px";
-
-    toast.style.fontWeight =
-      "650";
-
-    toast.style.textAlign =
-      "center";
-
-    toast.style.boxShadow =
-      "0 10px 30px rgba(0,0,0,.3)";
-
     document.body.appendChild(
       toast
     );
@@ -1341,8 +1661,9 @@ function showToast(message) {
     message;
 
 
-  toast.style.opacity =
-    "1";
+  toast.classList.add(
+    "show"
+  );
 
 
   clearTimeout(
@@ -1354,8 +1675,9 @@ function showToast(message) {
     setTimeout(
       () => {
 
-        toast.style.opacity =
-          "0";
+        toast.classList.remove(
+          "show"
+        );
 
       },
       2500
@@ -1365,7 +1687,7 @@ function showToast(message) {
 
 
 /* =========================================================
-   38. PUBLIC API
+   41. PUBLIC API
    ========================================================= */
 
 window.CBCMaster = {
@@ -1396,7 +1718,9 @@ window.CBCMaster = {
 
   navigate(page) {
 
-    navigateToPage(page);
+    navigateToPage(
+      page
+    );
 
   },
 
