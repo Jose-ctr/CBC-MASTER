@@ -5,8 +5,9 @@
 
   <!-- =========================================================
        CBC MASTER V2
-       Kenyan CBC Teacher Toolkit • PP1 to Grade 12
-       Privacy-first • Local-first • Offline-ready
+       Kenyan CBC Teacher Toolkit
+       PP1 to Grade 12
+       Privacy-first • Offline-first • PWA
        ========================================================= -->
 
   <meta charset="utf-8">
@@ -15,21 +16,28 @@
     name="viewport"
     content="width=device-width,
              initial-scale=1,
-             viewport-fit=cover">
+             viewport-fit=cover"
+  >
 
   <meta
     name="theme-color"
-    content="#0B1F33">
+    content="#0B1F33"
+  >
 
   <meta
     name="description"
-    content="Private, offline-first Kenyan CBC teacher toolkit for PP1 to Grade 12.">
+    content="Private, offline-first Kenyan CBC teacher toolkit for PP1 to Grade 12."
+  >
 
   <meta
     name="referrer"
-    content="no-referrer">
+    content="no-referrer"
+  >
 
-  <!-- Privacy / security policy -->
+  <!-- =========================================================
+       CONTENT SECURITY POLICY
+       ========================================================= -->
+
   <meta
     http-equiv="Content-Security-Policy"
     content="
@@ -46,30 +54,38 @@
       form-action 'self';
       frame-ancestors 'none';
       upgrade-insecure-requests;
-    ">
+    "
+  >
 
   <title>CBC MASTER V2</title>
 
-  <!-- PWA -->
-  <link
-    rel="manifest"
-    href="manifest.json">
+  <!-- =========================================================
+       APP ICON
+       ========================================================= -->
 
-  <!-- App icons -->
   <link
     rel="icon"
     type="image/png"
-    sizes="192x192"
-    href="icons/icon-192.png">
+    href="icons/icon-192.png"
+  >
+
+  <!-- =========================================================
+       PWA MANIFEST
+       ========================================================= -->
 
   <link
-    rel="apple-touch-icon"
-    href="icons/icon-192.png">
+    rel="manifest"
+    href="manifest.json"
+  >
 
-  <!-- Local stylesheet only -->
+  <!-- =========================================================
+       STYLESHEET
+       ========================================================= -->
+
   <link
     rel="stylesheet"
-    href="css/app.css">
+    href="css/app.css"
+  >
 
 </head>
 
@@ -77,7 +93,7 @@
 <body>
 
   <!-- =========================================================
-       APP SHELL
+       APP
        ========================================================= -->
 
   <div id="app">
@@ -87,30 +103,40 @@
          SIDEBAR
          ======================================================= -->
 
-    <aside
-      class="sidebar"
-      id="sidebar"
-      aria-label="Main navigation">
+    <aside class="sidebar">
 
       <!-- Brand -->
 
       <div class="sidebar-brand">
 
-        <div class="brand-mark">
-          CM
+        <div
+          class="brand-mark"
+          aria-hidden="true"
+        >
+          C
         </div>
 
         <div class="brand-text">
-          <strong>CBC MASTER</strong>
-          <span>V2 • Teacher Toolkit</span>
+
+          <strong>
+            CBC MASTER
+          </strong>
+
+          <span>
+            Teacher Toolkit
+          </span>
+
         </div>
 
       </div>
 
 
-      <!-- Main navigation -->
+      <!-- Navigation -->
 
-      <nav class="sidebar-nav">
+      <nav
+        class="sidebar-nav"
+        aria-label="Main navigation"
+      >
 
         <p class="nav-label">
           Workspace
@@ -120,145 +146,191 @@
         <button
           type="button"
           class="nav-item active"
-          data-page="dashboard">
-
-          <span class="nav-icon">⌂</span>
+          data-page="dashboard"
+          aria-current="page"
+        >
+          <span
+            class="nav-icon"
+            aria-hidden="true"
+          >
+            ⌂
+          </span>
 
           <span>
             Dashboard
           </span>
-
         </button>
 
 
         <button
           type="button"
           class="nav-item"
-          data-page="report-books">
-
-          <span class="nav-icon">▣</span>
+          data-page="report-books"
+        >
+          <span
+            class="nav-icon"
+            aria-hidden="true"
+          >
+            ▣
+          </span>
 
           <span>
             Report Books
           </span>
-
         </button>
 
 
         <button
           type="button"
           class="nav-item"
-          data-page="schemes">
-
-          <span class="nav-icon">▤</span>
+          data-page="schemes"
+        >
+          <span
+            class="nav-icon"
+            aria-hidden="true"
+          >
+            ▤
+          </span>
 
           <span>
             Schemes of Work
           </span>
-
         </button>
 
 
         <button
           type="button"
           class="nav-item"
-          data-page="lesson-plans">
-
-          <span class="nav-icon">▥</span>
+          data-page="lesson-plans"
+        >
+          <span
+            class="nav-icon"
+            aria-hidden="true"
+          >
+            ▥
+          </span>
 
           <span>
             Lesson Plans
           </span>
-
         </button>
 
 
         <button
           type="button"
           class="nav-item"
-          data-page="rubrics">
-
-          <span class="nav-icon">✓</span>
-
-          <span>
-            Rubrics
+          data-page="rubrics"
+        >
+          <span
+            class="nav-icon"
+            aria-hidden="true"
+          >
+            ✓
           </span>
 
+          <span>
+            Assessment Rubrics
+          </span>
         </button>
 
 
         <button
           type="button"
           class="nav-item"
-          data-page="students">
-
-          <span class="nav-icon">♙</span>
+          data-page="students"
+        >
+          <span
+            class="nav-icon"
+            aria-hidden="true"
+          >
+            ♙
+          </span>
 
           <span>
             Students
           </span>
-
         </button>
 
 
         <p class="nav-label">
-          Management
+          Documents
         </p>
 
 
         <button
           type="button"
           class="nav-item"
-          data-page="documents">
-
-          <span class="nav-icon">□</span>
+          data-page="documents"
+        >
+          <span
+            class="nav-icon"
+            aria-hidden="true"
+          >
+            □
+          </span>
 
           <span>
             Saved Documents
           </span>
-
         </button>
 
 
         <button
           type="button"
           class="nav-item"
-          data-page="analytics">
-
-          <span class="nav-icon">◒</span>
+          data-page="analytics"
+        >
+          <span
+            class="nav-icon"
+            aria-hidden="true"
+          >
+            ◒
+          </span>
 
           <span>
             Analytics
           </span>
-
         </button>
+
+
+        <p class="nav-label">
+          Account
+        </p>
 
 
         <button
           type="button"
           class="nav-item"
-          data-page="profile">
-
-          <span class="nav-icon">○</span>
+          data-page="profile"
+        >
+          <span
+            class="nav-icon"
+            aria-hidden="true"
+          >
+            ○
+          </span>
 
           <span>
             Profile
           </span>
-
         </button>
 
 
         <button
           type="button"
           class="nav-item"
-          data-page="settings">
-
-          <span class="nav-icon">⚙</span>
+          data-page="settings"
+        >
+          <span
+            class="nav-icon"
+            aria-hidden="true"
+          >
+            ⚙
+          </span>
 
           <span>
             Settings
           </span>
-
         </button>
 
       </nav>
@@ -270,7 +342,9 @@
 
         <div
           class="avatar"
-          id="sidebarProfileAvatar">
+          id="sidebarProfileAvatar"
+          aria-hidden="true"
+        >
           T
         </div>
 
@@ -292,14 +366,18 @@
 
 
     <!-- =======================================================
-         MAIN AREA
+         MAIN CONTENT
          ======================================================= -->
 
     <main class="main-content">
 
 
       <!-- =====================================================
-           HEADER
+           GLOBAL TOPBAR
+
+           IMPORTANT:
+           This is the ONLY main page heading.
+           JavaScript updates pageTitle/pageSubtitle.
            ===================================================== -->
 
       <header class="topbar">
@@ -321,6 +399,10 @@
         </div>
 
 
+        <!-- ===================================================
+             TOP RIGHT ACTIONS
+             =================================================== -->
+
         <div class="topbar-actions">
 
           <button
@@ -328,10 +410,9 @@
             class="icon-button"
             id="notificationButton"
             aria-label="Notifications"
-            title="Notifications">
-
+            title="Notifications"
+          >
             🔔
-
           </button>
 
 
@@ -341,10 +422,9 @@
             id="settingsButton"
             aria-label="Settings"
             title="Settings"
-            data-page="settings">
-
+            data-page="settings"
+          >
             ⚙
-
           </button>
 
         </div>
@@ -353,7 +433,7 @@
 
 
       <!-- =====================================================
-           PAGE CONTAINER
+           PAGE CONTENT
            ===================================================== -->
 
       <div class="content-container">
@@ -366,36 +446,36 @@
         <section
           id="dashboardPage"
           class="page-section"
-          data-page-section="dashboard">
+          data-page-section="dashboard"
+        >
+
+          <div class="page-content">
 
 
-          <!-- Welcome -->
+            <!-- Welcome -->
 
-          <section class="welcome-card">
-
-            <div class="welcome-content">
+            <section class="welcome-card">
 
               <p class="eyebrow">
-                Teacher Workspace
+                TEACHER WORKSPACE
               </p>
 
-              <h2>
-                Welcome to CBC MASTER
+              <h2 id="welcomeTitle">
+                Good evening, Teacher
               </h2>
 
-              <p>
-                Plan, manage and review your CBC teaching work
-                from one private workspace.
+              <p id="welcomeText">
+                Your Grade 5 • Term 1 teaching workspace.
               </p>
 
               <div class="welcome-badges">
 
                 <span>
-                  Local-first
+                  Offline-first
                 </span>
 
                 <span>
-                  Offline-ready
+                  Local data
                 </span>
 
                 <span>
@@ -404,444 +484,417 @@
 
               </div>
 
-            </div>
-
-          </section>
+            </section>
 
 
-          <!-- Teaching tools -->
+            <!-- Teaching Tools -->
 
-          <section class="section-block">
+            <section class="section-block">
 
-            <div class="section-heading">
+              <div class="section-heading">
 
-              <div>
-
-                <p class="eyebrow">
+                <h2>
                   Teaching Tools
-                </p>
-
-                <h2>
-                  Build your classroom workspace
                 </h2>
 
               </div>
 
-            </div>
 
+              <div class="module-grid">
 
-            <div class="module-grid">
 
+                <!-- Report Books -->
 
-              <button
-                type="button"
-                class="module-card"
-                data-module="report-books">
+                <button
+                  type="button"
+                  class="module-card"
+                  data-module="report-books"
+                >
 
-                <span class="module-icon">
-                  ▣
-                </span>
+                  <span
+                    class="module-icon"
+                    aria-hidden="true"
+                  >
+                    ▣
+                  </span>
 
-                <span class="module-content">
+                  <span class="module-content">
 
-                  <strong>
-                    Report Books
-                  </strong>
+                    <strong>
+                      Report Books
+                    </strong>
 
-                  <small>
-                    Manage learner assessment records.
-                  </small>
+                    <small>
+                      Learner assessment records
+                    </small>
 
-                </span>
+                  </span>
 
-                <span class="module-arrow">
-                  →
-                </span>
+                  <span
+                    class="module-arrow"
+                    aria-hidden="true"
+                  >
+                    →
+                  </span>
 
-              </button>
+                </button>
 
 
-              <button
-                type="button"
-                class="module-card"
-                data-module="schemes">
+                <!-- Schemes -->
 
-                <span class="module-icon">
-                  ▤
-                </span>
+                <button
+                  type="button"
+                  class="module-card"
+                  data-module="schemes"
+                >
 
-                <span class="module-content">
+                  <span
+                    class="module-icon"
+                    aria-hidden="true"
+                  >
+                    ▤
+                  </span>
 
-                  <strong>
-                    Schemes of Work
-                  </strong>
+                  <span class="module-content">
 
-                  <small>
-                    Plan CBC teaching activities.
-                  </small>
+                    <strong>
+                      Schemes of Work
+                    </strong>
 
-                </span>
+                    <small>
+                      Plan CBC teaching activities
+                    </small>
 
-                <span class="module-arrow">
-                  →
-                </span>
+                  </span>
 
-              </button>
+                  <span
+                    class="module-arrow"
+                    aria-hidden="true"
+                  >
+                    →
+                  </span>
 
+                </button>
 
-              <button
-                type="button"
-                class="module-card"
-                data-module="lesson-plans">
 
-                <span class="module-icon">
-                  ▥
-                </span>
+                <!-- Lesson Plans -->
 
-                <span class="module-content">
+                <button
+                  type="button"
+                  class="module-card"
+                  data-module="lesson-plans"
+                >
 
-                  <strong>
-                    Lesson Plans
-                  </strong>
+                  <span
+                    class="module-icon"
+                    aria-hidden="true"
+                  >
+                    ▥
+                  </span>
 
-                  <small>
-                    Prepare daily lessons.
-                  </small>
+                  <span class="module-content">
 
-                </span>
+                    <strong>
+                      Lesson Plans
+                    </strong>
 
-                <span class="module-arrow">
-                  →
-                </span>
+                    <small>
+                      Prepare daily lessons
+                    </small>
 
-              </button>
+                  </span>
 
+                  <span
+                    class="module-arrow"
+                    aria-hidden="true"
+                  >
+                    →
+                  </span>
 
-              <button
-                type="button"
-                class="module-card"
-                data-module="rubrics">
+                </button>
 
-                <span class="module-icon">
-                  ✓
-                </span>
 
-                <span class="module-content">
+                <!-- Rubrics -->
 
-                  <strong>
-                    Assessment Rubrics
-                  </strong>
+                <button
+                  type="button"
+                  class="module-card"
+                  data-module="rubrics"
+                >
 
-                  <small>
-                    Create reusable criteria.
-                  </small>
+                  <span
+                    class="module-icon"
+                    aria-hidden="true"
+                  >
+                    ✓
+                  </span>
 
-                </span>
+                  <span class="module-content">
 
-                <span class="module-arrow">
-                  →
-                </span>
+                    <strong>
+                      Assessment Rubrics
+                    </strong>
 
-              </button>
+                    <small>
+                      Reusable assessment criteria
+                    </small>
 
+                  </span>
 
-              <button
-                type="button"
-                class="module-card"
-                data-module="students">
+                  <span
+                    class="module-arrow"
+                    aria-hidden="true"
+                  >
+                    →
+                  </span>
 
-                <span class="module-icon">
-                  ♙
-                </span>
+                </button>
 
-                <span class="module-content">
+              </div>
 
-                  <strong>
-                    Students
-                  </strong>
+            </section>
 
-                  <small>
-                    Manage learner records.
-                  </small>
 
-                </span>
+            <!-- Workspace Statistics -->
 
-                <span class="module-arrow">
-                  →
-                </span>
+            <section class="section-block">
 
-              </button>
+              <div class="section-heading">
 
-
-              <button
-                type="button"
-                class="module-card"
-                data-module="documents">
-
-                <span class="module-icon">
-                  □
-                </span>
-
-                <span class="module-content">
-
-                  <strong>
-                    Saved Documents
-                  </strong>
-
-                  <small>
-                    Keep teaching documents organized.
-                  </small>
-
-                </span>
-
-                <span class="module-arrow">
-                  →
-                </span>
-
-              </button>
-
-            </div>
-
-          </section>
-
-
-          <!-- Statistics -->
-
-          <section class="section-block">
-
-            <div class="section-heading">
-
-              <div>
-
-                <p class="eyebrow">
+                <h2>
                   Workspace
-                </p>
-
-                <h2>
-                  Your current records
                 </h2>
 
               </div>
 
-            </div>
+
+              <div class="stats-grid">
 
 
-            <div class="stats-grid">
+                <article class="stat-card">
+
+                  <span class="stat-label">
+                    Students
+                  </span>
+
+                  <strong
+                    class="stat-value"
+                    data-stat="students"
+                  >
+                    0
+                  </strong>
+
+                  <small>
+                    Learner records
+                  </small>
+
+                </article>
 
 
-              <article class="stat-card">
+                <article class="stat-card">
 
-                <span class="stat-label">
-                  Students
-                </span>
+                  <span class="stat-label">
+                    Report Books
+                  </span>
 
-                <strong
-                  class="stat-value"
-                  data-stat="students">
-                  0
-                </strong>
+                  <strong
+                    class="stat-value"
+                    data-stat="report-books"
+                  >
+                    0
+                  </strong>
 
-                <small>
-                  Learner records
-                </small>
+                  <small>
+                    Assessment records
+                  </small>
 
-              </article>
-
-
-              <article class="stat-card">
-
-                <span class="stat-label">
-                  Report Books
-                </span>
-
-                <strong
-                  class="stat-value"
-                  data-stat="report-books">
-                  0
-                </strong>
-
-                <small>
-                  Assessment records
-                </small>
-
-              </article>
+                </article>
 
 
-              <article class="stat-card">
+                <article class="stat-card">
 
-                <span class="stat-label">
-                  Schemes
-                </span>
+                  <span class="stat-label">
+                    Schemes
+                  </span>
 
-                <strong
-                  class="stat-value"
-                  data-stat="schemes">
-                  0
-                </strong>
+                  <strong
+                    class="stat-value"
+                    data-stat="schemes"
+                  >
+                    0
+                  </strong>
 
-                <small>
-                  Teaching plans
-                </small>
+                  <small>
+                    Teaching schemes
+                  </small>
 
-              </article>
-
-
-              <article class="stat-card">
-
-                <span class="stat-label">
-                  Documents
-                </span>
-
-                <strong
-                  class="stat-value"
-                  data-stat="documents">
-                  0
-                </strong>
-
-                <small>
-                  Saved documents
-                </small>
-
-              </article>
-
-            </div>
-
-          </section>
+                </article>
 
 
-          <!-- Quick actions -->
+                <article class="stat-card">
 
-          <section class="section-block">
+                  <span class="stat-label">
+                    Documents
+                  </span>
 
-            <div class="section-heading">
+                  <strong
+                    class="stat-value"
+                    data-stat="documents"
+                  >
+                    0
+                  </strong>
 
-              <div>
+                  <small>
+                    Saved documents
+                  </small>
 
-                <p class="eyebrow">
+                </article>
+
+              </div>
+
+            </section>
+
+
+            <!-- Quick Actions -->
+
+            <section class="section-block">
+
+              <div class="section-heading">
+
+                <h2>
                   Quick Actions
-                </p>
-
-                <h2>
-                  Start something new
                 </h2>
 
               </div>
 
-            </div>
+
+              <div class="quick-actions">
 
 
-            <div class="quick-actions">
+                <button
+                  type="button"
+                  class="quick-action"
+                  data-action="add-student"
+                >
+
+                  <span aria-hidden="true">
+                    ♙
+                  </span>
+
+                  <strong>
+                    Add Learner
+                  </strong>
+
+                  <small>
+                    Create a learner record
+                  </small>
+
+                </button>
 
 
-              <button
-                type="button"
-                class="quick-action"
-                data-action="add-student">
+                <button
+                  type="button"
+                  class="quick-action"
+                  data-action="create-report-book"
+                >
 
-                <span>
-                  +
-                </span>
+                  <span aria-hidden="true">
+                    ▣
+                  </span>
 
-                <strong>
-                  Add Student
-                </strong>
+                  <strong>
+                    Report Book
+                  </strong>
 
-                <small>
-                  Create a learner record
-                </small>
+                  <small>
+                    Start an assessment record
+                  </small>
 
-              </button>
-
-
-              <button
-                type="button"
-                class="quick-action"
-                data-action="create-report-book">
-
-                <span>
-                  +
-                </span>
-
-                <strong>
-                  Report Book
-                </strong>
-
-                <small>
-                  Start assessment records
-                </small>
-
-              </button>
+                </button>
 
 
-              <button
-                type="button"
-                class="quick-action"
-                data-action="create-scheme">
+                <button
+                  type="button"
+                  class="quick-action"
+                  data-action="create-scheme"
+                >
 
-                <span>
-                  +
-                </span>
+                  <span aria-hidden="true">
+                    ▤
+                  </span>
 
-                <strong>
-                  New Scheme
-                </strong>
+                  <strong>
+                    Create Scheme
+                  </strong>
 
-                <small>
-                  Plan your teaching
-                </small>
+                  <small>
+                    Plan your teaching work
+                  </small>
 
-              </button>
+                </button>
 
 
-              <button
-                type="button"
-                class="quick-action"
-                data-action="create-lesson-plan">
+                <button
+                  type="button"
+                  class="quick-action"
+                  data-action="create-lesson-plan"
+                >
 
-                <span>
-                  +
-                </span>
+                  <span aria-hidden="true">
+                    ▥
+                  </span>
 
-                <strong>
-                  Lesson Plan
-                </strong>
+                  <strong>
+                    Lesson Plan
+                  </strong>
 
-                <small>
-                  Prepare a lesson
-                </small>
+                  <small>
+                    Prepare a daily lesson
+                  </small>
 
-              </button>
+                </button>
 
-            </div>
+              </div>
 
-          </section>
+            </section>
+
+          </div>
 
         </section>
 
 
         <!-- ===================================================
              REPORT BOOKS
+             NO DUPLICATE PAGE HEADER
              =================================================== -->
 
         <section
           id="reportBooksPage"
           class="page-section"
           data-page-section="report-books"
-          hidden>
+          hidden
+        >
 
-          <div class="empty-page">
+          <div class="page-content">
 
-            <span class="empty-icon">
-              ▣
-            </span>
+            <div class="empty-page">
 
-            <h2>
-              Report Books
-            </h2>
+              <span
+                class="empty-icon"
+                aria-hidden="true"
+              >
+                ▣
+              </span>
 
-            <p>
-              Learner assessment records will be managed here.
-            </p>
+              <h2>
+                Report Books
+              </h2>
+
+              <p>
+                Learner assessment records will be managed here.
+              </p>
+
+            </div>
 
           </div>
 
@@ -850,27 +903,36 @@
 
         <!-- ===================================================
              SCHEMES
+             NO DUPLICATE PAGE HEADER
              =================================================== -->
 
         <section
           id="schemesPage"
           class="page-section"
           data-page-section="schemes"
-          hidden>
+          hidden
+        >
 
-          <div class="empty-page">
+          <div class="page-content">
 
-            <span class="empty-icon">
-              ▤
-            </span>
+            <div class="empty-page">
 
-            <h2>
-              Schemes of Work
-            </h2>
+              <span
+                class="empty-icon"
+                aria-hidden="true"
+              >
+                ▤
+              </span>
 
-            <p>
-              CBC teaching schemes will be created and managed here.
-            </p>
+              <h2>
+                Schemes of Work
+              </h2>
+
+              <p>
+                CBC teaching schemes will be created and managed here.
+              </p>
+
+            </div>
 
           </div>
 
@@ -879,27 +941,36 @@
 
         <!-- ===================================================
              LESSON PLANS
+             NO DUPLICATE PAGE HEADER
              =================================================== -->
 
         <section
           id="lessonPlansPage"
           class="page-section"
           data-page-section="lesson-plans"
-          hidden>
+          hidden
+        >
 
-          <div class="empty-page">
+          <div class="page-content">
 
-            <span class="empty-icon">
-              ▥
-            </span>
+            <div class="empty-page">
 
-            <h2>
-              Lesson Plans
-            </h2>
+              <span
+                class="empty-icon"
+                aria-hidden="true"
+              >
+                ▥
+              </span>
 
-            <p>
-              Daily CBC lesson planning will be managed here.
-            </p>
+              <h2>
+                Lesson Plans
+              </h2>
+
+              <p>
+                Daily CBC lesson planning will be managed here.
+              </p>
+
+            </div>
 
           </div>
 
@@ -908,27 +979,36 @@
 
         <!-- ===================================================
              RUBRICS
+             NO DUPLICATE PAGE HEADER
              =================================================== -->
 
         <section
           id="rubricsPage"
           class="page-section"
           data-page-section="rubrics"
-          hidden>
+          hidden
+        >
 
-          <div class="empty-page">
+          <div class="page-content">
 
-            <span class="empty-icon">
-              ✓
-            </span>
+            <div class="empty-page">
 
-            <h2>
-              Assessment Rubrics
-            </h2>
+              <span
+                class="empty-icon"
+                aria-hidden="true"
+              >
+                ✓
+              </span>
 
-            <p>
-              Create and manage reusable assessment criteria.
-            </p>
+              <h2>
+                Assessment Rubrics
+              </h2>
+
+              <p>
+                Create and manage reusable assessment criteria.
+              </p>
+
+            </div>
 
           </div>
 
@@ -937,27 +1017,27 @@
 
         <!-- ===================================================
              STUDENTS
+             NO DUPLICATE PAGE HEADER
              =================================================== -->
 
         <section
           id="studentsPage"
           class="page-section"
           data-page-section="students"
-          hidden>
+          hidden
+        >
 
-          <div class="empty-page">
+          <div class="page-content">
 
-            <span class="empty-icon">
-              ♙
-            </span>
+            <div id="studentsList"></div>
 
-            <h2>
-              Students
-            </h2>
-
-            <p>
-              Learner records will be managed here.
-            </p>
+            <button
+              id="addStudentBtn"
+              class="btn btn-primary"
+              type="button"
+            >
+              + Add Learner
+            </button>
 
           </div>
 
@@ -965,28 +1045,37 @@
 
 
         <!-- ===================================================
-             DOCUMENTS
+             SAVED DOCUMENTS
+             NO DUPLICATE PAGE HEADER
              =================================================== -->
 
         <section
           id="documentsPage"
           class="page-section"
           data-page-section="documents"
-          hidden>
+          hidden
+        >
 
-          <div class="empty-page">
+          <div class="page-content">
 
-            <span class="empty-icon">
-              □
-            </span>
+            <div class="empty-page">
 
-            <h2>
-              Saved Documents
-            </h2>
+              <span
+                class="empty-icon"
+                aria-hidden="true"
+              >
+                □
+              </span>
 
-            <p>
-              Your saved teaching documents will appear here.
-            </p>
+              <h2>
+                Saved Documents
+              </h2>
+
+              <p>
+                Your saved teaching documents will appear here.
+              </p>
+
+            </div>
 
           </div>
 
@@ -995,27 +1084,36 @@
 
         <!-- ===================================================
              ANALYTICS
+             NO DUPLICATE PAGE HEADER
              =================================================== -->
 
         <section
           id="analyticsPage"
           class="page-section"
           data-page-section="analytics"
-          hidden>
+          hidden
+        >
 
-          <div class="empty-page">
+          <div class="page-content">
 
-            <span class="empty-icon">
-              ◒
-            </span>
+            <div class="empty-page">
 
-            <h2>
-              Analytics
-            </h2>
+              <span
+                class="empty-icon"
+                aria-hidden="true"
+              >
+                ◒
+              </span>
 
-            <p>
-              Your local teaching workspace insights will appear here.
-            </p>
+              <h2>
+                Analytics
+              </h2>
+
+              <p>
+                Your local teaching workspace insights will appear here.
+              </p>
+
+            </div>
 
           </div>
 
@@ -1024,27 +1122,36 @@
 
         <!-- ===================================================
              PROFILE
+             NO DUPLICATE PAGE HEADER
              =================================================== -->
 
         <section
           id="profilePage"
           class="page-section"
           data-page-section="profile"
-          hidden>
+          hidden
+        >
 
-          <div class="empty-page">
+          <div class="page-content">
 
-            <span class="empty-icon">
-              ○
-            </span>
+            <div class="empty-page">
 
-            <h2>
-              Teacher Profile
-            </h2>
+              <span
+                class="empty-icon"
+                aria-hidden="true"
+              >
+                ○
+              </span>
 
-            <p>
-              Manage your local teacher information here.
-            </p>
+              <h2>
+                Teacher Profile
+              </h2>
+
+              <p>
+                Manage your local teacher information here.
+              </p>
+
+            </div>
 
           </div>
 
@@ -1053,198 +1160,69 @@
 
         <!-- ===================================================
              SETTINGS
-             Privacy-first local workspace controls
+             IMPORTANT:
+             There is NO .page-heading here.
+             The global topbar supplies the title.
              =================================================== -->
 
         <section
           id="settingsPage"
           class="page-section"
           data-page-section="settings"
-          hidden>
+          hidden
+        >
+
+          <div class="page-content">
 
 
-          <!-- Page heading -->
+            <!-- =================================================
+                 PRIVACY & SECURITY
+                 ================================================= -->
 
-          <div class="page-heading">
+            <section class="settings-card">
 
-            <div>
+              <div class="settings-card-header">
 
-              <p class="eyebrow">
-                Workspace
-              </p>
-
-              <h2>
-                Settings
-              </h2>
-
-              <p class="page-description">
-                Manage CBC MASTER preferences, privacy,
-                and local data.
-              </p>
-
-            </div>
-
-          </div>
-
-
-          <!-- Privacy Status -->
-
-          <article class="settings-card privacy-card">
-
-            <div class="settings-card-header">
-
-              <div>
-
-                <span class="settings-icon">
-                  🔒
-                </span>
-
-                <h3>
+                <h2>
                   Privacy &amp; Security
-                </h3>
+                </h2>
 
               </div>
 
-              <span class="status-badge status-local">
-                Local only
-              </span>
+              <p>
+                CBC MASTER is designed to keep your teaching
+                workspace on this device.
+              </p>
 
-            </div>
+              <p>
+                No advertising trackers, hidden analytics,
+                or third-party tracking services are used
+                by the app.
+              </p>
 
-
-            <p class="settings-text">
-              CBC MASTER is designed to keep your teaching
-              workspace on this device. Student and teacher
-              records are not automatically uploaded to a
-              cloud service.
-            </p>
-
-
-            <div class="privacy-list">
+            </section>
 
 
-              <div class="privacy-item">
+            <!-- =================================================
+                 TEACHING PREFERENCES
+                 ================================================= -->
 
-                <span class="privacy-check">
-                  ✓
-                </span>
+            <section class="settings-card">
 
-                <div>
+              <div class="settings-card-header">
 
-                  <strong>
-                    Local-first storage
-                  </strong>
-
-                  <small>
-                    Your workspace is stored in this browser
-                    on this device.
-                  </small>
-
-                </div>
+                <h2>
+                  Teaching Preferences
+                </h2>
 
               </div>
 
-
-              <div class="privacy-item">
-
-                <span class="privacy-check">
-                  ✓
-                </span>
-
-                <div>
-
-                  <strong>
-                    No advertising trackers
-                  </strong>
-
-                  <small>
-                    CBC MASTER does not require third-party
-                    advertising trackers.
-                  </small>
-
-                </div>
-
-              </div>
-
-
-              <div class="privacy-item">
-
-                <span class="privacy-check">
-                  ✓
-                </span>
-
-                <div>
-
-                  <strong>
-                    No secret data transmission
-                  </strong>
-
-                  <small>
-                    The app does not automatically send your
-                    student records to a remote server.
-                  </small>
-
-                </div>
-
-              </div>
-
-
-              <div class="privacy-item">
-
-                <span class="privacy-check">
-                  ✓
-                </span>
-
-                <div>
-
-                  <strong>
-                    Export and delete controls
-                  </strong>
-
-                  <small>
-                    You control when your local workspace is
-                    backed up or deleted.
-                  </small>
-
-                </div>
-
-              </div>
-
-
-            </div>
-
-          </article>
-
-
-          <!-- Teaching Preferences -->
-
-          <article class="settings-card">
-
-            <div class="settings-card-header">
 
               <div>
 
-                <span class="settings-icon">
-                  🎓
-                </span>
-
-                <h3>
-                  Teaching Preferences
-                </h3>
-
-              </div>
-
-            </div>
-
-
-            <div class="settings-form-grid">
-
-
-              <label class="form-field">
-
-                <span>
-                  Default Grade
-                </span>
+                <label for="settingsGrade">
+                  Grade
+                </label>
 
                 <select id="settingsGrade">
 
@@ -1306,14 +1284,17 @@
 
                 </select>
 
-              </label>
+              </div>
 
 
-              <label class="form-field">
+              <br>
 
-                <span>
-                  Default Term
-                </span>
+
+              <div>
+
+                <label for="settingsTerm">
+                  Term
+                </label>
 
                 <select id="settingsTerm">
 
@@ -1331,467 +1312,419 @@
 
                 </select>
 
-              </label>
+              </div>
 
 
-              <label class="form-field">
+              <br>
 
-                <span>
+
+              <div>
+
+                <label for="settingsAcademicYear">
                   Academic Year
-                </span>
+                </label>
 
-                <select id="settingsAcademicYear">
+                <input
+                  id="settingsAcademicYear"
+                  type="number"
+                  inputmode="numeric"
+                  min="2020"
+                  max="2100"
+                  value="2026"
+                >
 
-                  <option value="2026">
-                    2026
-                  </option>
-
-                  <option value="2027">
-                    2027
-                  </option>
-
-                  <option value="2028">
-                    2028
-                  </option>
-
-                  <option value="2029">
-                    2029
-                  </option>
-
-                  <option value="2030">
-                    2030
-                  </option>
-
-                </select>
-
-              </label>
+              </div>
 
 
-              <label class="form-field checkbox-field">
+              <br>
 
-                <span>
-                  Low Data Mode
-                </span>
 
-                <span class="toggle-row">
+              <div>
+
+                <label>
 
                   <input
+                    id="settingsLowDataMode"
                     type="checkbox"
-                    id="settingsLowDataMode">
+                  >
 
-                  <span class="toggle-control"></span>
+                  Low-data mode
 
-                  <small>
-                    Reduce non-essential resource usage.
-                  </small>
+                </label>
 
-                </span>
-
-              </label>
+              </div>
 
 
-            </div>
+              <br>
 
-
-            <div class="settings-actions">
 
               <button
-                type="button"
+                id="saveSettingsButton"
                 class="btn btn-primary"
-                id="saveSettingsButton">
-
+                type="button"
+              >
                 Save Preferences
-
               </button>
 
-            </div>
-
-          </article>
+            </section>
 
 
-          <!-- Local Workspace -->
+            <!-- =================================================
+                 LOCAL WORKSPACE
+                 ================================================= -->
 
-          <article class="settings-card">
+            <section class="settings-card">
 
-            <div class="settings-card-header">
+              <div class="settings-card-header">
 
-              <div>
-
-                <span class="settings-icon">
-                  💾
-                </span>
-
-                <h3>
+                <h2>
                   Local Workspace
-                </h3>
-
-              </div>
-
-            </div>
-
-
-            <p class="settings-text">
-              Your CBC MASTER records currently stored
-              on this device.
-            </p>
-
-
-            <div
-              class="storage-summary"
-              id="storageSummary">
-
-
-              <div class="storage-stat">
-
-                <strong id="settingsStudentCount">
-                  0
-                </strong>
-
-                <span>
-                  Students
-                </span>
+                </h2>
 
               </div>
 
 
-              <div class="storage-stat">
+              <div class="stats-grid">
 
-                <strong id="settingsReportBookCount">
-                  0
-                </strong>
 
-                <span>
-                  Report Books
-                </span>
+                <article class="stat-card">
+
+                  <span class="stat-label">
+                    Students
+                  </span>
+
+                  <strong
+                    class="stat-value"
+                    id="settingsStudentCount"
+                  >
+                    0
+                  </strong>
+
+                </article>
+
+
+                <article class="stat-card">
+
+                  <span class="stat-label">
+                    Report Books
+                  </span>
+
+                  <strong
+                    class="stat-value"
+                    id="settingsReportBookCount"
+                  >
+                    0
+                  </strong>
+
+                </article>
+
+
+                <article class="stat-card">
+
+                  <span class="stat-label">
+                    Schemes
+                  </span>
+
+                  <strong
+                    class="stat-value"
+                    id="settingsSchemeCount"
+                  >
+                    0
+                  </strong>
+
+                </article>
+
+
+                <article class="stat-card">
+
+                  <span class="stat-label">
+                    Lesson Plans
+                  </span>
+
+                  <strong
+                    class="stat-value"
+                    id="settingsLessonPlanCount"
+                  >
+                    0
+                  </strong>
+
+                </article>
+
+
+                <article class="stat-card">
+
+                  <span class="stat-label">
+                    Rubrics
+                  </span>
+
+                  <strong
+                    class="stat-value"
+                    id="settingsRubricCount"
+                  >
+                    0
+                  </strong>
+
+                </article>
+
+
+                <article class="stat-card">
+
+                  <span class="stat-label">
+                    Documents
+                  </span>
+
+                  <strong
+                    class="stat-value"
+                    id="settingsDocumentCount"
+                  >
+                    0
+                  </strong>
+
+                </article>
 
               </div>
 
 
-              <div class="storage-stat">
-
-                <strong id="settingsSchemeCount">
-                  0
-                </strong>
-
-                <span>
-                  Schemes
-                </span>
-
-              </div>
+              <br>
 
 
-              <div class="storage-stat">
+              <p id="storageSummary">
+                Your workspace data is stored locally on this device.
+              </p>
 
-                <strong id="settingsLessonPlanCount">
-                  0
-                </strong>
-
-                <span>
-                  Lesson Plans
-                </span>
-
-              </div>
+            </section>
 
 
-              <div class="storage-stat">
+            <!-- =================================================
+                 BACKUP & RESTORE
+                 ================================================= -->
 
-                <strong id="settingsRubricCount">
-                  0
-                </strong>
+            <section class="settings-card">
 
-                <span>
-                  Rubrics
-                </span>
+              <div class="settings-card-header">
 
-              </div>
-
-
-              <div class="storage-stat">
-
-                <strong id="settingsDocumentCount">
-                  0
-                </strong>
-
-                <span>
-                  Documents
-                </span>
-
-              </div>
-
-
-            </div>
-
-          </article>
-
-
-          <!-- Backup & Restore -->
-
-          <article class="settings-card">
-
-            <div class="settings-card-header">
-
-              <div>
-
-                <span class="settings-icon">
-                  📦
-                </span>
-
-                <h3>
+                <h2>
                   Backup &amp; Restore
-                </h3>
+                </h2>
 
               </div>
 
-            </div>
+              <p>
+                Export your local workspace as a backup file.
+                You can restore it later on this device.
+              </p>
 
-
-            <p class="settings-text">
-              Export a copy of your CBC MASTER workspace
-              or restore a previous backup on this device.
-            </p>
-
-
-            <div class="settings-actions">
+              <br>
 
 
               <button
+                id="exportDataButton"
+                class="btn btn-secondary"
                 type="button"
-                class="btn btn-primary"
-                id="exportDataButton">
-
+              >
                 Export Backup
-
               </button>
 
 
-              <label
-                class="btn btn-secondary file-button"
-                for="importDataInput">
+              <br>
+              <br>
 
-                Import Backup
 
+              <label for="importDataInput">
+                Restore Backup
               </label>
-
 
               <input
-                type="file"
                 id="importDataInput"
+                type="file"
                 accept="application/json,.json"
-                hidden>
+              >
+
+            </section>
 
 
-            </div>
+            <!-- =================================================
+                 DELETE LOCAL DATA
+                 ================================================= -->
 
+            <section class="settings-card">
 
-            <p class="settings-note">
-              Keep your backup file somewhere private.
-              It may contain teacher, student, and teaching
-              records.
-            </p>
+              <div class="settings-card-header">
 
-          </article>
-
-
-          <!-- Delete Local Data -->
-
-          <article class="settings-card danger-card">
-
-            <div class="settings-card-header">
-
-              <div>
-
-                <span class="settings-icon">
-                  ⚠️
-                </span>
-
-                <h3>
+                <h2>
                   Delete Local Data
-                </h3>
+                </h2>
 
               </div>
 
-            </div>
+              <p>
+                Delete the CBC MASTER workspace stored on
+                this device.
+              </p>
+
+              <br>
 
 
-            <p class="settings-text">
-              Permanently remove the CBC MASTER workspace
-              stored in this browser. This cannot be undone
-              unless you have a backup.
-            </p>
+              <button
+                id="deleteAllDataButton"
+                class="btn btn-danger"
+                type="button"
+              >
+                Delete All Local Data
+              </button>
+
+            </section>
 
 
-            <button
-              type="button"
-              class="btn btn-danger"
-              id="deleteAllDataButton">
+            <!-- =================================================
+                 ABOUT PRIVACY
+                 ================================================= -->
 
-              Delete All Local Data
+            <section class="settings-card">
 
-            </button>
+              <div class="settings-card-header">
 
-          </article>
-
-
-          <!-- About Privacy -->
-
-          <article class="settings-card">
-
-            <div class="settings-card-header">
-
-              <div>
-
-                <span class="settings-icon">
-                  ℹ️
-                </span>
-
-                <h3>
+                <h2>
                   About CBC MASTER Privacy
-                </h3>
+                </h2>
 
               </div>
 
-            </div>
+              <p>
+                CBC MASTER follows a local-first approach.
+                Teaching records are kept in the browser's
+                local storage unless you explicitly export
+                a backup.
+              </p>
 
+              <br>
 
-            <p class="settings-text">
-              CBC MASTER V2 is being built as a local-first
-              teacher productivity tool. The application does
-              not need an account or cloud database for its
-              core workspace.
-            </p>
+              <p>
+                Do not store unnecessary sensitive information.
+                Keep your device protected with a secure
+                screen lock and avoid sharing exported backups.
+              </p>
 
+              <br>
 
-            <p class="settings-text">
-              For deployed versions, use HTTPS and keep the
-              application and dependencies updated. Browser
-              storage is not the same as encrypted storage,
-              so protect access to the device and browser
-              profile.
-            </p>
+              <p>
+                CBC MASTER does not require third-party
+                advertising or analytics services.
+              </p>
 
+            </section>
 
-            <div class="security-note">
-
-              <strong>
-                Privacy principle
-              </strong>
-
-              <span>
-                Your classroom records should remain under
-                your control.
-              </span>
-
-            </div>
-
-          </article>
-
+          </div>
 
         </section>
 
       </div>
 
+
+      <!-- =====================================================
+           MOBILE BOTTOM NAVIGATION
+           ===================================================== -->
+
+      <nav
+        class="bottom-nav"
+        aria-label="Mobile navigation"
+      >
+
+        <button
+          type="button"
+          class="bottom-nav-item active"
+          data-page="dashboard"
+          aria-current="page"
+        >
+
+          <span aria-hidden="true">
+            ⌂
+          </span>
+
+          <span>
+            Home
+          </span>
+
+        </button>
+
+
+        <button
+          type="button"
+          class="bottom-nav-item"
+          data-page="documents"
+        >
+
+          <span aria-hidden="true">
+            □
+          </span>
+
+          <span>
+            Docs
+          </span>
+
+        </button>
+
+
+        <button
+          type="button"
+          class="bottom-nav-item"
+          data-page="analytics"
+        >
+
+          <span aria-hidden="true">
+            ◒
+          </span>
+
+          <span>
+            Analytics
+          </span>
+
+        </button>
+
+
+        <button
+          type="button"
+          class="bottom-nav-item"
+          data-page="profile"
+        >
+
+          <span aria-hidden="true">
+            ○
+          </span>
+
+          <span>
+            Profile
+          </span>
+
+        </button>
+
+      </nav>
+
+
+      <!-- =====================================================
+           TOAST
+           ===================================================== -->
+
+      <div
+        id="cbcToast"
+        class="toast"
+        role="status"
+        aria-live="polite"
+      ></div>
+
     </main>
-
-
-    <!-- =======================================================
-         MOBILE BOTTOM NAVIGATION
-         ======================================================= -->
-
-    <nav
-      class="bottom-nav"
-      aria-label="Mobile navigation">
-
-
-      <button
-        type="button"
-        class="bottom-nav-item active"
-        data-page="dashboard">
-
-        <span>
-          ⌂
-        </span>
-
-        <small>
-          Home
-        </small>
-
-      </button>
-
-
-      <button
-        type="button"
-        class="bottom-nav-item"
-        data-page="documents">
-
-        <span>
-          □
-        </span>
-
-        <small>
-          Docs
-        </small>
-
-      </button>
-
-
-      <button
-        type="button"
-        class="bottom-nav-item"
-        data-page="analytics">
-
-        <span>
-          ◒
-        </span>
-
-        <small>
-          Analytics
-        </small>
-
-      </button>
-
-
-      <button
-        type="button"
-        class="bottom-nav-item"
-        data-page="profile">
-
-        <span>
-          ○
-        </span>
-
-        <small>
-          Profile
-        </small>
-
-      </button>
-
-    </nav>
-
-
-    <!-- =======================================================
-         TOAST
-         ======================================================= -->
-
-    <div
-      id="cbcToast"
-      class="toast"
-      role="status"
-      aria-live="polite"
-      aria-atomic="true">
-    </div>
-
 
   </div>
 
 
   <!-- =========================================================
-       LOCAL APPLICATION JAVASCRIPT
+       APP JAVASCRIPT
        ========================================================= -->
 
   <script
     src="js/app.js"
-    defer>
-  </script>
+    defer
+  ></script>
 
 </body>
 
