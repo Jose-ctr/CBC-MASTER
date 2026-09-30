@@ -1,7 +1,7 @@
 /* =========================================================
    CBC MASTER V2
    APPLICATION ENGINE
-   Home Dashboard • Navigation • Local Data Foundation
+   Home Dashboard • Navigation • Local Data
    ========================================================= */
 
 "use strict";
@@ -32,15 +32,10 @@ const DEFAULT_DATA = {
   },
 
   students: [],
-
   reportBooks: [],
-
   schemes: [],
-
   lessonPlans: [],
-
   rubrics: [],
-
   documents: [],
 
   activity: []
@@ -48,116 +43,13 @@ const DEFAULT_DATA = {
 
 
 /* =========================================================
-   2. LOAD LOCAL DATA
-   ========================================================= */
-
-function loadData() {
-
-  try {
-
-    const saved = localStorage.getItem(STORAGE_KEY);
-
-    if (!saved) {
-      return structuredClone(DEFAULT_DATA);
-    }
-
-    const parsed = JSON.parse(saved);
-
-    return mergeData(
-      structuredClone(DEFAULT_DATA),
-      parsed
-    );
-
-  } catch (error) {
-
-    console.error(
-      "CBC MASTER: Could not load local data.",
-      error
-    );
-
-    return structuredClone(DEFAULT_DATA);
-  }
-}
-
-
-/* =========================================================
-   3. MERGE DATA SAFELY
-   ========================================================= */
-
-function mergeData(defaults, saved) {
-
-  if (!saved || typeof saved !== "object") {
-    return defaults;
-  }
-
-  Object.keys(defaults).forEach((key) => {
-
-    if (
-      saved[key] !== undefined &&
-      saved[key] !== null
-    ) {
-
-      if (
-        typeof defaults[key] === "object" &&
-        !Array.isArray(defaults[key]) &&
-        typeof saved[key] === "object" &&
-        !Array.isArray(saved[key])
-      ) {
-
-        defaults[key] = {
-          ...defaults[key],
-          ...saved[key]
-        };
-
-      } else {
-
-        defaults[key] = saved[key];
-
-      }
-    }
-
-  });
-
-  return defaults;
-}
-
-
-/* =========================================================
-   4. SAVE LOCAL DATA
-   ========================================================= */
-
-function saveData() {
-
-  try {
-
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(appData)
-    );
-
-  } catch (error) {
-
-    console.error(
-      "CBC MASTER: Could not save local data.",
-      error
-    );
-  }
-}
-
-
-/* =========================================================
-   5. APPLICATION STATE
+   2. APPLICATION STATE
    ========================================================= */
 
 let appData = loadData();
 
-
 let currentPage = "dashboard";
 
-
-/* =========================================================
-   6. PAGE TITLES
-   ========================================================= */
 
 const PAGE_TITLES = {
 
@@ -185,24 +77,16 @@ const PAGE_TITLES = {
 
 
 /* =========================================================
-   7. DOM REFERENCES
+   3. DOM REFERENCES
    ========================================================= */
 
-const pageTitle =
-  document.getElementById("pageTitle");
-
-const pageContainer =
-  document.getElementById("pageContainer");
-
-const notificationButton =
-  document.getElementById("notificationButton");
-
-const settingsButton =
-  document.getElementById("settingsButton");
+let pageTitle;
+let notificationButton;
+let settingsButton;
 
 
 /* =========================================================
-   8. INITIALIZE APPLICATION
+   4. INITIALIZE
    ========================================================= */
 
 document.addEventListener(
@@ -213,13 +97,25 @@ document.addEventListener(
 
 function initApp() {
 
+  pageTitle =
+    document.getElementById("pageTitle");
+
+  notificationButton =
+    document.getElementById(
+      "notificationButton"
+    );
+
+  settingsButton =
+    document.getElementById(
+      "settingsButton"
+    );
+
+
   bindNavigation();
 
   bindDashboardModules();
 
   bindHeaderActions();
-
-  updateTeacherIdentity();
 
   updateHomeDashboard();
 
@@ -229,18 +125,186 @@ function initApp() {
 
 
 /* =========================================================
-   9. SIDEBAR + BOTTOM NAVIGATION
+   5. LOAD DATA
+   ========================================================= */
+
+function loadData() {
+
+  try {
+
+    const saved =
+      localStorage.getItem(
+        STORAGE_KEY
+      );
+
+
+    if (!saved) {
+
+      const fresh =
+        cloneDefaults();
+
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(fresh)
+      );
+
+      return fresh;
+    }
+
+
+    const parsed =
+      JSON.parse(saved);
+
+
+    return mergeData(
+      cloneDefaults(),
+      parsed
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "CBC MASTER V2: Failed to load local data.",
+      error
+    );
+
+    return cloneDefaults();
+
+  }
+
+}
+
+
+/* =========================================================
+   6. CLONE DEFAULT DATA
+   ========================================================= */
+
+function cloneDefaults() {
+
+  return JSON.parse(
+    JSON.stringify(
+      DEFAULT_DATA
+    )
+  );
+
+}
+
+
+/* =========================================================
+   7. MERGE SAVED DATA
+   ========================================================= */
+
+function mergeData(
+  defaults,
+  saved
+) {
+
+  if (
+    !saved ||
+    typeof saved !== "object"
+  ) {
+    return defaults;
+  }
+
+
+  Object.keys(defaults)
+    .forEach((key) => {
+
+      if (
+        saved[key] === undefined ||
+        saved[key] === null
+      ) {
+        return;
+      }
+
+
+      if (
+        isPlainObject(defaults[key]) &&
+        isPlainObject(saved[key])
+      ) {
+
+        defaults[key] = {
+          ...defaults[key],
+          ...saved[key]
+        };
+
+      } else {
+
+        defaults[key] =
+          saved[key];
+
+      }
+
+    });
+
+
+  return defaults;
+
+}
+
+
+/* =========================================================
+   8. OBJECT CHECK
+   ========================================================= */
+
+function isPlainObject(value) {
+
+  return (
+    value !== null &&
+    typeof value === "object" &&
+    !Array.isArray(value)
+  );
+
+}
+
+
+/* =========================================================
+   9. SAVE DATA
+   ========================================================= */
+
+function saveData() {
+
+  try {
+
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(appData)
+    );
+
+    return true;
+
+  } catch (error) {
+
+    console.error(
+      "CBC MASTER V2: Failed to save local data.",
+      error
+    );
+
+    showToast(
+      "Unable to save local data."
+    );
+
+    return false;
+
+  }
+
+}
+
+
+/* =========================================================
+   10. NAVIGATION BINDING
    ========================================================= */
 
 function bindNavigation() {
 
-  const navigationButtons =
+  const buttons =
     document.querySelectorAll(
       "[data-page]"
     );
 
 
-  navigationButtons.forEach((button) => {
+  buttons.forEach((button) => {
 
     button.addEventListener(
       "click",
@@ -249,11 +313,14 @@ function bindNavigation() {
         const page =
           button.dataset.page;
 
+
         if (!page) {
           return;
         }
 
+
         navigateToPage(page);
+
       }
     );
 
@@ -263,41 +330,190 @@ function bindNavigation() {
 
 
 /* =========================================================
-   10. PAGE NAVIGATION
+   11. DASHBOARD MODULE BINDING
    ========================================================= */
 
-function navigateToPage(page) {
+function bindDashboardModules() {
 
-  if (!PAGE_TITLES[page]) {
-    page = "dashboard";
-  }
-
-  currentPage = page;
-
-  updateActiveNavigation(page);
-
-  updatePageTitle(page);
-
-  if (page === "dashboard") {
-
-    renderHome();
-
-    return;
-  }
+  const buttons =
+    document.querySelectorAll(
+      "[data-module]"
+    );
 
 
-  /*
-   * Other modules will be built in later stages.
-   * For now, keep navigation functional without
-   * pretending those modules already contain data.
-   */
+  buttons.forEach((button) => {
 
-  renderComingSoonPage(page);
+    button.addEventListener(
+      "click",
+      () => {
+
+        const module =
+          button.dataset.module;
+
+
+        if (!module) {
+          return;
+        }
+
+
+        navigateToPage(module);
+
+      }
+    );
+
+  });
+
 }
 
 
 /* =========================================================
-   11. ACTIVE NAVIGATION
+   12. NAVIGATE TO PAGE
+   ========================================================= */
+
+function navigateToPage(page) {
+
+  if (
+    !Object.prototype.hasOwnProperty.call(
+      PAGE_TITLES,
+      page
+    )
+  ) {
+
+    page = "dashboard";
+
+  }
+
+
+  currentPage = page;
+
+
+  updatePageTitle(page);
+
+  updateActiveNavigation(page);
+
+  showPage(page);
+
+
+  if (page === "dashboard") {
+
+    updateHomeDashboard();
+
+  }
+
+}
+
+
+/* =========================================================
+   13. SHOW PAGE
+   ========================================================= */
+
+function showPage(page) {
+
+  const pages =
+    document.querySelectorAll(
+      ".app-page"
+    );
+
+
+  pages.forEach((pageElement) => {
+
+    pageElement.classList.add(
+      "page-hidden"
+    );
+
+  });
+
+
+  const pageElement =
+    getPageElement(page);
+
+
+  if (pageElement) {
+
+    pageElement.classList.remove(
+      "page-hidden"
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   14. PAGE ELEMENT MAP
+   ========================================================= */
+
+function getPageElement(page) {
+
+  const pageMap = {
+
+    dashboard:
+      "dashboardPage",
+
+    "report-books":
+      "reportBooksPage",
+
+    schemes:
+      "schemesPage",
+
+    "lesson-plans":
+      "lessonPlansPage",
+
+    rubrics:
+      "rubricsPage",
+
+    students:
+      "studentsPage",
+
+    documents:
+      "documentsPage",
+
+    analytics:
+      "analyticsPage",
+
+    profile:
+      "profilePage",
+
+    settings:
+      "settingsPage"
+
+  };
+
+
+  const id =
+    pageMap[page];
+
+
+  if (!id) {
+    return null;
+  }
+
+
+  return document.getElementById(id);
+
+}
+
+
+/* =========================================================
+   15. PAGE TITLE
+   ========================================================= */
+
+function updatePageTitle(page) {
+
+  if (!pageTitle) {
+    return;
+  }
+
+
+  pageTitle.textContent =
+    PAGE_TITLES[page] ||
+    "CBC MASTER";
+
+}
+
+
+/* =========================================================
+   16. ACTIVE NAVIGATION
    ========================================================= */
 
 function updateActiveNavigation(page) {
@@ -306,6 +522,7 @@ function updateActiveNavigation(page) {
     document.querySelectorAll(
       ".sidebar-link"
     );
+
 
   sidebarLinks.forEach((button) => {
 
@@ -322,6 +539,7 @@ function updateActiveNavigation(page) {
       ".bottom-nav-item"
     );
 
+
   bottomLinks.forEach((button) => {
 
     button.classList.toggle(
@@ -335,58 +553,7 @@ function updateActiveNavigation(page) {
 
 
 /* =========================================================
-   12. PAGE TITLE
-   ========================================================= */
-
-function updatePageTitle(page) {
-
-  if (!pageTitle) {
-    return;
-  }
-
-  pageTitle.textContent =
-    PAGE_TITLES[page] ||
-    "CBC MASTER";
-
-}
-
-
-/* =========================================================
-   13. DASHBOARD MODULE BUTTONS
-   ========================================================= */
-
-function bindDashboardModules() {
-
-  const moduleButtons =
-    document.querySelectorAll(
-      "[data-module]"
-    );
-
-
-  moduleButtons.forEach((button) => {
-
-    button.addEventListener(
-      "click",
-      () => {
-
-        const module =
-          button.dataset.module;
-
-        if (!module) {
-          return;
-        }
-
-        navigateToPage(module);
-      }
-    );
-
-  });
-
-}
-
-
-/* =========================================================
-   14. HEADER ACTIONS
+   17. HEADER ACTIONS
    ========================================================= */
 
 function bindHeaderActions() {
@@ -407,7 +574,9 @@ function bindHeaderActions() {
       "click",
       () => {
 
-        navigateToPage("settings");
+        navigateToPage(
+          "settings"
+        );
 
       }
     );
@@ -418,7 +587,7 @@ function bindHeaderActions() {
 
 
 /* =========================================================
-   15. NOTIFICATIONS
+   18. NOTIFICATIONS
    ========================================================= */
 
 function handleNotifications() {
@@ -427,13 +596,16 @@ function handleNotifications() {
     getNotifications();
 
 
-  if (notifications.length === 0) {
+  if (
+    notifications.length === 0
+  ) {
 
     showToast(
       "No new notifications."
     );
 
     return;
+
   }
 
 
@@ -453,7 +625,9 @@ function getNotifications() {
   const notifications = [];
 
 
-  if (appData.students.length === 0) {
+  if (
+    appData.students.length === 0
+  ) {
 
     notifications.push({
       type: "info",
@@ -464,70 +638,53 @@ function getNotifications() {
   }
 
 
-  if (appData.documents.length === 0) {
+  if (
+    appData.documents.length === 0
+  ) {
 
     notifications.push({
       type: "info",
       message:
-        "Your saved CBC documents will appear here."
+        "Saved CBC documents will appear here."
     });
 
   }
 
 
   return notifications;
-}
-
-
-/* =========================================================
-   16. HOME RENDERING
-   ========================================================= */
-
-function renderHome() {
-
-  if (!pageContainer) {
-    return;
-  }
-
-
-  /*
-   * The original dashboard markup is retained in
-   * index.html. We only update its live values.
-   */
-
-  updateHomeDashboard();
 
 }
 
 
 /* =========================================================
-   17. UPDATE HOME DASHBOARD
+   19. HOME DASHBOARD
    ========================================================= */
 
 function updateHomeDashboard() {
 
   updateTeacherIdentity();
 
+  updateWelcomeArea();
+
   updateModuleCounts();
 
   updateQuickStatistics();
-
-  updateWelcomeArea();
 
 }
 
 
 /* =========================================================
-   18. TEACHER IDENTITY
+   20. TEACHER IDENTITY
    ========================================================= */
 
 function updateTeacherIdentity() {
 
   const teacher =
-    appData.teacher || DEFAULT_DATA.teacher;
+    appData.teacher ||
+    DEFAULT_DATA.teacher;
 
 
-  const teacherName =
+  const name =
     teacher.name &&
     teacher.name.trim()
       ? teacher.name.trim()
@@ -555,7 +712,7 @@ function updateTeacherIdentity() {
   if (profileName) {
 
     profileName.textContent =
-      teacherName;
+      name;
 
   }
 
@@ -563,7 +720,7 @@ function updateTeacherIdentity() {
   if (profileAvatar) {
 
     profileAvatar.textContent =
-      getInitials(teacherName);
+      getInitials(name);
 
   }
 
@@ -571,9 +728,7 @@ function updateTeacherIdentity() {
   if (welcomeTitle) {
 
     welcomeTitle.textContent =
-      getGreeting() +
-      ", " +
-      teacherName;
+      `${getGreeting()}, ${name}`;
 
   }
 
@@ -581,21 +736,21 @@ function updateTeacherIdentity() {
 
 
 /* =========================================================
-   19. INITIALS
+   21. INITIALS
    ========================================================= */
 
 function getInitials(name) {
 
-  if (!name) {
-    return "T";
-  }
-
-
   const parts =
-    name
+    String(name)
       .trim()
       .split(/\s+/)
       .filter(Boolean);
+
+
+  if (parts.length === 0) {
+    return "T";
+  }
 
 
   if (parts.length === 1) {
@@ -616,7 +771,7 @@ function getInitials(name) {
 
 
 /* =========================================================
-   20. GREETING
+   22. GREETING
    ========================================================= */
 
 function getGreeting() {
@@ -641,7 +796,7 @@ function getGreeting() {
 
 
 /* =========================================================
-   21. WELCOME CONTEXT
+   23. WELCOME AREA
    ========================================================= */
 
 function updateWelcomeArea() {
@@ -657,18 +812,18 @@ function updateWelcomeArea() {
   }
 
 
-  const preference =
+  const preferences =
     appData.preferences ||
     DEFAULT_DATA.preferences;
 
 
   const grade =
-    preference.grade ||
+    preferences.grade ||
     "Grade 5";
 
 
   const term =
-    preference.term ||
+    preferences.term ||
     "Term 1";
 
 
@@ -679,7 +834,7 @@ function updateWelcomeArea() {
 
 
 /* =========================================================
-   22. MODULE COUNTS
+   24. MODULE COUNTS
    ========================================================= */
 
 function updateModuleCounts() {
@@ -687,232 +842,428 @@ function updateModuleCounts() {
   const counts = {
 
     "report-books":
-      appData.reportBooks.length,
+      getArrayLength(
+        appData.reportBooks
+      ),
 
     schemes:
-      appData.schemes.length,
+      getArrayLength(
+        appData.schemes
+      ),
 
     "lesson-plans":
-      appData.lessonPlans.length,
+      getArrayLength(
+        appData.lessonPlans
+      ),
 
     rubrics:
-      appData.rubrics.length
+      getArrayLength(
+        appData.rubrics
+      )
 
   };
 
 
   Object.entries(counts)
-    .forEach(([module, count]) => {
+    .forEach(
+      ([module, count]) => {
 
-      const card =
-        document.querySelector(
-          `[data-module="${module}"]`
-        );
-
-
-      if (!card) {
-        return;
-      }
+        const element =
+          document.querySelector(
+            `[data-count="${module}"]`
+          );
 
 
-      const stat =
-        card.querySelector(
-          ".card-stat strong"
-        );
+        if (element) {
 
+          element.textContent =
+            formatNumber(count);
 
-      if (stat) {
-
-        stat.textContent =
-          formatNumber(count);
+        }
 
       }
-
-    });
+    );
 
 }
 
 
 /* =========================================================
-   23. QUICK STATISTICS
+   25. QUICK STATISTICS
    ========================================================= */
 
 function updateQuickStatistics() {
 
-  const values = {
+  const statistics = {
 
     students:
-      appData.students.length,
+      getArrayLength(
+        appData.students
+      ),
 
     "report-books":
-      appData.reportBooks.length,
+      getArrayLength(
+        appData.reportBooks
+      ),
 
     schemes:
-      appData.schemes.length,
+      getArrayLength(
+        appData.schemes
+      ),
 
     documents:
-      appData.documents.length
+      getArrayLength(
+        appData.documents
+      )
 
   };
 
 
-  const statCards =
-    document.querySelectorAll(
-      ".stat-card"
+  Object.entries(statistics)
+    .forEach(
+      ([key, value]) => {
+
+        const element =
+          document.querySelector(
+            `[data-stat="${key}"]`
+          );
+
+
+        if (element) {
+
+          element.textContent =
+            formatNumber(value);
+
+        }
+
+      }
     );
-
-
-  statCards.forEach((card) => {
-
-    const label =
-      card.querySelector(
-        ".stat-label"
-      );
-
-
-    const value =
-      card.querySelector(
-        ".stat-value"
-      );
-
-
-    if (!label || !value) {
-      return;
-    }
-
-
-    const key =
-      label.textContent
-        .trim()
-        .toLowerCase();
-
-
-    if (key === "students") {
-
-      value.textContent =
-        formatNumber(values.students);
-
-    }
-
-
-    if (key === "report books") {
-
-      value.textContent =
-        formatNumber(values["report-books"]);
-
-    }
-
-
-    if (key === "schemes") {
-
-      value.textContent =
-        formatNumber(values.schemes);
-
-    }
-
-
-    if (key === "documents") {
-
-      value.textContent =
-        formatNumber(values.documents);
-
-    }
-
-  });
 
 }
 
 
 /* =========================================================
-   24. NUMBER FORMAT
+   26. ARRAY LENGTH
    ========================================================= */
 
-function formatNumber(number) {
+function getArrayLength(value) {
+
+  return Array.isArray(value)
+    ? value.length
+    : 0;
+
+}
+
+
+/* =========================================================
+   27. NUMBER FORMAT
+   ========================================================= */
+
+function formatNumber(value) {
 
   return new Intl.NumberFormat(
     "en-KE"
   ).format(
-    Number(number) || 0
+    Number(value) || 0
   );
 
 }
 
 
 /* =========================================================
-   25. COMING SOON PAGE
+   28. ADD STUDENT
    ========================================================= */
 
-function renderComingSoonPage(page) {
+function addStudent(student) {
 
-  if (!pageContainer) {
-    return;
+  if (
+    !student ||
+    typeof student !== "object"
+  ) {
+    return false;
   }
 
 
-  const title =
-    PAGE_TITLES[page] ||
-    "Module";
+  appData.students.push({
+
+    id: createId(),
+
+    createdAt:
+      new Date().toISOString(),
+
+    ...student
+
+  });
 
 
-  pageContainer.innerHTML = `
+  saveData();
 
-    <section
-      class="welcome-card"
-      style="margin-bottom: 24px;"
-    >
+  updateHomeDashboard();
 
-      <div class="welcome-content">
-
-        <div class="welcome-eyebrow">
-          CBC MASTER V2
-        </div>
-
-        <h1 class="welcome-title">
-          ${escapeHtml(title)}
-        </h1>
-
-        <p class="welcome-text">
-          This module is part of the CBC MASTER V2
-          workspace and will be connected to local
-          data in its build stage.
-        </p>
-
-      </div>
-
-      <div
-        class="welcome-badge"
-        aria-hidden="true"
-      >
-        📚
-      </div>
-
-    </section>
-
-  `;
+  return true;
 
 }
 
 
 /* =========================================================
-   26. RETURN TO HOME SAFELY
+   29. ADD REPORT BOOK
    ========================================================= */
 
-function restoreDashboardMarkup() {
+function addReportBook(reportBook) {
 
-  /*
-   * The dashboard lives in index.html.
-   * Because later modules replace pageContainer
-   * temporarily, reload is intentionally avoided.
-   *
-   * The complete multi-page rendering system will
-   * be introduced as the remaining modules are built.
-   */
+  if (
+    !reportBook ||
+    typeof reportBook !== "object"
+  ) {
+    return false;
+  }
+
+
+  appData.reportBooks.push({
+
+    id: createId(),
+
+    createdAt:
+      new Date().toISOString(),
+
+    ...reportBook
+
+  });
+
+
+  saveData();
+
+  updateHomeDashboard();
+
+  return true;
 
 }
 
 
 /* =========================================================
-   27. TOAST
+   30. ADD SCHEME
+   ========================================================= */
+
+function addScheme(scheme) {
+
+  if (
+    !scheme ||
+    typeof scheme !== "object"
+  ) {
+    return false;
+  }
+
+
+  appData.schemes.push({
+
+    id: createId(),
+
+    createdAt:
+      new Date().toISOString(),
+
+    ...scheme
+
+  });
+
+
+  saveData();
+
+  updateHomeDashboard();
+
+  return true;
+
+}
+
+
+/* =========================================================
+   31. ADD LESSON PLAN
+   ========================================================= */
+
+function addLessonPlan(lessonPlan) {
+
+  if (
+    !lessonPlan ||
+    typeof lessonPlan !== "object"
+  ) {
+    return false;
+  }
+
+
+  appData.lessonPlans.push({
+
+    id: createId(),
+
+    createdAt:
+      new Date().toISOString(),
+
+    ...lessonPlan
+
+  });
+
+
+  saveData();
+
+  updateHomeDashboard();
+
+  return true;
+
+}
+
+
+/* =========================================================
+   32. ADD RUBRIC
+   ========================================================= */
+
+function addRubric(rubric) {
+
+  if (
+    !rubric ||
+    typeof rubric !== "object"
+  ) {
+    return false;
+  }
+
+
+  appData.rubrics.push({
+
+    id: createId(),
+
+    createdAt:
+      new Date().toISOString(),
+
+    ...rubric
+
+  });
+
+
+  saveData();
+
+  updateHomeDashboard();
+
+  return true;
+
+}
+
+
+/* =========================================================
+   33. ADD DOCUMENT
+   ========================================================= */
+
+function addDocument(documentData) {
+
+  if (
+    !documentData ||
+    typeof documentData !== "object"
+  ) {
+    return false;
+  }
+
+
+  appData.documents.push({
+
+    id: createId(),
+
+    createdAt:
+      new Date().toISOString(),
+
+    ...documentData
+
+  });
+
+
+  saveData();
+
+  updateHomeDashboard();
+
+  return true;
+
+}
+
+
+/* =========================================================
+   34. UPDATE TEACHER
+   ========================================================= */
+
+function updateTeacher(teacher) {
+
+  if (
+    !teacher ||
+    typeof teacher !== "object"
+  ) {
+    return false;
+  }
+
+
+  appData.teacher = {
+
+    ...appData.teacher,
+
+    ...teacher
+
+  };
+
+
+  saveData();
+
+  updateHomeDashboard();
+
+  return true;
+
+}
+
+
+/* =========================================================
+   35. UPDATE PREFERENCES
+   ========================================================= */
+
+function updatePreferences(
+  preferences
+) {
+
+  if (
+    !preferences ||
+    typeof preferences !== "object"
+  ) {
+    return false;
+  }
+
+
+  appData.preferences = {
+
+    ...appData.preferences,
+
+    ...preferences
+
+  };
+
+
+  saveData();
+
+  updateHomeDashboard();
+
+  return true;
+
+}
+
+
+/* =========================================================
+   36. LOCAL ID
+   ========================================================= */
+
+function createId() {
+
+  return (
+    Date.now().toString(36) +
+    "-" +
+    Math.random()
+      .toString(36)
+      .slice(2, 10)
+  );
+
+}
+
+
+/* =========================================================
+   37. TOAST
    ========================================================= */
 
 function showToast(message) {
@@ -926,7 +1277,9 @@ function showToast(message) {
   if (!toast) {
 
     toast =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
 
     toast.id =
       "cbcToast";
@@ -971,13 +1324,15 @@ function showToast(message) {
     toast.style.fontWeight =
       "650";
 
-    toast.style.boxShadow =
-      "0 10px 30px rgba(0,0,0,.3)";
-
     toast.style.textAlign =
       "center";
 
-    document.body.appendChild(toast);
+    toast.style.boxShadow =
+      "0 10px 30px rgba(0,0,0,.3)";
+
+    document.body.appendChild(
+      toast
+    );
 
   }
 
@@ -996,34 +1351,21 @@ function showToast(message) {
 
 
   toast._timeout =
-    setTimeout(() => {
+    setTimeout(
+      () => {
 
-      toast.style.opacity =
-        "0";
+        toast.style.opacity =
+          "0";
 
-    }, 2500);
-
-}
-
-
-/* =========================================================
-   28. ESCAPE HTML
-   ========================================================= */
-
-function escapeHtml(value) {
-
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+      },
+      2500
+    );
 
 }
 
 
 /* =========================================================
-   29. PUBLIC DATA ACCESS
+   38. PUBLIC API
    ========================================================= */
 
 window.CBCMaster = {
@@ -1031,14 +1373,14 @@ window.CBCMaster = {
   getData() {
 
     return appData;
+
   },
 
 
   save() {
 
-    saveData();
+    return saveData();
 
-    updateHomeDashboard();
   },
 
 
@@ -1048,108 +1390,34 @@ window.CBCMaster = {
       loadData();
 
     updateHomeDashboard();
+
   },
 
 
   navigate(page) {
 
     navigateToPage(page);
+
   },
 
 
-  addStudent(student) {
+  addStudent,
 
-    if (!student || typeof student !== "object") {
-      return false;
-    }
+  addReportBook,
 
+  addScheme,
 
-    appData.students.push({
-      id: createId(),
-      createdAt: new Date().toISOString(),
-      ...student
-    });
+  addLessonPlan,
 
+  addRubric,
 
-    saveData();
+  addDocument,
 
-    updateHomeDashboard();
+  updateTeacher,
 
-    return true;
-  },
-
-
-  addDocument(document) {
-
-    if (!document || typeof document !== "object") {
-      return false;
-    }
-
-
-    appData.documents.push({
-      id: createId(),
-      createdAt: new Date().toISOString(),
-      ...document
-    });
-
-
-    saveData();
-
-    updateHomeDashboard();
-
-    return true;
-  },
-
-
-  setTeacher(teacher) {
-
-    if (!teacher || typeof teacher !== "object") {
-      return false;
-    }
-
-
-    appData.teacher = {
-      ...appData.teacher,
-      ...teacher
-    };
-
-
-    saveData();
-
-    updateHomeDashboard();
-
-    return true;
-  }
+  updatePreferences
 
 };
-
-
-/* =========================================================
-   30. LOCAL ID GENERATOR
-   ========================================================= */
-
-function createId() {
-
-  return (
-    Date.now().toString(36) +
-    "-" +
-    Math.random()
-      .toString(36)
-      .slice(2, 10)
-  );
-
-}
-
-
-/* =========================================================
-   31. FIRST SAVE
-   ========================================================= */
-
-if (!localStorage.getItem(STORAGE_KEY)) {
-
-  saveData();
-
-}
 
 
 /* =========================================================
