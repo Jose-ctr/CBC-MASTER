@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-KE">
 
 <head>
 
@@ -10,37 +10,77 @@
 
   <meta charset="utf-8">
 
-  <meta name="viewport"
-        content="width=device-width,
-                 initial-scale=1,
-                 viewport-fit=cover">
+  <meta
+    name="viewport"
+    content="width=device-width,
+             initial-scale=1,
+             viewport-fit=cover"
+  >
 
-  <meta name="theme-color"
-        content="#0B1F33">
+  <meta
+    name="theme-color"
+    content="#0B1F33"
+  >
 
-  <meta name="apple-mobile-web-app-capable"
-        content="yes">
+  <meta
+    name="description"
+    content="CBC MASTER V2 — Kenyan CBC Toolkit for PP1 to Grade 12."
+  >
 
-  <meta name="apple-mobile-web-app-status-bar-style"
-        content="black-translucent">
+  <meta
+    name="mobile-web-app-capable"
+    content="yes"
+  >
 
-  <meta name="description"
-        content="CBC MASTER V2 — Kenyan CBC Toolkit for PP1 to Grade 12">
+  <meta
+    name="apple-mobile-web-app-capable"
+    content="yes"
+  >
+
+  <meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent"
+  >
+
+  <meta
+    name="apple-mobile-web-app-title"
+    content="CBC MASTER"
+  >
 
   <title>CBC MASTER V2</title>
 
-  <link rel="icon"
-        href="icons/icon-192.png"
-        type="image/png">
+  <!-- =========================================================
+       ICONS
+       ========================================================= -->
 
-  <link rel="apple-touch-icon"
-        href="icons/icon-192.png">
+  <link
+    rel="icon"
+    type="image/png"
+    href="icons/icon-192.png"
+  >
 
-  <link rel="stylesheet"
-        href="css/app.css">
+  <link
+    rel="apple-touch-icon"
+    href="icons/icon-192.png"
+  >
 
-  <link rel="manifest"
-        href="manifest.json">
+  <!-- =========================================================
+       STYLES
+       ========================================================= -->
+
+  <link
+    rel="stylesheet"
+    href="css/app.css"
+  >
+
+  <!-- =========================================================
+       PWA
+       ========================================================= -->
+
+  <link
+    rel="manifest"
+    href="manifest.json"
+  >
 
 </head>
 
@@ -48,7 +88,7 @@
 <body>
 
   <!-- =========================================================
-       APPLICATION
+       APP
        ========================================================= -->
 
   <div id="app">
@@ -57,210 +97,228 @@
 
 
       <!-- =====================================================
-           DESKTOP SIDEBAR
+           SIDEBAR
            ===================================================== -->
 
-      <aside class="sidebar"
-             id="sidebar"
-             aria-label="Main navigation">
+      <aside
+        class="sidebar"
+        id="sidebar"
+        aria-label="Main navigation"
+      >
 
-
-        <!-- BRAND -->
+        <!-- Brand -->
 
         <div class="sidebar-brand">
 
-          <div class="brand-icon"
-               aria-hidden="true">
+          <div class="brand-mark">
             🎓
           </div>
 
           <div class="brand-text">
 
-            <div class="brand-title">
+            <strong>
               CBC MASTER
-            </div>
+            </strong>
 
-            <div class="brand-subtitle">
+            <span>
               V2 • Kenyan CBC Toolkit
-            </div>
+            </span>
 
           </div>
 
         </div>
 
 
-        <!-- WORKSPACE -->
+        <!-- Workspace Navigation -->
 
-        <div class="sidebar-section-title">
-          Workspace
-        </div>
+        <nav
+          class="sidebar-nav"
+          aria-label="Workspace"
+        >
+
+          <p class="nav-label">
+            WORKSPACE
+          </p>
 
 
-        <nav class="sidebar-nav"
-             aria-label="Workspace">
+          <button
+            class="nav-item active"
+            type="button"
+            data-page="dashboard"
+          >
 
-
-          <button class="sidebar-link active"
-                  type="button"
-                  data-page="dashboard">
-
-            <span class="sidebar-link-icon"
-                  aria-hidden="true">
+            <span class="nav-icon">
               🏠
             </span>
 
-            <span class="sidebar-link-label">
+            <span class="nav-text">
               Dashboard
             </span>
 
           </button>
 
 
-          <button class="sidebar-link"
-                  type="button"
-                  data-page="report-books">
+          <button
+            class="nav-item"
+            type="button"
+            data-page="report-books"
+          >
 
-            <span class="sidebar-link-icon"
-                  aria-hidden="true">
-              📋
+            <span class="nav-icon">
+              📘
             </span>
 
-            <span class="sidebar-link-label">
+            <span class="nav-text">
               Report Books
             </span>
 
           </button>
 
 
-          <button class="sidebar-link"
-                  type="button"
-                  data-page="schemes">
+          <button
+            class="nav-item"
+            type="button"
+            data-page="schemes"
+          >
 
-            <span class="sidebar-link-icon"
-                  aria-hidden="true">
-              📅
+            <span class="nav-icon">
+              📚
             </span>
 
-            <span class="sidebar-link-label">
+            <span class="nav-text">
               Schemes of Work
             </span>
 
           </button>
 
 
-          <button class="sidebar-link"
-                  type="button"
-                  data-page="lesson-plans">
+          <button
+            class="nav-item"
+            type="button"
+            data-page="lesson-plans"
+          >
 
-            <span class="sidebar-link-icon"
-                  aria-hidden="true">
-              📖
+            <span class="nav-icon">
+              📝
             </span>
 
-            <span class="sidebar-link-label">
+            <span class="nav-text">
               Lesson Plans
             </span>
 
           </button>
 
 
-          <button class="sidebar-link"
-                  type="button"
-                  data-page="rubrics">
+          <button
+            class="nav-item"
+            type="button"
+            data-page="rubrics"
+          >
 
-            <span class="sidebar-link-icon"
-                  aria-hidden="true">
+            <span class="nav-icon">
               ☑️
             </span>
 
-            <span class="sidebar-link-label">
+            <span class="nav-text">
               Assessment Rubrics
             </span>
 
           </button>
 
 
-          <button class="sidebar-link"
-                  type="button"
-                  data-page="students">
+          <button
+            class="nav-item"
+            type="button"
+            data-page="students"
+          >
 
-            <span class="sidebar-link-icon"
-                  aria-hidden="true">
-              👥
+            <span class="nav-icon">
+              👨‍🎓
             </span>
 
-            <span class="sidebar-link-label">
+            <span class="nav-text">
               Students
             </span>
 
           </button>
 
 
-          <button class="sidebar-link"
-                  type="button"
-                  data-page="documents">
+          <button
+            class="nav-item"
+            type="button"
+            data-page="documents"
+          >
 
-            <span class="sidebar-link-icon"
-                  aria-hidden="true">
+            <span class="nav-icon">
               📄
             </span>
 
-            <span class="sidebar-link-label">
+            <span class="nav-text">
               Saved Documents
             </span>
 
           </button>
 
-
-          <!-- ACCOUNT -->
-
-          <div class="sidebar-section-title">
-            Account
-          </div>
+        </nav>
 
 
-          <button class="sidebar-link"
-                  type="button"
-                  data-page="analytics">
+        <!-- Account Navigation -->
 
-            <span class="sidebar-link-icon"
-                  aria-hidden="true">
+        <nav
+          class="sidebar-nav sidebar-nav-account"
+          aria-label="Account"
+        >
+
+          <p class="nav-label">
+            ACCOUNT
+          </p>
+
+
+          <button
+            class="nav-item"
+            type="button"
+            data-page="analytics"
+          >
+
+            <span class="nav-icon">
               📊
             </span>
 
-            <span class="sidebar-link-label">
+            <span class="nav-text">
               Analytics
             </span>
 
           </button>
 
 
-          <button class="sidebar-link"
-                  type="button"
-                  data-page="profile">
+          <button
+            class="nav-item"
+            type="button"
+            data-page="profile"
+          >
 
-            <span class="sidebar-link-icon"
-                  aria-hidden="true">
+            <span class="nav-icon">
               👤
             </span>
 
-            <span class="sidebar-link-label">
+            <span class="nav-text">
               Teacher Profile
             </span>
 
           </button>
 
 
-          <button class="sidebar-link"
-                  type="button"
-                  data-page="settings">
+          <button
+            class="nav-item"
+            type="button"
+            data-page="settings"
+          >
 
-            <span class="sidebar-link-icon"
-                  aria-hidden="true">
+            <span class="nav-icon">
               ⚙️
             </span>
 
-            <span class="sidebar-link-label">
+            <span class="nav-text">
               Settings
             </span>
 
@@ -269,27 +327,26 @@
         </nav>
 
 
-        <!-- SIDEBAR PROFILE -->
+        <!-- Sidebar Profile -->
 
-        <div class="sidebar-footer">
+        <div class="sidebar-profile">
 
-          <div class="profile-mini">
+          <div
+            class="profile-avatar"
+            id="sidebarProfileAvatar"
+          >
+            T
+          </div>
 
-            <div class="profile-avatar">
-              T
-            </div>
+          <div class="profile-info">
 
-            <div class="profile-info">
+            <strong id="sidebarProfileName">
+              Teacher
+            </strong>
 
-              <div class="profile-name">
-                Teacher
-              </div>
-
-              <div class="profile-role">
-                CBC MASTER User
-              </div>
-
-            </div>
+            <span id="sidebarProfileRole">
+              CBC MASTER User
+            </span>
 
           </div>
 
@@ -298,46 +355,52 @@
       </aside>
 
 
-
       <!-- =====================================================
-           MAIN APPLICATION
+           MAIN
            ===================================================== -->
 
-      <main class="main"
-            id="mainContent">
+      <main class="main-content">
 
 
-        <!-- TOP HEADER -->
+        <!-- ===================================================
+             TOP HEADER
+             =================================================== -->
 
         <header class="top-header">
 
-          <div class="header-page-title">
+          <div class="header-title">
 
-            <strong id="pageTitle">
+            <h1 id="pageTitle">
               Dashboard
-            </strong>
+            </h1>
 
-            <span>
-              Kenyan CBC Toolkit • PP1 to Grade 12
-            </span>
+            <p id="pageSubtitle">
+              Your CBC teaching workspace
+            </p>
 
           </div>
 
 
           <div class="header-actions">
 
-            <button class="icon-button"
-                    type="button"
-                    aria-label="Notifications"
-                    id="notificationButton">
+            <button
+              class="icon-button"
+              type="button"
+              id="notificationButton"
+              aria-label="Notifications"
+              title="Notifications"
+            >
               🔔
             </button>
 
 
-            <button class="icon-button"
-                    type="button"
-                    aria-label="Settings"
-                    id="settingsButton">
+            <button
+              class="icon-button"
+              type="button"
+              id="settingsButton"
+              aria-label="Settings"
+              title="Settings"
+            >
               ⚙️
             </button>
 
@@ -346,445 +409,743 @@
         </header>
 
 
-
-        <!-- =====================================================
+        <!-- ===================================================
              PAGE CONTAINER
-             ===================================================== -->
+             =================================================== -->
 
-        <section class="content"
-                 id="pageContainer">
+        <section
+          class="content"
+          id="pageContainer"
+        >
 
 
-          <!-- ===================================================
+          <!-- =================================================
                HOME / DASHBOARD
-               =================================================== -->
+               ================================================= -->
 
-          <div class="app-page"
-               id="dashboardPage">
+          <div
+            class="app-page"
+            id="dashboardPage"
+          >
 
 
-            <!-- WELCOME -->
+            <!-- ===============================================
+                 WELCOME
+                 =============================================== -->
 
             <section class="welcome-card">
 
               <div class="welcome-content">
 
-                <div class="welcome-eyebrow">
+                <span class="section-kicker">
                   CBC MASTER V2
-                </div>
+                </span>
 
-                <h1 class="welcome-title">
+                <h2
+                  class="welcome-title"
+                  id="welcomeTitle"
+                >
                   Good morning, Teacher
-                </h1>
+                </h2>
 
-                <p class="welcome-text">
+                <p
+                  class="welcome-text"
+                  id="welcomeText"
+                >
                   Here's your teaching overview for today.
                 </p>
 
               </div>
 
 
-              <div class="welcome-badge"
-                   aria-hidden="true">
+              <div
+                class="welcome-badge"
+                aria-hidden="true"
+              >
                 ☀️
               </div>
 
             </section>
 
 
+            <!-- ===============================================
+                 CBC MODULES
+                 =============================================== -->
 
-            <!-- MODULES -->
+            <section class="dashboard-section">
 
-            <div class="section-header">
+              <div class="section-heading">
 
-              <h2 class="section-title">
-                Dashboard
-              </h2>
+                <div>
 
-              <span class="section-action">
-                PP1 → Grade 12
-              </span>
+                  <span class="section-kicker">
+                    TEACHING TOOLS
+                  </span>
 
-            </div>
+                  <h2>
+                    Your CBC workspace
+                  </h2>
 
-
-            <section class="dashboard-grid"
-                     aria-label="CBC Master modules">
-
-
-              <!-- REPORT BOOKS -->
-
-              <button class="dashboard-card"
-                      type="button"
-                      data-module="report-books">
-
-                <div class="card-icon"
-                     aria-hidden="true">
-                  📋
                 </div>
 
-                <h3 class="card-title">
-                  Report Books
-                </h3>
-
-                <p class="card-description">
-                  Manage learner records,
-                  assessments and competency summaries.
+                <p>
+                  PP1 → Grade 12
                 </p>
-
-                <div class="card-stat">
-                  <strong
-                    data-count="report-books">
-                    0
-                  </strong>
-                  students
-                </div>
-
-              </button>
-
-
-              <!-- SCHEMES -->
-
-              <button class="dashboard-card"
-                      type="button"
-                      data-module="schemes">
-
-                <div class="card-icon"
-                     aria-hidden="true">
-                  📅
-                </div>
-
-                <h3 class="card-title">
-                  Schemes of Work
-                </h3>
-
-                <p class="card-description">
-                  Plan CBC learning activities,
-                  strands and lesson progression.
-                </p>
-
-                <div class="card-stat">
-                  <strong
-                    data-count="schemes">
-                    0
-                  </strong>
-                  active schemes
-                </div>
-
-              </button>
-
-
-              <!-- LESSON PLANS -->
-
-              <button class="dashboard-card"
-                      type="button"
-                      data-module="lesson-plans">
-
-                <div class="card-icon"
-                     aria-hidden="true">
-                  📖
-                </div>
-
-                <h3 class="card-title">
-                  Lesson Plans
-                </h3>
-
-                <p class="card-description">
-                  Create and manage structured
-                  CBC lesson plans.
-                </p>
-
-                <div class="card-stat">
-                  <strong
-                    data-count="lesson-plans">
-                    0
-                  </strong>
-                  drafts
-                </div>
-
-              </button>
-
-
-              <!-- RUBRICS -->
-
-              <button class="dashboard-card"
-                      type="button"
-                      data-module="rubrics">
-
-                <div class="card-icon"
-                     aria-hidden="true">
-                  ☑️
-                </div>
-
-                <h3 class="card-title">
-                  Assessment Rubrics
-                </h3>
-
-                <p class="card-description">
-                  Build competency-based assessment
-                  rubrics for learners.
-                </p>
-
-                <div class="card-stat">
-                  <strong
-                    data-count="rubrics">
-                    0
-                  </strong>
-                  rubrics
-                </div>
-
-              </button>
-
-            </section>
-
-
-
-            <!-- OVERVIEW -->
-
-            <div class="section-header">
-
-              <h2 class="section-title">
-                Overview
-              </h2>
-
-            </div>
-
-
-            <section class="stats-grid"
-                     aria-label="Teaching statistics">
-
-
-              <!-- STUDENTS -->
-
-              <div class="stat-card">
-
-                <div class="stat-label">
-                  Students
-                </div>
-
-                <div class="stat-value"
-                     data-stat="students">
-                  0
-                </div>
-
-                <div class="stat-note">
-                  Learners in your records
-                </div>
 
               </div>
 
 
-              <!-- REPORT BOOKS -->
-
-              <div class="stat-card">
-
-                <div class="stat-label">
-                  Report Books
-                </div>
-
-                <div class="stat-value"
-                     data-stat="report-books">
-                  0
-                </div>
-
-                <div class="stat-note">
-                  Active report books
-                </div>
-
-              </div>
+              <div class="dashboard-grid">
 
 
-              <!-- SCHEMES -->
+                <!-- Report Books -->
 
-              <div class="stat-card">
+                <button
+                  class="dashboard-card"
+                  type="button"
+                  data-module="report-books"
+                >
 
-                <div class="stat-label">
-                  Schemes
-                </div>
+                  <div class="dashboard-card-top">
 
-                <div class="stat-value"
-                     data-stat="schemes">
-                  0
-                </div>
+                    <span class="dashboard-card-icon">
+                      📘
+                    </span>
 
-                <div class="stat-note">
-                  Current teaching plans
-                </div>
+                    <span
+                      class="dashboard-card-count"
+                      data-count="report-books"
+                    >
+                      0
+                    </span>
 
-              </div>
+                  </div>
+
+                  <h3>
+                    Report Books
+                  </h3>
+
+                  <p>
+                    Manage learner assessment records,
+                    grades and report information.
+                  </p>
+
+                  <span class="dashboard-card-link">
+                    Open Report Books →
+                  </span>
+
+                </button>
 
 
-              <!-- DOCUMENTS -->
+                <!-- Schemes of Work -->
 
-              <div class="stat-card">
+                <button
+                  class="dashboard-card"
+                  type="button"
+                  data-module="schemes"
+                >
 
-                <div class="stat-label">
-                  Documents
-                </div>
+                  <div class="dashboard-card-top">
 
-                <div class="stat-value"
-                     data-stat="documents">
-                  0
-                </div>
+                    <span class="dashboard-card-icon">
+                      📚
+                    </span>
 
-                <div class="stat-note">
-                  Saved CBC documents
-                </div>
+                    <span
+                      class="dashboard-card-count"
+                      data-count="schemes"
+                    >
+                      0
+                    </span>
+
+                  </div>
+
+                  <h3>
+                    Schemes of Work
+                  </h3>
+
+                  <p>
+                    Organise CBC learning outcomes,
+                    activities and teaching plans.
+                  </p>
+
+                  <span class="dashboard-card-link">
+                    Open Schemes →
+                  </span>
+
+                </button>
+
+
+                <!-- Lesson Plans -->
+
+                <button
+                  class="dashboard-card"
+                  type="button"
+                  data-module="lesson-plans"
+                >
+
+                  <div class="dashboard-card-top">
+
+                    <span class="dashboard-card-icon">
+                      📝
+                    </span>
+
+                    <span
+                      class="dashboard-card-count"
+                      data-count="lesson-plans"
+                    >
+                      0
+                    </span>
+
+                  </div>
+
+                  <h3>
+                    Lesson Plans
+                  </h3>
+
+                  <p>
+                    Create, save and organise daily
+                    CBC lesson plans.
+                  </p>
+
+                  <span class="dashboard-card-link">
+                    Open Lesson Plans →
+                  </span>
+
+                </button>
+
+
+                <!-- Assessment Rubrics -->
+
+                <button
+                  class="dashboard-card"
+                  type="button"
+                  data-module="rubrics"
+                >
+
+                  <div class="dashboard-card-top">
+
+                    <span class="dashboard-card-icon">
+                      ☑️
+                    </span>
+
+                    <span
+                      class="dashboard-card-count"
+                      data-count="rubrics"
+                    >
+                      0
+                    </span>
+
+                  </div>
+
+                  <h3>
+                    Assessment Rubrics
+                  </h3>
+
+                  <p>
+                    Build and save competency-based
+                    assessment rubrics.
+                  </p>
+
+                  <span class="dashboard-card-link">
+                    Open Rubrics →
+                  </span>
+
+                </button>
+
 
               </div>
 
             </section>
 
 
+            <!-- ===============================================
+                 OVERVIEW STATISTICS
+                 =============================================== -->
+
+            <section class="dashboard-section">
+
+              <div class="section-heading">
+
+                <div>
+
+                  <span class="section-kicker">
+                    OVERVIEW
+                  </span>
+
+                  <h2>
+                    Teaching statistics
+                  </h2>
+
+                </div>
+
+                <p>
+                  Based on your saved data
+                </p>
+
+              </div>
+
+
+              <div class="stats-grid">
+
+
+                <!-- Students -->
+
+                <article class="stat-card">
+
+                  <div class="stat-icon">
+                    👨‍🎓
+                  </div>
+
+                  <div class="stat-content">
+
+                    <span>
+                      Students
+                    </span>
+
+                    <strong data-stat="students">
+                      0
+                    </strong>
+
+                  </div>
+
+                </article>
+
+
+                <!-- Report Books -->
+
+                <article class="stat-card">
+
+                  <div class="stat-icon">
+                    📘
+                  </div>
+
+                  <div class="stat-content">
+
+                    <span>
+                      Report Books
+                    </span>
+
+                    <strong data-stat="report-books">
+                      0
+                    </strong>
+
+                  </div>
+
+                </article>
+
+
+                <!-- Schemes -->
+
+                <article class="stat-card">
+
+                  <div class="stat-icon">
+                    📚
+                  </div>
+
+                  <div class="stat-content">
+
+                    <span>
+                      Schemes
+                    </span>
+
+                    <strong data-stat="schemes">
+                      0
+                    </strong>
+
+                  </div>
+
+                </article>
+
+
+                <!-- Documents -->
+
+                <article class="stat-card">
+
+                  <div class="stat-icon">
+                    📄
+                  </div>
+
+                  <div class="stat-content">
+
+                    <span>
+                      Documents
+                    </span>
+
+                    <strong data-stat="documents">
+                      0
+                    </strong>
+
+                  </div>
+
+                </article>
+
+
+              </div>
+
+            </section>
+
+
+            <!-- ===============================================
+                 QUICK ACTIONS
+                 =============================================== -->
+
+            <section class="dashboard-section">
+
+              <div class="section-heading">
+
+                <div>
+
+                  <span class="section-kicker">
+                    QUICK ACTIONS
+                  </span>
+
+                  <h2>
+                    Start working
+                  </h2>
+
+                </div>
+
+                <p>
+                  Manage your CBC teaching records.
+                </p>
+
+              </div>
+
+
+              <div class="quick-actions-grid">
+
+
+                <!-- Add Student -->
+
+                <button
+                  class="quick-action-card"
+                  type="button"
+                  data-action="add-student"
+                >
+
+                  <span class="quick-action-icon">
+                    👨‍🎓
+                  </span>
+
+                  <span class="quick-action-content">
+
+                    <strong>
+                      Add Student
+                    </strong>
+
+                    <small>
+                      Add a learner to your class records.
+                    </small>
+
+                  </span>
+
+                  <span class="quick-action-arrow">
+                    →
+                  </span>
+
+                </button>
+
+
+                <!-- Create Report Book -->
+
+                <button
+                  class="quick-action-card"
+                  type="button"
+                  data-action="create-report-book"
+                >
+
+                  <span class="quick-action-icon">
+                    📘
+                  </span>
+
+                  <span class="quick-action-content">
+
+                    <strong>
+                      Create Report Book
+                    </strong>
+
+                    <small>
+                      Start a new learner assessment record.
+                    </small>
+
+                  </span>
+
+                  <span class="quick-action-arrow">
+                    →
+                  </span>
+
+                </button>
+
+
+                <!-- Create Scheme -->
+
+                <button
+                  class="quick-action-card"
+                  type="button"
+                  data-action="create-scheme"
+                >
+
+                  <span class="quick-action-icon">
+                    📚
+                  </span>
+
+                  <span class="quick-action-content">
+
+                    <strong>
+                      Create Scheme
+                    </strong>
+
+                    <small>
+                      Plan your CBC teaching activities.
+                    </small>
+
+                  </span>
+
+                  <span class="quick-action-arrow">
+                    →
+                  </span>
+
+                </button>
+
+
+                <!-- Create Lesson Plan -->
+
+                <button
+                  class="quick-action-card"
+                  type="button"
+                  data-action="create-lesson-plan"
+                >
+
+                  <span class="quick-action-icon">
+                    📝
+                  </span>
+
+                  <span class="quick-action-content">
+
+                    <strong>
+                      Lesson Plan
+                    </strong>
+
+                    <small>
+                      Create and save a lesson plan.
+                    </small>
+
+                  </span>
+
+                  <span class="quick-action-arrow">
+                    →
+                  </span>
+
+                </button>
+
+
+              </div>
+
+            </section>
+
+
           </div>
 
 
+          <!-- =================================================
+               REPORT BOOKS
+               ================================================= -->
 
-          <!-- ===================================================
-               FUTURE MODULE CONTAINERS
-               =================================================== -->
-
-          <div class="app-page page-hidden"
-               id="reportBooksPage">
+          <div
+            class="app-page page-hidden"
+            id="reportBooksPage"
+          >
           </div>
 
 
-          <div class="app-page page-hidden"
-               id="schemesPage">
+          <!-- =================================================
+               SCHEMES OF WORK
+               ================================================= -->
+
+          <div
+            class="app-page page-hidden"
+            id="schemesPage"
+          >
           </div>
 
 
-          <div class="app-page page-hidden"
-               id="lessonPlansPage">
+          <!-- =================================================
+               LESSON PLANS
+               ================================================= -->
+
+          <div
+            class="app-page page-hidden"
+            id="lessonPlansPage"
+          >
           </div>
 
 
-          <div class="app-page page-hidden"
-               id="rubricsPage">
+          <!-- =================================================
+               ASSESSMENT RUBRICS
+               ================================================= -->
+
+          <div
+            class="app-page page-hidden"
+            id="rubricsPage"
+          >
           </div>
 
 
-          <div class="app-page page-hidden"
-               id="studentsPage">
+          <!-- =================================================
+               STUDENTS
+               ================================================= -->
+
+          <div
+            class="app-page page-hidden"
+            id="studentsPage"
+          >
           </div>
 
 
-          <div class="app-page page-hidden"
-               id="documentsPage">
+          <!-- =================================================
+               SAVED DOCUMENTS
+               ================================================= -->
+
+          <div
+            class="app-page page-hidden"
+            id="documentsPage"
+          >
           </div>
 
 
-          <div class="app-page page-hidden"
-               id="analyticsPage">
+          <!-- =================================================
+               ANALYTICS
+               ================================================= -->
+
+          <div
+            class="app-page page-hidden"
+            id="analyticsPage"
+          >
           </div>
 
 
-          <div class="app-page page-hidden"
-               id="profilePage">
+          <!-- =================================================
+               TEACHER PROFILE
+               ================================================= -->
+
+          <div
+            class="app-page page-hidden"
+            id="profilePage"
+          >
           </div>
 
 
-          <div class="app-page page-hidden"
-               id="settingsPage">
+          <!-- =================================================
+               SETTINGS
+               ================================================= -->
+
+          <div
+            class="app-page page-hidden"
+            id="settingsPage"
+          >
           </div>
 
 
         </section>
 
-      </main>
+
+        <!-- ===================================================
+             MOBILE BOTTOM NAVIGATION
+             =================================================== -->
+
+        <nav
+          class="bottom-nav"
+          aria-label="Mobile navigation"
+        >
 
 
+          <button
+            class="bottom-nav-item active"
+            type="button"
+            data-page="dashboard"
+          >
 
-      <!-- =====================================================
-           MOBILE BOTTOM NAVIGATION
-           ===================================================== -->
-
-      <nav class="bottom-nav"
-           id="bottomNav"
-           aria-label="Mobile navigation">
-
-        <div class="bottom-nav-inner">
-
-
-          <button class="bottom-nav-item active"
-                  type="button"
-                  data-page="dashboard">
-
-            <span class="bottom-nav-icon"
-                  aria-hidden="true">
+            <span class="bottom-nav-icon">
               🏠
             </span>
 
-            <span class="bottom-nav-label">
+            <span>
               Home
             </span>
 
           </button>
 
 
-          <button class="bottom-nav-item"
-                  type="button"
-                  data-page="documents">
+          <button
+            class="bottom-nav-item"
+            type="button"
+            data-page="documents"
+          >
 
-            <span class="bottom-nav-icon"
-                  aria-hidden="true">
+            <span class="bottom-nav-icon">
               📄
             </span>
 
-            <span class="bottom-nav-label">
+            <span>
               Docs
             </span>
 
           </button>
 
 
-          <button class="bottom-nav-item"
-                  type="button"
-                  data-page="analytics">
+          <button
+            class="bottom-nav-item"
+            type="button"
+            data-page="analytics"
+          >
 
-            <span class="bottom-nav-icon"
-                  aria-hidden="true">
+            <span class="bottom-nav-icon">
               📊
             </span>
 
-            <span class="bottom-nav-label">
+            <span>
               Analytics
             </span>
 
           </button>
 
 
-          <button class="bottom-nav-item"
-                  type="button"
-                  data-page="profile">
+          <button
+            class="bottom-nav-item"
+            type="button"
+            data-page="profile"
+          >
 
-            <span class="bottom-nav-icon"
-                  aria-hidden="true">
+            <span class="bottom-nav-icon">
               👤
             </span>
 
-            <span class="bottom-nav-label">
+            <span>
               Profile
             </span>
 
           </button>
 
-        </div>
 
-      </nav>
+        </nav>
 
+
+      </main>
 
     </div>
 
   </div>
 
 
-
   <!-- =========================================================
-       APPLICATION JAVASCRIPT
+       JAVASCRIPT
        ========================================================= -->
 
-  <script src="js/app.js"></script>
+  <script
+    src="js/app.js"
+    defer
+  ></script>
 
 </body>
 
