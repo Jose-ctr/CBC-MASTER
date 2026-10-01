@@ -17,7 +17,7 @@
 */
 
 const CACHE_NAME =
-  "cbc-master-v2-cache-v4";
+  "cbc-master-v2-cache-v10";
 
 
 const APP_SHELL = [
@@ -33,6 +33,18 @@ const APP_SHELL = [
   "./js/students.js",
 
   "./js/report-books.js",
+
+  "./js/schemes.js",
+
+  "./js/lesson-plans.js",
+
+  "./js/rubrics.js",
+
+  "./js/documents.js",
+
+  "./js/analytics.js",
+
+  "./js/profile.js",
 
   "./manifest.json",
 
