@@ -14,9 +14,7 @@
 
   <meta
     name="viewport"
-    content="width=device-width,
-             initial-scale=1,
-             viewport-fit=cover"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
   >
 
   <meta
@@ -59,31 +57,16 @@
 
   <title>CBC MASTER V2</title>
 
-
-  <!-- =========================================================
-       APP ICON
-       ========================================================= -->
-
   <link
     rel="icon"
     type="image/png"
     href="icons/icon-192.png"
   >
 
-
-  <!-- =========================================================
-       PWA MANIFEST
-       ========================================================= -->
-
   <link
     rel="manifest"
     href="manifest.json"
   >
-
-
-  <!-- =========================================================
-       STYLESHEET
-       ========================================================= -->
 
   <link
     rel="stylesheet"
@@ -95,992 +78,1774 @@
 
 <body>
 
-  <!-- =========================================================
-       APP
-       ========================================================= -->
-
-  <div id="app">
+<div id="app">
 
 
-    <!-- =======================================================
-         SIDEBAR
-         ======================================================= -->
+  <!-- =======================================================
+       SIDEBAR
+       ======================================================= -->
 
-    <aside class="sidebar">
+  <aside class="sidebar">
 
+    <div class="sidebar-brand">
 
-      <!-- =====================================================
-           BRAND
-           ===================================================== -->
-
-      <div class="sidebar-brand">
-
-        <div
-          class="brand-mark"
-          aria-hidden="true"
-        >
-          C
-        </div>
-
-        <div class="brand-text">
-
-          <strong>
-            CBC MASTER
-          </strong>
-
-          <span>
-            Teacher Toolkit
-          </span>
-
-        </div>
-
-      </div>
-
-
-      <!-- =====================================================
-           NAVIGATION
-           ===================================================== -->
-
-      <nav
-        class="sidebar-nav"
-        aria-label="Main navigation"
+      <div
+        class="brand-mark"
+        aria-hidden="true"
       >
+        C
+      </div>
 
-        <p class="nav-label">
-          Workspace
-        </p>
+      <div class="brand-text">
 
+        <strong>CBC MASTER</strong>
 
-        <button
-          type="button"
-          class="nav-item active"
-          data-page="dashboard"
-          aria-current="page"
-        >
-
-          <span
-            class="nav-icon"
-            aria-hidden="true"
-          >
-            ⌂
-          </span>
-
-          <span>
-            Dashboard
-          </span>
-
-        </button>
-
-
-        <button
-          type="button"
-          class="nav-item"
-          data-page="report-books"
-        >
-
-          <span
-            class="nav-icon"
-            aria-hidden="true"
-          >
-            ▣
-          </span>
-
-          <span>
-            Report Books
-          </span>
-
-        </button>
-
-
-        <button
-          type="button"
-          class="nav-item"
-          data-page="schemes"
-        >
-
-          <span
-            class="nav-icon"
-            aria-hidden="true"
-          >
-            ▤
-          </span>
-
-          <span>
-            Schemes of Work
-          </span>
-
-        </button>
-
-
-        <button
-          type="button"
-          class="nav-item"
-          data-page="lesson-plans"
-        >
-
-          <span
-            class="nav-icon"
-            aria-hidden="true"
-          >
-            ▥
-          </span>
-
-          <span>
-            Lesson Plans
-          </span>
-
-        </button>
-
-
-        <button
-          type="button"
-          class="nav-item"
-          data-page="rubrics"
-        >
-
-          <span
-            class="nav-icon"
-            aria-hidden="true"
-          >
-            ✓
-          </span>
-
-          <span>
-            Assessment Rubrics
-          </span>
-
-        </button>
-
-
-        <button
-          type="button"
-          class="nav-item"
-          data-page="students"
-        >
-
-          <span
-            class="nav-icon"
-            aria-hidden="true"
-          >
-            ♙
-          </span>
-
-          <span>
-            Students
-          </span>
-
-        </button>
-
-
-        <p class="nav-label">
-          Documents
-        </p>
-
-
-        <button
-          type="button"
-          class="nav-item"
-          data-page="documents"
-        >
-
-          <span
-            class="nav-icon"
-            aria-hidden="true"
-          >
-            □
-          </span>
-
-          <span>
-            Saved Documents
-          </span>
-
-        </button>
-
-
-        <button
-          type="button"
-          class="nav-item"
-          data-page="analytics"
-        >
-
-          <span
-            class="nav-icon"
-            aria-hidden="true"
-          >
-            ◒
-          </span>
-
-          <span>
-            Analytics
-          </span>
-
-        </button>
-
-
-        <p class="nav-label">
-          Account
-        </p>
-
-
-        <button
-          type="button"
-          class="nav-item"
-          data-page="profile"
-        >
-
-          <span
-            class="nav-icon"
-            aria-hidden="true"
-          >
-            ○
-          </span>
-
-          <span>
-            Profile
-          </span>
-
-        </button>
-
-
-        <button
-          type="button"
-          class="nav-item"
-          data-page="settings"
-        >
-
-          <span
-            class="nav-icon"
-            aria-hidden="true"
-          >
-            ⚙
-          </span>
-
-          <span>
-            Settings
-          </span>
-
-        </button>
-
-      </nav>
-
-
-      <!-- =====================================================
-           SIDEBAR PROFILE
-           ===================================================== -->
-
-      <div class="sidebar-profile">
-
-        <div
-          class="avatar"
-          id="sidebarProfileAvatar"
-          aria-hidden="true"
-        >
-          T
-        </div>
-
-        <div class="sidebar-profile-info">
-
-          <strong id="sidebarProfileName">
-            Teacher
-          </strong>
-
-          <span id="sidebarProfileRole">
-            CBC MASTER User
-          </span>
-
-        </div>
+        <span>Teacher Toolkit</span>
 
       </div>
 
-    </aside>
+    </div>
 
 
-    <!-- =======================================================
-         MAIN CONTENT
-         ======================================================= -->
+    <nav
+      class="sidebar-nav"
+      aria-label="Main navigation"
+    >
 
-    <main class="main-content">
+      <p class="nav-label">Workspace</p>
 
-
-      <!-- =====================================================
-           GLOBAL TOPBAR
-
-           SI is metadata.
-           JavaScript updates pageTitle/pageSubtitle.
-           ===================================================== -->
-
-      <header class="topbar">
-
-        <div class="topbar-title">
-
-
-          <!-- =================================================
-               TOPBAR METADATA
-               ================================================= -->
-
-          <div class="topbar-meta">
-
-            <p class="eyebrow">
-              CBC MASTER V2
-            </p>
-
-            <span
-              class="si-pill"
-              aria-label="System information"
-              title="System information"
-            >
-              SI
-            </span>
-
-          </div>
+      <button
+        type="button"
+        class="nav-item active"
+        data-page="dashboard"
+        aria-current="page"
+      >
+        <span class="nav-icon" aria-hidden="true">⌂</span>
+        <span>Dashboard</span>
+      </button>
 
 
-          <h1 id="pageTitle">
-            Dashboard
-          </h1>
+      <button
+        type="button"
+        class="nav-item"
+        data-page="report-books"
+      >
+        <span class="nav-icon" aria-hidden="true">▣</span>
+        <span>Report Books</span>
+      </button>
 
 
-          <p id="pageSubtitle">
-            Your CBC teaching workspace
+      <button
+        type="button"
+        class="nav-item"
+        data-page="schemes"
+      >
+        <span class="nav-icon" aria-hidden="true">▤</span>
+        <span>Schemes of Work</span>
+      </button>
+
+
+      <button
+        type="button"
+        class="nav-item"
+        data-page="lesson-plans"
+      >
+        <span class="nav-icon" aria-hidden="true">▥</span>
+        <span>Lesson Plans</span>
+      </button>
+
+
+      <button
+        type="button"
+        class="nav-item"
+        data-page="rubrics"
+      >
+        <span class="nav-icon" aria-hidden="true">✓</span>
+        <span>Assessment Rubrics</span>
+      </button>
+
+
+      <button
+        type="button"
+        class="nav-item"
+        data-page="students"
+      >
+        <span class="nav-icon" aria-hidden="true">♙</span>
+        <span>Students</span>
+      </button>
+
+
+      <p class="nav-label">Documents</p>
+
+
+      <button
+        type="button"
+        class="nav-item"
+        data-page="documents"
+      >
+        <span class="nav-icon" aria-hidden="true">□</span>
+        <span>Saved Documents</span>
+      </button>
+
+
+      <button
+        type="button"
+        class="nav-item"
+        data-page="analytics"
+      >
+        <span class="nav-icon" aria-hidden="true">◒</span>
+        <span>Analytics</span>
+      </button>
+
+
+      <p class="nav-label">Account</p>
+
+
+      <button
+        type="button"
+        class="nav-item"
+        data-page="profile"
+      >
+        <span class="nav-icon" aria-hidden="true">○</span>
+        <span>Profile</span>
+      </button>
+
+
+      <button
+        type="button"
+        class="nav-item"
+        data-page="settings"
+      >
+        <span class="nav-icon" aria-hidden="true">⚙</span>
+        <span>Settings</span>
+      </button>
+
+    </nav>
+
+
+    <div class="sidebar-profile">
+
+      <div
+        class="avatar"
+        id="sidebarProfileAvatar"
+        aria-hidden="true"
+      >
+        T
+      </div>
+
+      <div class="sidebar-profile-info">
+
+        <strong id="sidebarProfileName">
+          Teacher
+        </strong>
+
+        <span id="sidebarProfileRole">
+          CBC MASTER User
+        </span>
+
+      </div>
+
+    </div>
+
+  </aside>
+
+
+  <!-- =======================================================
+       MAIN
+       ======================================================= -->
+
+  <main class="main-content">
+
+
+    <!-- =====================================================
+         TOPBAR
+         ===================================================== -->
+
+    <header class="topbar">
+
+      <div class="topbar-title">
+
+        <div class="topbar-meta">
+
+          <p class="eyebrow">
+            CBC MASTER V2
           </p>
 
-        </div>
-
-
-        <!-- ===================================================
-             TOP RIGHT ACTIONS
-             =================================================== -->
-
-        <div class="topbar-actions">
-
-          <button
-            type="button"
-            class="icon-button"
-            id="notificationButton"
-            aria-label="Notifications"
-            title="Notifications"
+          <span
+            class="si-pill"
+            aria-label="System information"
+            title="System information"
           >
-            🔔
-          </button>
-
-
-          <button
-            type="button"
-            class="icon-button"
-            id="settingsButton"
-            aria-label="Settings"
-            title="Settings"
-            data-page="settings"
-          >
-            ⚙
-          </button>
+            SI
+          </span>
 
         </div>
 
-      </header>
+        <h1 id="pageTitle">
+          Dashboard
+        </h1>
+
+        <p id="pageSubtitle">
+          Your CBC teaching workspace
+        </p>
+
+      </div>
 
 
-      <!-- =====================================================
-           PAGE CONTENT
-           ===================================================== -->
+      <div class="topbar-actions">
 
-      <div class="content-container">
-
-
-        <!-- ===================================================
-             DASHBOARD
-             =================================================== -->
-
-        <section
-          id="dashboardPage"
-          class="page-section"
-          data-page-section="dashboard"
+        <button
+          type="button"
+          class="icon-button"
+          id="notificationButton"
+          aria-label="Notifications"
+          title="Notifications"
         >
+          🔔
+        </button>
 
-          <div class="page-content">
+
+        <button
+          type="button"
+          class="icon-button"
+          id="settingsButton"
+          aria-label="Settings"
+          title="Settings"
+          data-page="settings"
+        >
+          ⚙
+        </button>
+
+      </div>
+
+    </header>
 
 
-            <!-- =================================================
-                 WELCOME
-                 ================================================= -->
+    <!-- =====================================================
+         CONTENT
+         ===================================================== -->
 
-            <section class="welcome-card">
+    <div class="content-container">
+
+
+      <!-- ===================================================
+           DASHBOARD
+           =================================================== -->
+
+      <section
+        id="dashboardPage"
+        class="page-section"
+        data-page-section="dashboard"
+      >
+
+        <div class="page-content">
+
+
+          <section class="welcome-card">
+
+            <p class="eyebrow">
+              TEACHER WORKSPACE
+            </p>
+
+            <h2 id="welcomeTitle">
+              Good morning, Teacher
+            </h2>
+
+            <p id="welcomeText">
+              Your Grade 5 • Term 1 teaching workspace.
+            </p>
+
+            <div class="welcome-badges">
+
+              <span>Offline-first</span>
+              <span>Local data</span>
+              <span>PP1–Grade 12</span>
+
+            </div>
+
+          </section>
+
+
+          <section class="section-block">
+
+            <div class="section-heading">
+
+              <div>
+                <h2>Teaching Tools</h2>
+              </div>
+
+            </div>
+
+
+            <div class="module-grid">
+
+              <button
+                type="button"
+                class="module-card"
+                data-module="report-books"
+              >
+                <span class="module-icon" aria-hidden="true">▣</span>
+
+                <span class="module-content">
+                  <strong>Report Books</strong>
+                  <small>Learner assessment records</small>
+                </span>
+
+                <span class="module-arrow" aria-hidden="true">→</span>
+              </button>
+
+
+              <button
+                type="button"
+                class="module-card"
+                data-module="schemes"
+              >
+                <span class="module-icon" aria-hidden="true">▤</span>
+
+                <span class="module-content">
+                  <strong>Schemes of Work</strong>
+                  <small>Plan CBC teaching activities</small>
+                </span>
+
+                <span class="module-arrow" aria-hidden="true">→</span>
+              </button>
+
+
+              <button
+                type="button"
+                class="module-card"
+                data-module="lesson-plans"
+              >
+                <span class="module-icon" aria-hidden="true">▥</span>
+
+                <span class="module-content">
+                  <strong>Lesson Plans</strong>
+                  <small>Prepare daily lessons</small>
+                </span>
+
+                <span class="module-arrow" aria-hidden="true">→</span>
+              </button>
+
+
+              <button
+                type="button"
+                class="module-card"
+                data-module="rubrics"
+              >
+                <span class="module-icon" aria-hidden="true">✓</span>
+
+                <span class="module-content">
+                  <strong>Assessment Rubrics</strong>
+                  <small>Reusable assessment criteria</small>
+                </span>
+
+                <span class="module-arrow" aria-hidden="true">→</span>
+              </button>
+
+            </div>
+
+          </section>
+
+
+          <section class="section-block">
+
+            <div class="section-heading">
+              <h2>Workspace</h2>
+            </div>
+
+
+            <div class="stats-grid">
+
+              <article class="stat-card">
+                <span class="stat-label">Students</span>
+
+                <strong
+                  class="stat-value"
+                  data-stat="students"
+                >
+                  0
+                </strong>
+
+                <small>Learner records</small>
+              </article>
+
+
+              <article class="stat-card">
+                <span class="stat-label">Report Books</span>
+
+                <strong
+                  class="stat-value"
+                  data-stat="report-books"
+                >
+                  0
+                </strong>
+
+                <small>Assessment records</small>
+              </article>
+
+
+              <article class="stat-card">
+                <span class="stat-label">Schemes</span>
+
+                <strong
+                  class="stat-value"
+                  data-stat="schemes"
+                >
+                  0
+                </strong>
+
+                <small>Teaching schemes</small>
+              </article>
+
+
+              <article class="stat-card">
+                <span class="stat-label">Documents</span>
+
+                <strong
+                  class="stat-value"
+                  data-stat="documents"
+                >
+                  0
+                </strong>
+
+                <small>Saved documents</small>
+              </article>
+
+            </div>
+
+          </section>
+
+
+          <section class="section-block">
+
+            <div class="section-heading">
+              <h2>Quick Actions</h2>
+            </div>
+
+
+            <div class="quick-actions">
+
+              <button
+                type="button"
+                class="quick-action"
+                data-action="add-student"
+              >
+                <span aria-hidden="true">♙</span>
+                <strong>Add Learner</strong>
+                <small>Create a learner record</small>
+              </button>
+
+
+              <button
+                type="button"
+                class="quick-action"
+                data-action="create-report-book"
+              >
+                <span aria-hidden="true">▣</span>
+                <strong>Report Book</strong>
+                <small>Start an assessment record</small>
+              </button>
+
+
+              <button
+                type="button"
+                class="quick-action"
+                data-action="create-scheme"
+              >
+                <span aria-hidden="true">▤</span>
+                <strong>Create Scheme</strong>
+                <small>Plan your teaching work</small>
+              </button>
+
+
+              <button
+                type="button"
+                class="quick-action"
+                data-action="create-lesson-plan"
+              >
+                <span aria-hidden="true">▥</span>
+                <strong>Lesson Plan</strong>
+                <small>Prepare a daily lesson</small>
+              </button>
+
+            </div>
+
+          </section>
+
+        </div>
+
+      </section>
+
+
+      <!-- ===================================================
+           REPORT BOOKS
+           =================================================== -->
+
+      <section
+        id="reportBooksPage"
+        class="page-section"
+        data-page-section="report-books"
+        hidden
+      >
+
+        <div class="page-content">
+
+          <div class="section-heading">
+
+            <div>
+              <p class="eyebrow">ASSESSMENT RECORDS</p>
+
+              <h2>Report Books</h2>
+
+              <p>
+                Create and manage local learner assessment records.
+              </p>
+            </div>
+
+            <button
+              id="addReportBookBtn"
+              class="btn btn-primary"
+              type="button"
+            >
+              + New Report Book
+            </button>
+
+          </div>
+
+
+          <div class="module-toolbar">
+
+            <div class="form-group">
+
+              <label for="reportBookSearch">
+                Search report books
+              </label>
+
+              <input
+                id="reportBookSearch"
+                class="form-control"
+                type="search"
+                placeholder="Search by title or subject"
+                autocomplete="off"
+              >
+
+            </div>
+
+            <div class="module-toolbar-count">
+
+              <span>Records</span>
+
+              <strong id="reportBookCount">
+                0
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <section
+            id="reportBookFormCard"
+            class="settings-card module-workspace"
+            hidden
+          >
+
+            <div class="settings-card-header">
+
+              <div>
+                <p class="eyebrow">REPORT BOOK</p>
+
+                <h2 id="reportBookFormTitle">
+                  New Report Book
+                </h2>
+              </div>
+
+            </div>
+
+
+            <form id="reportBookForm">
+
+              <input
+                id="reportBookId"
+                type="hidden"
+              >
+
+
+              <div class="form-grid">
+
+                <div class="form-group">
+
+                  <label for="reportBookTitle">
+                    Title
+                  </label>
+
+                  <input
+                    id="reportBookTitle"
+                    class="form-control"
+                    type="text"
+                    maxlength="150"
+                    required
+                  >
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="reportBookGrade">
+                    Grade
+                  </label>
+
+                  <select
+                    id="reportBookGrade"
+                    class="form-control"
+                  >
+                    <option>PP1</option>
+                    <option>PP2</option>
+                    <option>Grade 1</option>
+                    <option>Grade 2</option>
+                    <option>Grade 3</option>
+                    <option>Grade 4</option>
+                    <option>Grade 5</option>
+                    <option>Grade 6</option>
+                    <option>Grade 7</option>
+                    <option>Grade 8</option>
+                    <option>Grade 9</option>
+                    <option>Grade 10</option>
+                    <option>Grade 11</option>
+                    <option>Grade 12</option>
+                  </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="reportBookTerm">
+                    Term
+                  </label>
+
+                  <select
+                    id="reportBookTerm"
+                    class="form-control"
+                  >
+                    <option>Term 1</option>
+                    <option>Term 2</option>
+                    <option>Term 3</option>
+                  </select>
+
+                </div>
+
+
+                <div class="form-group form-group-full">
+
+                  <label for="reportBookNotes">
+                    Notes
+                  </label>
+
+                  <textarea
+                    id="reportBookNotes"
+                    class="form-control"
+                    rows="5"
+                    maxlength="1000"
+                  ></textarea>
+
+                </div>
+
+              </div>
+
+
+              <div class="form-actions">
+
+                <button
+                  id="cancelReportBookButton"
+                  class="btn btn-secondary"
+                  type="button"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  class="btn btn-primary"
+                  type="submit"
+                >
+                  Save Report Book
+                </button>
+
+              </div>
+
+            </form>
+
+          </section>
+
+
+          <section class="section-block">
+
+            <div
+              id="reportBooksEmptyState"
+              class="empty-page"
+              hidden
+            >
+
+              <span class="empty-icon" aria-hidden="true">▣</span>
+
+              <h2>No report books yet</h2>
+
+              <p>
+                Create your first local report book.
+              </p>
+
+            </div>
+
+
+            <div
+              id="reportBooksList"
+              class="list-grid"
+            ></div>
+
+          </section>
+
+        </div>
+
+      </section>
+
+
+      <!-- ===================================================
+           SCHEMES
+           =================================================== -->
+
+      <section
+        id="schemesPage"
+        class="page-section"
+        data-page-section="schemes"
+        hidden
+      >
+
+        <div class="page-content">
+
+          <div class="section-heading">
+
+            <div>
+              <p class="eyebrow">PLANNING</p>
+
+              <h2>Schemes of Work</h2>
+
+              <p>
+                Plan CBC teaching work by week, topic and activity.
+              </p>
+            </div>
+
+            <button
+              id="addSchemeBtn"
+              class="btn btn-primary"
+              type="button"
+            >
+              + New Scheme
+            </button>
+
+          </div>
+
+
+          <div class="module-toolbar">
+
+            <div class="form-group">
+
+              <label for="schemeSearch">
+                Search schemes
+              </label>
+
+              <input
+                id="schemeSearch"
+                class="form-control"
+                type="search"
+                placeholder="Search subject, topic or grade"
+                autocomplete="off"
+              >
+
+            </div>
+
+            <div class="module-toolbar-count">
+
+              <span>Records</span>
+
+              <strong id="schemeCount">
+                0
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <section
+            id="schemeFormCard"
+            class="settings-card module-workspace"
+            hidden
+          >
+
+            <div class="settings-card-header">
+
+              <div>
+                <p class="eyebrow">TEACHING PLAN</p>
+
+                <h2 id="schemeFormTitle">
+                  New Scheme
+                </h2>
+              </div>
+
+            </div>
+
+
+            <form id="schemeForm">
+
+              <input
+                id="schemeId"
+                type="hidden"
+              >
+
+
+              <div class="form-grid">
+
+                <div class="form-group">
+
+                  <label for="schemeGrade">
+                    Grade
+                  </label>
+
+                  <select
+                    id="schemeGrade"
+                    class="form-control"
+                  >
+                    <option>PP1</option>
+                    <option>PP2</option>
+                    <option>Grade 1</option>
+                    <option>Grade 2</option>
+                    <option>Grade 3</option>
+                    <option>Grade 4</option>
+                    <option>Grade 5</option>
+                    <option>Grade 6</option>
+                    <option>Grade 7</option>
+                    <option>Grade 8</option>
+                    <option>Grade 9</option>
+                    <option>Grade 10</option>
+                    <option>Grade 11</option>
+                    <option>Grade 12</option>
+                  </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="schemeTerm">
+                    Term
+                  </label>
+
+                  <select
+                    id="schemeTerm"
+                    class="form-control"
+                  >
+                    <option>Term 1</option>
+                    <option>Term 2</option>
+                    <option>Term 3</option>
+                  </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="schemeSubject">
+                    Subject
+                  </label>
+
+                  <input
+                    id="schemeSubject"
+                    class="form-control"
+                    type="text"
+                    maxlength="100"
+                    required
+                  >
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="schemeWeek">
+                    Week
+                  </label>
+
+                  <input
+                    id="schemeWeek"
+                    class="form-control"
+                    type="text"
+                    maxlength="40"
+                    placeholder="e.g. Week 1"
+                  >
+
+                </div>
+
+
+                <div class="form-group form-group-full">
+
+                  <label for="schemeTopic">
+                    Topic
+                  </label>
+
+                  <input
+                    id="schemeTopic"
+                    class="form-control"
+                    type="text"
+                    maxlength="150"
+                    required
+                  >
+
+                </div>
+
+
+                <div class="form-group form-group-full">
+
+                  <label for="schemeObjectives">
+                    Learning objectives
+                  </label>
+
+                  <textarea
+                    id="schemeObjectives"
+                    class="form-control"
+                    rows="4"
+                    maxlength="1500"
+                  ></textarea>
+
+                </div>
+
+
+                <div class="form-group form-group-full">
+
+                  <label for="schemeActivities">
+                    Learning activities
+                  </label>
+
+                  <textarea
+                    id="schemeActivities"
+                    class="form-control"
+                    rows="4"
+                    maxlength="1500"
+                  ></textarea>
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="schemeResources">
+                    Resources
+                  </label>
+
+                  <textarea
+                    id="schemeResources"
+                    class="form-control"
+                    rows="4"
+                    maxlength="1000"
+                  ></textarea>
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="schemeAssessment">
+                    Assessment
+                  </label>
+
+                  <textarea
+                    id="schemeAssessment"
+                    class="form-control"
+                    rows="4"
+                    maxlength="1000"
+                  ></textarea>
+
+                </div>
+
+              </div>
+
+
+              <div class="form-actions">
+
+                <button
+                  id="cancelSchemeButton"
+                  class="btn btn-secondary"
+                  type="button"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  class="btn btn-primary"
+                  type="submit"
+                >
+                  Save Scheme
+                </button>
+
+              </div>
+
+            </form>
+
+          </section>
+
+
+          <section class="section-block">
+
+            <div
+              id="schemesEmptyState"
+              class="empty-page"
+              hidden
+            >
+
+              <span class="empty-icon" aria-hidden="true">▤</span>
+
+              <h2>No schemes yet</h2>
+
+              <p>
+                Create your first scheme of work.
+              </p>
+
+            </div>
+
+
+            <div
+              id="schemesList"
+              class="list-grid"
+            ></div>
+
+          </section>
+
+        </div>
+
+      </section>
+
+
+      <!-- ===================================================
+           LESSON PLANS
+           =================================================== -->
+
+      <section
+        id="lessonPlansPage"
+        class="page-section"
+        data-page-section="lesson-plans"
+        hidden
+      >
+
+        <div class="page-content">
+
+          <div class="section-heading">
+
+            <div>
+              <p class="eyebrow">DAILY PLANNING</p>
+
+              <h2>Lesson Plans</h2>
+
+              <p>
+                Prepare structured CBC lessons locally.
+              </p>
+            </div>
+
+            <button
+              id="addLessonPlanBtn"
+              class="btn btn-primary"
+              type="button"
+            >
+              + New Lesson Plan
+            </button>
+
+          </div>
+
+
+          <div class="module-toolbar">
+
+            <div class="form-group">
+
+              <label for="lessonPlanSearch">
+                Search lesson plans
+              </label>
+
+              <input
+                id="lessonPlanSearch"
+                class="form-control"
+                type="search"
+                placeholder="Search topic or subject"
+                autocomplete="off"
+              >
+
+            </div>
+
+            <div class="module-toolbar-count">
+
+              <span>Records</span>
+
+              <strong id="lessonPlanCount">
+                0
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <section
+            id="lessonPlanFormCard"
+            class="settings-card module-workspace"
+            hidden
+          >
+
+            <div class="settings-card-header">
+
+              <div>
+                <p class="eyebrow">LESSON PLAN</p>
+
+                <h2 id="lessonPlanFormTitle">
+                  New Lesson Plan
+                </h2>
+              </div>
+
+            </div>
+
+
+            <form id="lessonPlanForm">
+
+              <input
+                id="lessonPlanId"
+                type="hidden"
+              >
+
+
+              <div class="form-grid">
+
+                <div class="form-group">
+
+                  <label for="lessonPlanGrade">
+                    Grade
+                  </label>
+
+                  <select
+                    id="lessonPlanGrade"
+                    class="form-control"
+                  >
+                    <option>PP1</option>
+                    <option>PP2</option>
+                    <option>Grade 1</option>
+                    <option>Grade 2</option>
+                    <option>Grade 3</option>
+                    <option>Grade 4</option>
+                    <option>Grade 5</option>
+                    <option>Grade 6</option>
+                    <option>Grade 7</option>
+                    <option>Grade 8</option>
+                    <option>Grade 9</option>
+                    <option>Grade 10</option>
+                    <option>Grade 11</option>
+                    <option>Grade 12</option>
+                  </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="lessonPlanTerm">
+                    Term
+                  </label>
+
+                  <select
+                    id="lessonPlanTerm"
+                    class="form-control"
+                  >
+                    <option>Term 1</option>
+                    <option>Term 2</option>
+                    <option>Term 3</option>
+                  </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="lessonPlanSubject">
+                    Subject
+                  </label>
+
+                  <input
+                    id="lessonPlanSubject"
+                    class="form-control"
+                    type="text"
+                    maxlength="100"
+                    required
+                  >
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="lessonPlanDate">
+                    Lesson date
+                  </label>
+
+                  <input
+                    id="lessonPlanDate"
+                    class="form-control"
+                    type="date"
+                  >
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="lessonPlanDuration">
+                    Duration
+                  </label>
+
+                  <input
+                    id="lessonPlanDuration"
+                    class="form-control"
+                    type="text"
+                    maxlength="50"
+                    placeholder="e.g. 40 minutes"
+                  >
+
+                </div>
+
+
+                <div class="form-group form-group-full">
+
+                  <label for="lessonPlanTopic">
+                    Topic
+                  </label>
+
+                  <input
+                    id="lessonPlanTopic"
+                    class="form-control"
+                    type="text"
+                    maxlength="150"
+                    required
+                  >
+
+                </div>
+
+
+                <div class="form-group form-group-full">
+
+                  <label for="lessonPlanObjectives">
+                    Objectives
+                  </label>
+
+                  <textarea
+                    id="lessonPlanObjectives"
+                    class="form-control"
+                    rows="4"
+                    maxlength="1500"
+                  ></textarea>
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="lessonPlanIntroduction">
+                    Introduction
+                  </label>
+
+                  <textarea
+                    id="lessonPlanIntroduction"
+                    class="form-control"
+                    rows="4"
+                    maxlength="1200"
+                  ></textarea>
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="lessonPlanActivities">
+                    Activities
+                  </label>
+
+                  <textarea
+                    id="lessonPlanActivities"
+                    class="form-control"
+                    rows="4"
+                    maxlength="1800"
+                  ></textarea>
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="lessonPlanResources">
+                    Resources
+                  </label>
+
+                  <textarea
+                    id="lessonPlanResources"
+                    class="form-control"
+                    rows="4"
+                    maxlength="1000"
+                  ></textarea>
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="lessonPlanAssessment">
+                    Assessment
+                  </label>
+
+                  <textarea
+                    id="lessonPlanAssessment"
+                    class="form-control"
+                    rows="4"
+                    maxlength="1000"
+                  ></textarea>
+
+                </div>
+
+
+                <div class="form-group form-group-full">
+
+                  <label for="lessonPlanReflection">
+                    Reflection
+                  </label>
+
+                  <textarea
+                    id="lessonPlanReflection"
+                    class="form-control"
+                    rows="4"
+                    maxlength="1000"
+                  ></textarea>
+
+                </div>
+
+              </div>
+
+
+              <div class="form-actions">
+
+                <button
+                  id="cancelLessonPlanButton"
+                  class="btn btn-secondary"
+                  type="button"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  class="btn btn-primary"
+                  type="submit"
+                >
+                  Save Lesson Plan
+                </button>
+
+              </div>
+
+            </form>
+
+          </section>
+
+
+          <section class="section-block">
+
+            <div
+              id="lessonPlansEmptyState"
+              class="empty-page"
+              hidden
+            >
+
+              <span class="empty-icon" aria-hidden="true">▥</span>
+
+              <h2>No lesson plans yet</h2>
+
+              <p>
+                Create your first lesson plan.
+              </p>
+
+            </div>
+
+
+            <div
+              id="lessonPlansList"
+              class="list-grid"
+            ></div>
+
+          </section>
+
+        </div>
+
+      </section>
+
+
+      <!-- ===================================================
+           RUBRICS
+           =================================================== -->
+
+      <section
+        id="rubricsPage"
+        class="page-section"
+        data-page-section="rubrics"
+        hidden
+      >
+
+        <div class="page-content">
+
+          <div class="section-heading">
+
+            <div>
+              <p class="eyebrow">ASSESSMENT</p>
+
+              <h2>Assessment Rubrics</h2>
+
+              <p>
+                Create reusable CBC assessment criteria.
+              </p>
+            </div>
+
+            <button
+              id="addRubricBtn"
+              class="btn btn-primary"
+              type="button"
+            >
+              + New Rubric
+            </button>
+
+          </div>
+
+
+          <div class="module-toolbar">
+
+            <div class="form-group">
+
+              <label for="rubricSearch">
+                Search rubrics
+              </label>
+
+              <input
+                id="rubricSearch"
+                class="form-control"
+                type="search"
+                placeholder="Search title, subject or competency"
+                autocomplete="off"
+              >
+
+            </div>
+
+            <div class="module-toolbar-count">
+
+              <span>Records</span>
+
+              <strong id="rubricCount">
+                0
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <section
+            id="rubricFormCard"
+            class="settings-card module-workspace"
+            hidden
+          >
+
+            <div class="settings-card-header">
+
+              <div>
+                <p class="eyebrow">RUBRIC</p>
+
+                <h2 id="rubricFormTitle">
+                  New Rubric
+                </h2>
+              </div>
+
+            </div>
+
+
+            <form id="rubricForm">
+
+              <input
+                id="rubricId"
+                type="hidden"
+              >
+
+
+              <div class="form-grid">
+
+                <div class="form-group">
+
+                  <label for="rubricGrade">
+                    Grade
+                  </label>
+
+                  <select
+                    id="rubricGrade"
+                    class="form-control"
+                  >
+                    <option>PP1</option>
+                    <option>PP2</option>
+                    <option>Grade 1</option>
+                    <option>Grade 2</option>
+                    <option>Grade 3</option>
+                    <option>Grade 4</option>
+                    <option>Grade 5</option>
+                    <option>Grade 6</option>
+                    <option>Grade 7</option>
+                    <option>Grade 8</option>
+                    <option>Grade 9</option>
+                    <option>Grade 10</option>
+                    <option>Grade 11</option>
+                    <option>Grade 12</option>
+                  </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="rubricTerm">
+                    Term
+                  </label>
+
+                  <select
+                    id="rubricTerm"
+                    class="form-control"
+                  >
+                    <option>Term 1</option>
+                    <option>Term 2</option>
+                    <option>Term 3</option>
+                  </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="rubricSubject">
+                    Subject
+                  </label>
+
+                  <input
+                    id="rubricSubject"
+                    class="form-control"
+                    type="text"
+                    maxlength="100"
+                    required
+                  >
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="rubricTitle">
+                    Rubric title
+                  </label>
+
+                  <input
+                    id="rubricTitle"
+                    class="form-control"
+                    type="text"
+                    maxlength="150"
+                    required
+                  >
+
+                </div>
+
+
+                <div class="form-group form-group-full">
+
+                  <label for="rubricCompetency">
+                    Competency
+                  </label>
+
+                  <input
+                    id="rubricCompetency"
+                    class="form-control"
+                    type="text"
+                    maxlength="200"
+                  >
+
+                </div>
+
+
+                <div class="form-group form-group-full">
+
+                  <label for="rubricCriteria">
+                    Criteria
+                  </label>
+
+                  <textarea
+                    id="rubricCriteria"
+                    class="form-control"
+                    rows="4"
+                    maxlength="1500"
+                  ></textarea>
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="rubricBeginning">
+                    Beginning
+                  </label>
+
+                  <textarea
+                    id="rubricBeginning"
+                    class="form-control"
+                    rows="5"
+                    maxlength="1000"
+                  ></textarea>
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="rubricDeveloping">
+                    Developing
+                  </label>
+
+                  <textarea
+                    id="rubricDeveloping"
+                    class="form-control"
+                    rows="5"
+                    maxlength="1000"
+                  ></textarea>
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="rubricMeeting">
+                    Meeting
+                  </label>
+
+                  <textarea
+                    id="rubricMeeting"
+                    class="form-control"
+                    rows="5"
+                    maxlength="1000"
+                  ></textarea>
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="rubricExceeding">
+                    Exceeding
+                  </label>
+
+                  <textarea
+                    id="rubricExceeding"
+                    class="form-control"
+                    rows="5"
+                    maxlength="1000"
+                  ></textarea>
+
+                </div>
+
+              </div>
+
+
+              <div class="form-actions">
+
+                <button
+                  id="cancelRubricButton"
+                  class="btn btn-secondary"
+                  type="button"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  class="btn btn-primary"
+                  type="submit"
+                >
+                  Save Rubric
+                </button>
+
+              </div>
+
+            </form>
+
+          </section>
+
+
+          <section class="section-block">
+
+            <div
+              id="rubricsEmptyState"
+              class="empty-page"
+              hidden
+            >
+
+              <span class="empty-icon" aria-hidden="true">✓</span>
+
+              <h2>No rubrics yet</h2>
+
+              <p>
+                Create your first assessment rubric.
+              </p>
+
+            </div>
+
+
+            <div
+              id="rubricsList"
+              class="list-grid"
+            ></div>
+
+          </section>
+
+        </div>
+
+      </section>
+
+
+      <!-- ===================================================
+           STUDENTS
+           =================================================== -->
+
+      <section
+        id="studentsPage"
+        class="page-section"
+        data-page-section="students"
+        hidden
+      >
+
+        <div class="page-content">
+
+          <div class="section-heading">
+
+            <div>
 
               <p class="eyebrow">
-                TEACHER WORKSPACE
+                LEARNER MANAGEMENT
               </p>
 
-              <h2 id="welcomeTitle">
-                Good evening, Teacher
-              </h2>
-
-              <p id="welcomeText">
-                Your Grade 5 • Term 1 teaching workspace.
-              </p>
-
-              <div class="welcome-badges">
-
-                <span>
-                  Offline-first
-                </span>
-
-                <span>
-                  Local data
-                </span>
-
-                <span>
-                  PP1–Grade 12
-                </span>
-
-              </div>
-
-            </section>
-
-
-            <!-- =================================================
-                 TEACHING TOOLS
-                 ================================================= -->
-
-            <section class="section-block">
-
-              <div class="section-heading">
-
-                <h2>
-                  Teaching Tools
-                </h2>
-
-              </div>
-
-
-              <div class="module-grid">
-
-
-                <!-- Report Books -->
-
-                <button
-                  type="button"
-                  class="module-card"
-                  data-module="report-books"
-                >
-
-                  <span
-                    class="module-icon"
-                    aria-hidden="true"
-                  >
-                    ▣
-                  </span>
-
-                  <span class="module-content">
-
-                    <strong>
-                      Report Books
-                    </strong>
-
-                    <small>
-                      Learner assessment records
-                    </small>
-
-                  </span>
-
-                  <span
-                    class="module-arrow"
-                    aria-hidden="true"
-                  >
-                    →
-                  </span>
-
-                </button>
-
-
-                <!-- Schemes -->
-
-                <button
-                  type="button"
-                  class="module-card"
-                  data-module="schemes"
-                >
-
-                  <span
-                    class="module-icon"
-                    aria-hidden="true"
-                  >
-                    ▤
-                  </span>
-
-                  <span class="module-content">
-
-                    <strong>
-                      Schemes of Work
-                    </strong>
-
-                    <small>
-                      Plan CBC teaching activities
-                    </small>
-
-                  </span>
-
-                  <span
-                    class="module-arrow"
-                    aria-hidden="true"
-                  >
-                    →
-                  </span>
-
-                </button>
-
-
-                <!-- Lesson Plans -->
-
-                <button
-                  type="button"
-                  class="module-card"
-                  data-module="lesson-plans"
-                >
-
-                  <span
-                    class="module-icon"
-                    aria-hidden="true"
-                  >
-                    ▥
-                  </span>
-
-                  <span class="module-content">
-
-                    <strong>
-                      Lesson Plans
-                    </strong>
-
-                    <small>
-                      Prepare daily lessons
-                    </small>
-
-                  </span>
-
-                  <span
-                    class="module-arrow"
-                    aria-hidden="true"
-                  >
-                    →
-                  </span>
-
-                </button>
-
-
-                <!-- Rubrics -->
-
-                <button
-                  type="button"
-                  class="module-card"
-                  data-module="rubrics"
-                >
-
-                  <span
-                    class="module-icon"
-                    aria-hidden="true"
-                  >
-                    ✓
-                  </span>
-
-                  <span class="module-content">
-
-                    <strong>
-                      Assessment Rubrics
-                    </strong>
-
-                    <small>
-                      Reusable assessment criteria
-                    </small>
-
-                  </span>
-
-                  <span
-                    class="module-arrow"
-                    aria-hidden="true"
-                  >
-                    →
-                  </span>
-
-                </button>
-
-              </div>
-
-            </section>
-
-
-            <!-- =================================================
-                 WORKSPACE STATISTICS
-                 ================================================= -->
-
-            <section class="section-block">
-
-              <div class="section-heading">
-
-                <h2>
-                  Workspace
-                </h2>
-
-              </div>
-
-
-              <div class="stats-grid">
-
-
-                <article class="stat-card">
-
-                  <span class="stat-label">
-                    Students
-                  </span>
-
-                  <strong
-                    class="stat-value"
-                    data-stat="students"
-                  >
-                    0
-                  </strong>
-
-                  <small>
-                    Learner records
-                  </small>
-
-                </article>
-
-
-                <article class="stat-card">
-
-                  <span class="stat-label">
-                    Report Books
-                  </span>
-
-                  <strong
-                    class="stat-value"
-                    data-stat="report-books"
-                  >
-                    0
-                  </strong>
-
-                  <small>
-                    Assessment records
-                  </small>
-
-                </article>
-
-
-                <article class="stat-card">
-
-                  <span class="stat-label">
-                    Schemes
-                  </span>
-
-                  <strong
-                    class="stat-value"
-                    data-stat="schemes"
-                  >
-                    0
-                  </strong>
-
-                  <small>
-                    Teaching schemes
-                  </small>
-
-                </article>
-
-
-                <article class="stat-card">
-
-                  <span class="stat-label">
-                    Documents
-                  </span>
-
-                  <strong
-                    class="stat-value"
-                    data-stat="documents"
-                  >
-                    0
-                  </strong>
-
-                  <small>
-                    Saved documents
-                  </small>
-
-                </article>
-
-              </div>
-
-            </section>
-
-
-            <!-- =================================================
-                 QUICK ACTIONS
-                 ================================================= -->
-
-            <section class="section-block">
-
-              <div class="section-heading">
-
-                <h2>
-                  Quick Actions
-                </h2>
-
-              </div>
-
-
-              <div class="quick-actions">
-
-
-                <button
-                  type="button"
-                  class="quick-action"
-                  data-action="add-student"
-                >
-
-                  <span aria-hidden="true">
-                    ♙
-                  </span>
-
-                  <strong>
-                    Add Learner
-                  </strong>
-
-                  <small>
-                    Create a learner record
-                  </small>
-
-                </button>
-
-
-                <button
-                  type="button"
-                  class="quick-action"
-                  data-action="create-report-book"
-                >
-
-                  <span aria-hidden="true">
-                    ▣
-                  </span>
-
-                  <strong>
-                    Report Book
-                  </strong>
-
-                  <small>
-                    Start an assessment record
-                  </small>
-
-                </button>
-
-
-                <button
-                  type="button"
-                  class="quick-action"
-                  data-action="create-scheme"
-                >
-
-                  <span aria-hidden="true">
-                    ▤
-                  </span>
-
-                  <strong>
-                    Create Scheme
-                  </strong>
-
-                  <small>
-                    Plan your teaching work
-                  </small>
-
-                </button>
-
-
-                <button
-                  type="button"
-                  class="quick-action"
-                  data-action="create-lesson-plan"
-                >
-
-                  <span aria-hidden="true">
-                    ▥
-                  </span>
-
-                  <strong>
-                    Lesson Plan
-                  </strong>
-
-                  <small>
-                    Prepare a daily lesson
-                  </small>
-
-                </button>
-
-              </div>
-
-            </section>
-
-          </div>
-
-        </section>
-
-
-        <!-- ===================================================
-             REPORT BOOKS
-             =================================================== -->
-
-        <section
-          id="reportBooksPage"
-          class="page-section"
-          data-page-section="report-books"
-          hidden
-        >
-
-          <div class="page-content">
-
-            <div class="empty-page">
-
-              <span
-                class="empty-icon"
-                aria-hidden="true"
-              >
-                ▣
-              </span>
-
-              <h2>
-                Report Books
-              </h2>
+              <h2>Students</h2>
 
               <p>
-                Learner assessment records will be managed here.
+                Manage your local learner records.
               </p>
 
             </div>
 
-          </div>
-
-        </section>
-
-
-        <!-- ===================================================
-             SCHEMES
-             =================================================== -->
-
-        <section
-          id="schemesPage"
-          class="page-section"
-          data-page-section="schemes"
-          hidden
-        >
-
-          <div class="page-content">
-
-            <div class="empty-page">
-
-              <span
-                class="empty-icon"
-                aria-hidden="true"
-              >
-                ▤
-              </span>
-
-              <h2>
-                Schemes of Work
-              </h2>
-
-              <p>
-                CBC teaching schemes will be created and managed here.
-              </p>
-
-            </div>
-
-          </div>
-
-        </section>
-
-
-        <!-- ===================================================
-             LESSON PLANS
-             =================================================== -->
-
-        <section
-          id="lessonPlansPage"
-          class="page-section"
-          data-page-section="lesson-plans"
-          hidden
-        >
-
-          <div class="page-content">
-
-            <div class="empty-page">
-
-              <span
-                class="empty-icon"
-                aria-hidden="true"
-              >
-                ▥
-              </span>
-
-              <h2>
-                Lesson Plans
-              </h2>
-
-              <p>
-                Daily CBC lesson planning will be managed here.
-              </p>
-
-            </div>
-
-          </div>
-
-        </section>
-
-
-        <!-- ===================================================
-             RUBRICS
-             =================================================== -->
-
-        <section
-          id="rubricsPage"
-          class="page-section"
-          data-page-section="rubrics"
-          hidden
-        >
-
-          <div class="page-content">
-
-            <div class="empty-page">
-
-              <span
-                class="empty-icon"
-                aria-hidden="true"
-              >
-                ✓
-              </span>
-
-              <h2>
-                Assessment Rubrics
-              </h2>
-
-              <p>
-                Create and manage reusable assessment criteria.
-              </p>
-
-            </div>
-
-          </div>
-
-        </section>
-
-
-        <!-- ===================================================
-             STUDENTS
-             =================================================== -->
-
-        <section
-          id="studentsPage"
-          class="page-section"
-          data-page-section="students"
-          hidden
-        >
-
-          <div class="page-content">
-
-            <div id="studentsList"></div>
 
             <button
               id="addStudentBtn"
@@ -1092,435 +1857,1572 @@
 
           </div>
 
-        </section>
 
+          <div class="module-toolbar">
 
-        <!-- ===================================================
-             SAVED DOCUMENTS
-             =================================================== -->
+            <div class="form-group">
 
-        <section
-          id="documentsPage"
-          class="page-section"
-          data-page-section="documents"
-          hidden
-        >
+              <label for="studentSearch">
+                Search learners
+              </label>
 
-          <div class="page-content">
-
-            <div class="empty-page">
-
-              <span
-                class="empty-icon"
-                aria-hidden="true"
+              <input
+                id="studentSearch"
+                class="form-control"
+                type="search"
+                placeholder="Search by name or admission number"
+                autocomplete="off"
+                spellcheck="false"
               >
-                □
-              </span>
 
-              <h2>
-                Saved Documents
-              </h2>
+            </div>
 
-              <p>
-                Your saved teaching documents will appear here.
-              </p>
+
+            <div class="module-toolbar-count">
+
+              <span>Learners</span>
+
+              <strong id="studentCount">
+                0
+              </strong>
 
             </div>
 
           </div>
 
-        </section>
 
+          <section
+            id="studentFormCard"
+            class="settings-card module-workspace"
+            hidden
+          >
 
-        <!-- ===================================================
-             ANALYTICS
-             =================================================== -->
-
-        <section
-          id="analyticsPage"
-          class="page-section"
-          data-page-section="analytics"
-          hidden
-        >
-
-          <div class="page-content">
-
-            <div class="empty-page">
-
-              <span
-                class="empty-icon"
-                aria-hidden="true"
-              >
-                ◒
-              </span>
-
-              <h2>
-                Analytics
-              </h2>
-
-              <p>
-                Your local teaching workspace insights will appear here.
-              </p>
-
-            </div>
-
-          </div>
-
-        </section>
-
-
-        <!-- ===================================================
-             PROFILE
-             =================================================== -->
-
-        <section
-          id="profilePage"
-          class="page-section"
-          data-page-section="profile"
-          hidden
-        >
-
-          <div class="page-content">
-
-            <div class="empty-page">
-
-              <span
-                class="empty-icon"
-                aria-hidden="true"
-              >
-                ○
-              </span>
-
-              <h2>
-                Teacher Profile
-              </h2>
-
-              <p>
-                Manage your local teacher information here.
-              </p>
-
-            </div>
-
-          </div>
-
-        </section>
-
-
-        <!-- ===================================================
-             SETTINGS
-             =================================================== -->
-
-        <section
-          id="settingsPage"
-          class="page-section"
-          data-page-section="settings"
-          hidden
-        >
-
-          <div class="page-content">
-
-
-            <!-- =================================================
-                 PRIVACY & SECURITY
-                 ================================================= -->
-
-            <section class="settings-card">
-
-              <div class="settings-card-header">
-
-                <h2>
-                  Privacy &amp; Security
-                </h2>
-
-              </div>
-
-              <p>
-                CBC MASTER is designed to keep your teaching
-                workspace on this device.
-              </p>
-
-              <p>
-                No advertising trackers, hidden analytics,
-                or third-party tracking services are used
-                by the app.
-              </p>
-
-            </section>
-
-
-            <!-- =================================================
-                 TEACHING PREFERENCES
-                 ================================================= -->
-
-            <section class="settings-card">
-
-              <div class="settings-card-header">
-
-                <h2>
-                  Teaching Preferences
-                </h2>
-
-              </div>
-
+            <div class="settings-card-header">
 
               <div>
 
-                <label for="settingsGrade">
+                <p class="eyebrow">
+                  LEARNER RECORD
+                </p>
+
+                <h2 id="studentFormTitle">
+                  Add Learner
+                </h2>
+
+              </div>
+
+            </div>
+
+
+            <form id="studentForm">
+
+              <input
+                id="studentId"
+                type="hidden"
+              >
+
+
+              <div class="form-grid">
+
+                <div class="form-group">
+
+                  <label for="studentName">
+                    Learner name
+                  </label>
+
+                  <input
+                    id="studentName"
+                    class="form-control"
+                    type="text"
+                    maxlength="120"
+                    autocomplete="off"
+                    required
+                  >
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="studentAdmNo">
+                    Admission number
+                  </label>
+
+                  <input
+                    id="studentAdmNo"
+                    class="form-control"
+                    type="text"
+                    maxlength="40"
+                    autocomplete="off"
+                  >
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="studentGender">
+                    Gender
+                  </label>
+
+                  <select
+                    id="studentGender"
+                    class="form-control"
+                  >
+
+                    <option value="">
+                      Select
+                    </option>
+
+                    <option value="Female">
+                      Female
+                    </option>
+
+                    <option value="Male">
+                      Male
+                    </option>
+
+                    <option value="Other">
+                      Other
+                    </option>
+
+                    <option value="Prefer not to say">
+                      Prefer not to say
+                    </option>
+
+                  </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="studentGrade">
+                    Grade
+                  </label>
+
+                  <select
+                    id="studentGrade"
+                    class="form-control"
+                  >
+
+                    <option>PP1</option>
+                    <option>PP2</option>
+                    <option>Grade 1</option>
+                    <option>Grade 2</option>
+                    <option>Grade 3</option>
+                    <option>Grade 4</option>
+                    <option>Grade 5</option>
+                    <option>Grade 6</option>
+                    <option>Grade 7</option>
+                    <option>Grade 8</option>
+                    <option>Grade 9</option>
+                    <option>Grade 10</option>
+                    <option>Grade 11</option>
+                    <option>Grade 12</option>
+
+                  </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="studentStream">
+                    Stream
+                  </label>
+
+                  <input
+                    id="studentStream"
+                    class="form-control"
+                    type="text"
+                    maxlength="60"
+                    placeholder="e.g. East"
+                    autocomplete="off"
+                  >
+
+                </div>
+
+
+                <div class="form-group form-group-full">
+
+                  <label for="studentNotes">
+                    Notes
+                  </label>
+
+                  <textarea
+                    id="studentNotes"
+                    class="form-control"
+                    rows="4"
+                    maxlength="500"
+                    placeholder="Optional teaching notes"
+                  ></textarea>
+
+                </div>
+
+              </div>
+
+
+              <div class="form-actions">
+
+                <button
+                  id="cancelStudentButton"
+                  class="btn btn-secondary"
+                  type="button"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  class="btn btn-primary"
+                  type="submit"
+                >
+                  Save Learner
+                </button>
+
+              </div>
+
+            </form>
+
+          </section>
+
+
+          <section class="section-block">
+
+            <div
+              id="studentsEmptyState"
+              class="empty-page"
+              hidden
+            >
+
+              <span
+                class="empty-icon"
+                aria-hidden="true"
+              >
+                ♙
+              </span>
+
+              <h2>No learners yet</h2>
+
+              <p>
+                Add your first learner to begin building
+                your local CBC workspace.
+              </p>
+
+            </div>
+
+
+            <div
+              id="studentsList"
+              class="list-grid"
+            ></div>
+
+          </section>
+
+        </div>
+
+      </section>
+
+
+      <!-- ===================================================
+           DOCUMENTS
+           =================================================== -->
+
+      <section
+        id="documentsPage"
+        class="page-section"
+        data-page-section="documents"
+        hidden
+      >
+
+        <div class="page-content">
+
+          <div class="section-heading">
+
+            <div>
+
+              <p class="eyebrow">LOCAL DOCUMENTS</p>
+
+              <h2>Saved Documents</h2>
+
+              <p>
+                Keep reusable teaching documents on this device.
+              </p>
+
+            </div>
+
+
+            <button
+              id="addDocumentBtn"
+              class="btn btn-primary"
+              type="button"
+            >
+              + New Document
+            </button>
+
+          </div>
+
+
+          <div class="module-toolbar">
+
+            <div class="form-group">
+
+              <label for="documentSearch">
+                Search documents
+              </label>
+
+              <input
+                id="documentSearch"
+                class="form-control"
+                type="search"
+                placeholder="Search saved documents"
+                autocomplete="off"
+              >
+
+            </div>
+
+
+            <div class="module-toolbar-count">
+
+              <span>Documents</span>
+
+              <strong id="documentCount">
+                0
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <section
+            id="documentFormCard"
+            class="settings-card module-workspace"
+            hidden
+          >
+
+            <div class="settings-card-header">
+
+              <div>
+
+                <p class="eyebrow">
+                  SAVED DOCUMENT
+                </p>
+
+                <h2 id="documentFormTitle">
+                  New Document
+                </h2>
+
+              </div>
+
+            </div>
+
+
+            <form id="documentForm">
+
+              <input
+                id="documentId"
+                type="hidden"
+              >
+
+
+              <div class="form-grid">
+
+                <div class="form-group form-group-full">
+
+                  <label for="documentTitle">
+                    Document title
+                  </label>
+
+                  <input
+                    id="documentTitle"
+                    class="form-control"
+                    type="text"
+                    maxlength="180"
+                    required
+                  >
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="documentType">
+                    Document type
+                  </label>
+
+                  <select
+                    id="documentType"
+                    class="form-control"
+                  >
+
+                    <option value="Lesson Plan">
+                      Lesson Plan
+                    </option>
+
+                    <option value="Scheme of Work">
+                      Scheme of Work
+                    </option>
+
+                    <option value="Report Book">
+                      Report Book
+                    </option>
+
+                    <option value="Rubric">
+                      Rubric
+                    </option>
+
+                    <option value="Notes">
+                      Notes
+                    </option>
+
+                    <option value="Other">
+                      Other
+                    </option>
+
+                  </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="documentSubject">
+                    Subject
+                  </label>
+
+                  <input
+                    id="documentSubject"
+                    class="form-control"
+                    type="text"
+                    maxlength="100"
+                  >
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="documentGrade">
+                    Grade
+                  </label>
+
+                  <select
+                    id="documentGrade"
+                    class="form-control"
+                  >
+
+                    <option>PP1</option>
+                    <option>PP2</option>
+                    <option>Grade 1</option>
+                    <option>Grade 2</option>
+                    <option>Grade 3</option>
+                    <option>Grade 4</option>
+                    <option>Grade 5</option>
+                    <option>Grade 6</option>
+                    <option>Grade 7</option>
+                    <option>Grade 8</option>
+                    <option>Grade 9</option>
+                    <option>Grade 10</option>
+                    <option>Grade 11</option>
+                    <option>Grade 12</option>
+
+                  </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="documentTerm">
+                    Term
+                  </label>
+
+                  <select
+                    id="documentTerm"
+                    class="form-control"
+                  >
+
+                    <option>Term 1</option>
+                    <option>Term 2</option>
+                    <option>Term 3</option>
+
+                  </select>
+
+                </div>
+
+
+                <div class="form-group form-group-full">
+
+                  <label for="documentContent">
+                    Document content
+                  </label>
+
+                  <textarea
+                    id="documentContent"
+                    class="form-control"
+                    rows="12"
+                    maxlength="20000"
+                    required
+                  ></textarea>
+
+                </div>
+
+              </div>
+
+
+              <div class="form-actions">
+
+                <button
+                  id="cancelDocumentButton"
+                  class="btn btn-secondary"
+                  type="button"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  class="btn btn-primary"
+                  type="submit"
+                >
+                  Save Document
+                </button>
+
+              </div>
+
+            </form>
+
+          </section>
+
+
+          <section class="section-block">
+
+            <div
+              id="documentsEmptyState"
+              class="empty-page"
+              hidden
+            >
+
+              <span class="empty-icon" aria-hidden="true">□</span>
+
+              <h2>No saved documents yet</h2>
+
+              <p>
+                Save reusable teaching content locally.
+              </p>
+
+            </div>
+
+
+            <div
+              id="documentsList"
+              class="list-grid"
+            ></div>
+
+          </section>
+
+
+          <!-- Document viewer -->
+
+          <section
+            id="documentViewer"
+            class="settings-card module-workspace"
+            hidden
+          >
+
+            <div class="settings-card-header">
+
+              <h2 id="documentViewerTitle">
+                Document
+              </h2>
+
+              <button
+                id="closeDocumentViewerButton"
+                class="btn btn-secondary"
+                type="button"
+              >
+                Close
+              </button>
+
+            </div>
+
+
+            <div
+              id="documentViewerContent"
+              class="module-record-preview"
+            ></div>
+
+          </section>
+
+        </div>
+
+      </section>
+
+
+      <!-- ===================================================
+           ANALYTICS
+           =================================================== -->
+
+      <section
+        id="analyticsPage"
+        class="page-section"
+        data-page-section="analytics"
+        hidden
+      >
+
+        <div class="page-content">
+
+          <div class="section-heading">
+
+            <div>
+
+              <p class="eyebrow">
+                LOCAL WORKSPACE INSIGHTS
+              </p>
+
+              <h2>Analytics</h2>
+
+              <p>
+                These metrics are calculated from your local
+                CBC MASTER workspace.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <div class="stats-grid">
+
+            <article class="stat-card">
+
+              <span class="stat-label">
+                Students
+              </span>
+
+              <strong
+                class="stat-value"
+                id="analyticsStudents"
+              >
+                0
+              </strong>
+
+            </article>
+
+
+            <article class="stat-card">
+
+              <span class="stat-label">
+                Total Records
+              </span>
+
+              <strong
+                class="stat-value"
+                id="analyticsTotalRecords"
+              >
+                0
+              </strong>
+
+            </article>
+
+
+            <article class="stat-card">
+
+              <span class="stat-label">
+                Teaching Plans
+              </span>
+
+              <strong
+                class="stat-value"
+                id="analyticsTotalTeachingPlans"
+              >
+                0
+              </strong>
+
+            </article>
+
+
+            <article class="stat-card">
+
+              <span class="stat-label">
+                Assessment Items
+              </span>
+
+              <strong
+                class="stat-value"
+                id="analyticsTotalAssessmentItems"
+              >
+                0
+              </strong>
+
+            </article>
+
+          </div>
+
+
+          <section class="section-block">
+
+            <div class="settings-card">
+
+              <div class="settings-card-header">
+
+                <h2>Workspace Activity</h2>
+
+              </div>
+
+
+              <div class="analytics-progress-list">
+
+                <div class="analytics-progress-item">
+
+                  <div class="analytics-progress-header">
+
+                    <span>Schemes</span>
+
+                    <strong id="analyticsSchemesValue">
+                      0
+                    </strong>
+
+                  </div>
+
+                  <div class="analytics-progress">
+
+                    <span id="analyticsSchemesBar"></span>
+
+                  </div>
+
+                </div>
+
+
+                <div class="analytics-progress-item">
+
+                  <div class="analytics-progress-header">
+
+                    <span>Lesson Plans</span>
+
+                    <strong id="analyticsLessonPlansValue">
+                      0
+                    </strong>
+
+                  </div>
+
+                  <div class="analytics-progress">
+
+                    <span id="analyticsLessonPlansBar"></span>
+
+                  </div>
+
+                </div>
+
+
+                <div class="analytics-progress-item">
+
+                  <div class="analytics-progress-header">
+
+                    <span>Rubrics</span>
+
+                    <strong id="analyticsRubricsValue">
+                      0
+                    </strong>
+
+                  </div>
+
+                  <div class="analytics-progress">
+
+                    <span id="analyticsRubricsBar"></span>
+
+                  </div>
+
+                </div>
+
+
+                <div class="analytics-progress-item">
+
+                  <div class="analytics-progress-header">
+
+                    <span>Documents</span>
+
+                    <strong id="analyticsDocumentsValue">
+                      0
+                    </strong>
+
+                  </div>
+
+                  <div class="analytics-progress">
+
+                    <span id="analyticsDocumentsBar"></span>
+
+                  </div>
+
+                </div>
+
+
+                <div class="analytics-progress-item">
+
+                  <div class="analytics-progress-header">
+
+                    <span>Report Books</span>
+
+                    <strong id="analyticsReportBooksValue">
+                      0
+                    </strong>
+
+                  </div>
+
+                  <div class="analytics-progress">
+
+                    <span id="analyticsReportBooksBar"></span>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </section>
+
+
+          <section class="section-block">
+
+            <div class="settings-card">
+
+              <div class="settings-card-header">
+
+                <h2>Record Distribution</h2>
+
+              </div>
+
+              <div id="analyticsDistribution"></div>
+
+            </div>
+
+          </section>
+
+
+          <section class="section-block">
+
+            <div class="settings-card">
+
+              <div class="settings-card-header">
+
+                <h2>Recent Activity</h2>
+
+              </div>
+
+              <div id="analyticsActivityList"></div>
+
+            </div>
+
+          </section>
+
+        </div>
+
+      </section>
+
+
+      <!-- ===================================================
+           PROFILE
+           =================================================== -->
+
+      <section
+        id="profilePage"
+        class="page-section"
+        data-page-section="profile"
+        hidden
+      >
+
+        <div class="page-content">
+
+          <div class="section-heading">
+
+            <div>
+
+              <p class="eyebrow">
+                TEACHER PROFILE
+              </p>
+
+              <h2>Profile</h2>
+
+              <p>
+                Manage teacher information stored locally.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <section class="settings-card">
+
+            <div class="profile-summary">
+
+              <div
+                class="avatar profile-avatar"
+                id="profileAvatar"
+                aria-hidden="true"
+              >
+                T
+              </div>
+
+              <div>
+
+                <h2 id="profileDisplayName">
+                  Teacher
+                </h2>
+
+                <p id="profileDisplaySchool">
+                  School not set
+                </p>
+
+                <p id="profileDisplayCounty">
+                  County not set
+                </p>
+
+              </div>
+
+            </div>
+
+          </section>
+
+
+          <section class="settings-card">
+
+            <div class="settings-card-header">
+
+              <h2>Teacher Information</h2>
+
+            </div>
+
+
+            <form id="profileForm">
+
+              <div class="form-grid">
+
+                <div class="form-group">
+
+                  <label for="profileTeacherName">
+                    Teacher name
+                  </label>
+
+                  <input
+                    id="profileTeacherName"
+                    class="form-control"
+                    type="text"
+                    maxlength="120"
+                    required
+                  >
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="profileSchool">
+                    School
+                  </label>
+
+                  <input
+                    id="profileSchool"
+                    class="form-control"
+                    type="text"
+                    maxlength="160"
+                  >
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="profileCounty">
+                    County
+                  </label>
+
+                  <input
+                    id="profileCounty"
+                    class="form-control"
+                    type="text"
+                    maxlength="80"
+                  >
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="profileRole">
+                    Role
+                  </label>
+
+                  <input
+                    id="profileRole"
+                    class="form-control"
+                    type="text"
+                    maxlength="100"
+                  >
+
+                </div>
+
+              </div>
+
+
+              <div class="form-actions">
+
+                <button
+                  class="btn btn-primary"
+                  type="submit"
+                >
+                  Save Profile
+                </button>
+
+              </div>
+
+            </form>
+
+          </section>
+
+
+          <section class="settings-card">
+
+            <div class="settings-card-header">
+
+              <h2>Teaching Preferences</h2>
+
+            </div>
+
+
+            <form id="profilePreferencesForm">
+
+              <div class="form-grid">
+
+                <div class="form-group">
+
+                  <label for="profileGrade">
+                    Grade
+                  </label>
+
+                  <select
+                    id="profileGrade"
+                    class="form-control"
+                  >
+
+                    <option>PP1</option>
+                    <option>PP2</option>
+                    <option>Grade 1</option>
+                    <option>Grade 2</option>
+                    <option>Grade 3</option>
+                    <option>Grade 4</option>
+                    <option>Grade 5</option>
+                    <option>Grade 6</option>
+                    <option>Grade 7</option>
+                    <option>Grade 8</option>
+                    <option>Grade 9</option>
+                    <option>Grade 10</option>
+                    <option>Grade 11</option>
+                    <option>Grade 12</option>
+
+                  </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="profileTerm">
+                    Term
+                  </label>
+
+                  <select
+                    id="profileTerm"
+                    class="form-control"
+                  >
+
+                    <option>Term 1</option>
+                    <option>Term 2</option>
+                    <option>Term 3</option>
+
+                  </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="profileAcademicYear">
+                    Academic year
+                  </label>
+
+                  <input
+                    id="profileAcademicYear"
+                    class="form-control"
+                    type="number"
+                    min="2020"
+                    max="2100"
+                  >
+
+                </div>
+
+              </div>
+
+
+              <div class="form-actions">
+
+                <button
+                  class="btn btn-primary"
+                  type="submit"
+                >
+                  Save Preferences
+                </button>
+
+                <button
+                  id="resetProfileButton"
+                  class="btn btn-secondary"
+                  type="button"
+                >
+                  Reset Form
+                </button>
+
+              </div>
+
+            </form>
+
+          </section>
+
+
+          <section class="settings-card">
+
+            <div class="settings-card-header">
+
+              <h2>Current Workspace</h2>
+
+            </div>
+
+
+            <div class="stats-grid">
+
+              <article class="stat-card">
+
+                <span class="stat-label">
                   Grade
-                </label>
+                </span>
 
-                <select id="settingsGrade">
+                <strong
+                  class="stat-value"
+                  id="profileSummaryGrade"
+                >
+                  Grade 5
+                </strong>
 
-                  <option value="PP1">PP1</option>
-                  <option value="PP2">PP2</option>
-                  <option value="Grade 1">Grade 1</option>
-                  <option value="Grade 2">Grade 2</option>
-                  <option value="Grade 3">Grade 3</option>
-                  <option value="Grade 4">Grade 4</option>
-                  <option value="Grade 5">Grade 5</option>
-                  <option value="Grade 6">Grade 6</option>
-                  <option value="Grade 7">Grade 7</option>
-                  <option value="Grade 8">Grade 8</option>
-                  <option value="Grade 9">Grade 9</option>
-                  <option value="Grade 10">Grade 10</option>
-                  <option value="Grade 11">Grade 11</option>
-                  <option value="Grade 12">Grade 12</option>
-
-                </select>
-
-              </div>
+              </article>
 
 
-              <br>
+              <article class="stat-card">
 
-
-              <div>
-
-                <label for="settingsTerm">
+                <span class="stat-label">
                   Term
-                </label>
+                </span>
 
-                <select id="settingsTerm">
+                <strong
+                  class="stat-value"
+                  id="profileSummaryTerm"
+                >
+                  Term 1
+                </strong>
 
-                  <option value="Term 1">
-                    Term 1
-                  </option>
+              </article>
 
-                  <option value="Term 2">
-                    Term 2
-                  </option>
 
-                  <option value="Term 3">
-                    Term 3
-                  </option>
+              <article class="stat-card">
 
-                </select>
+                <span class="stat-label">
+                  Academic Year
+                </span>
+
+                <strong
+                  class="stat-value"
+                  id="profileSummaryYear"
+                >
+                  2026
+                </strong>
+
+              </article>
+
+            </div>
+
+          </section>
+
+        </div>
+
+      </section>
+
+
+      <!-- ===================================================
+           SETTINGS
+           =================================================== -->
+
+      <section
+        id="settingsPage"
+        class="page-section"
+        data-page-section="settings"
+        hidden
+      >
+
+        <div class="page-content">
+
+
+          <section class="settings-card">
+
+            <div class="settings-card-header">
+
+              <h2>Privacy &amp; Security</h2>
+
+            </div>
+
+            <p>
+              CBC MASTER is designed to keep your teaching
+              workspace on this device.
+            </p>
+
+            <p>
+              No advertising trackers, hidden analytics,
+              or third-party tracking services are used
+              by the app.
+            </p>
+
+          </section>
+
+
+          <section class="settings-card">
+
+            <div class="settings-card-header">
+
+              <h2>Teaching Preferences</h2>
+
+            </div>
+
+
+            <form id="settingsForm">
+
+              <div class="form-grid">
+
+                <div class="form-group">
+
+                  <label for="settingsGrade">
+                    Grade
+                  </label>
+
+                  <select
+                    id="settingsGrade"
+                    class="form-control"
+                  >
+
+                    <option>PP1</option>
+                    <option>PP2</option>
+                    <option>Grade 1</option>
+                    <option>Grade 2</option>
+                    <option>Grade 3</option>
+                    <option>Grade 4</option>
+                    <option>Grade 5</option>
+                    <option>Grade 6</option>
+                    <option>Grade 7</option>
+                    <option>Grade 8</option>
+                    <option>Grade 9</option>
+                    <option>Grade 10</option>
+                    <option>Grade 11</option>
+                    <option>Grade 12</option>
+
+                  </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="settingsTerm">
+                    Term
+                  </label>
+
+                  <select
+                    id="settingsTerm"
+                    class="form-control"
+                  >
+
+                    <option>Term 1</option>
+                    <option>Term 2</option>
+                    <option>Term 3</option>
+
+                  </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label for="settingsAcademicYear">
+                    Academic Year
+                  </label>
+
+                  <input
+                    id="settingsAcademicYear"
+                    class="form-control"
+                    type="number"
+                    inputmode="numeric"
+                    min="2020"
+                    max="2100"
+                    value="2026"
+                  >
+
+                </div>
+
+
+                <div class="form-group">
+
+                  <label class="checkbox-label">
+
+                    <input
+                      id="settingsLowDataMode"
+                      type="checkbox"
+                    >
+
+                    <span>
+                      Low-data mode
+                    </span>
+
+                  </label>
+
+                </div>
 
               </div>
 
 
-              <br>
+              <div class="form-actions">
+
+                <button
+                  id="saveSettingsButton"
+                  class="btn btn-primary"
+                  type="submit"
+                >
+                  Save Preferences
+                </button>
+
+              </div>
+
+            </form>
+
+          </section>
 
 
-              <div>
+          <section class="settings-card">
 
-                <label for="settingsAcademicYear">
-                  Academic Year
+            <div class="settings-card-header">
+
+              <h2>Teacher Information</h2>
+
+            </div>
+
+
+            <div class="form-grid">
+
+              <div class="form-group">
+
+                <label for="settingsTeacherName">
+                  Teacher name
                 </label>
 
                 <input
-                  id="settingsAcademicYear"
-                  type="number"
-                  inputmode="numeric"
-                  min="2020"
-                  max="2100"
-                  value="2026"
+                  id="settingsTeacherName"
+                  class="form-control"
+                  type="text"
+                  maxlength="120"
                 >
 
               </div>
 
 
-              <br>
+              <div class="form-group">
 
-
-              <div>
-
-                <label>
-
-                  <input
-                    id="settingsLowDataMode"
-                    type="checkbox"
-                  >
-
-                  Low-data mode
-
+                <label for="settingsSchool">
+                  School
                 </label>
 
-              </div>
-
-
-              <br>
-
-
-              <button
-                id="saveSettingsButton"
-                class="btn btn-primary"
-                type="button"
-              >
-                Save Preferences
-              </button>
-
-            </section>
-
-
-            <!-- =================================================
-                 LOCAL WORKSPACE
-                 ================================================= -->
-
-            <section class="settings-card">
-
-              <div class="settings-card-header">
-
-                <h2>
-                  Local Workspace
-                </h2>
+                <input
+                  id="settingsSchool"
+                  class="form-control"
+                  type="text"
+                  maxlength="160"
+                >
 
               </div>
 
 
-              <div class="stats-grid">
+              <div class="form-group">
 
+                <label for="settingsCounty">
+                  County
+                </label>
 
-                <article class="stat-card">
-
-                  <span class="stat-label">
-                    Students
-                  </span>
-
-                  <strong
-                    class="stat-value"
-                    id="settingsStudentCount"
-                  >
-                    0
-                  </strong>
-
-                </article>
-
-
-                <article class="stat-card">
-
-                  <span class="stat-label">
-                    Report Books
-                  </span>
-
-                  <strong
-                    class="stat-value"
-                    id="settingsReportBookCount"
-                  >
-                    0
-                  </strong>
-
-                </article>
-
-
-                <article class="stat-card">
-
-                  <span class="stat-label">
-                    Schemes
-                  </span>
-
-                  <strong
-                    class="stat-value"
-                    id="settingsSchemeCount"
-                  >
-                    0
-                  </strong>
-
-                </article>
-
-
-                <article class="stat-card">
-
-                  <span class="stat-label">
-                    Lesson Plans
-                  </span>
-
-                  <strong
-                    class="stat-value"
-                    id="settingsLessonPlanCount"
-                  >
-                    0
-                  </strong>
-
-                </article>
-
-
-                <article class="stat-card">
-
-                  <span class="stat-label">
-                    Rubrics
-                  </span>
-
-                  <strong
-                    class="stat-value"
-                    id="settingsRubricCount"
-                  >
-                    0
-                  </strong>
-
-                </article>
-
-
-                <article class="stat-card">
-
-                  <span class="stat-label">
-                    Documents
-                  </span>
-
-                  <strong
-                    class="stat-value"
-                    id="settingsDocumentCount"
-                  >
-                    0
-                  </strong>
-
-                </article>
+                <input
+                  id="settingsCounty"
+                  class="form-control"
+                  type="text"
+                  maxlength="80"
+                >
 
               </div>
 
+            </div>
 
-              <br>
-
-
-              <p id="storageSummary">
-                Your workspace data is stored locally on this device.
-              </p>
-
-            </section>
+          </section>
 
 
-            <!-- =================================================
-                 BACKUP & RESTORE
-                 ================================================= -->
+          <section class="settings-card">
 
-            <section class="settings-card">
+            <div class="settings-card-header">
 
-              <div class="settings-card-header">
+              <h2>Local Workspace</h2>
 
-                <h2>
-                  Backup &amp; Restore
-                </h2>
-
-              </div>
-
-              <p>
-                Export your local workspace as a backup file.
-                You can restore it later on this device.
-              </p>
+            </div>
 
 
-              <br>
+            <div class="stats-grid">
 
+              <article class="stat-card">
+
+                <span class="stat-label">
+                  Students
+                </span>
+
+                <strong
+                  class="stat-value"
+                  id="settingsStudentCount"
+                >
+                  0
+                </strong>
+
+              </article>
+
+
+              <article class="stat-card">
+
+                <span class="stat-label">
+                  Report Books
+                </span>
+
+                <strong
+                  class="stat-value"
+                  id="settingsReportBookCount"
+                >
+                  0
+                </strong>
+
+              </article>
+
+
+              <article class="stat-card">
+
+                <span class="stat-label">
+                  Schemes
+                </span>
+
+                <strong
+                  class="stat-value"
+                  id="settingsSchemeCount"
+                >
+                  0
+                </strong>
+
+              </article>
+
+
+              <article class="stat-card">
+
+                <span class="stat-label">
+                  Lesson Plans
+                </span>
+
+                <strong
+                  class="stat-value"
+                  id="settingsLessonPlanCount"
+                >
+                  0
+                </strong>
+
+              </article>
+
+
+              <article class="stat-card">
+
+                <span class="stat-label">
+                  Rubrics
+                </span>
+
+                <strong
+                  class="stat-value"
+                  id="settingsRubricCount"
+                >
+                  0
+                </strong>
+
+              </article>
+
+
+              <article class="stat-card">
+
+                <span class="stat-label">
+                  Documents
+                </span>
+
+                <strong
+                  class="stat-value"
+                  id="settingsDocumentCount"
+                >
+                  0
+                </strong>
+
+              </article>
+
+
+              <article class="stat-card">
+
+                <span class="stat-label">
+                  Total Records
+                </span>
+
+                <strong
+                  class="stat-value"
+                  id="settingsTotalRecords"
+                >
+                  0
+                </strong>
+
+              </article>
+
+            </div>
+
+
+            <p id="storageSummary">
+              Your workspace data is stored locally on this device.
+            </p>
+
+          </section>
+
+
+          <section class="settings-card">
+
+            <div class="settings-card-header">
+
+              <h2>Backup &amp; Restore</h2>
+
+            </div>
+
+            <p>
+              Export your local workspace as a backup file.
+              You can restore it later.
+            </p>
+
+
+            <div class="form-actions">
 
               <button
                 id="exportDataButton"
@@ -1531,11 +3433,10 @@
               </button>
 
 
-              <br>
-              <br>
-
-
-              <label for="importDataInput">
+              <label
+                class="btn btn-secondary"
+                for="importDataInput"
+              >
                 Restore Backup
               </label>
 
@@ -1543,198 +3444,198 @@
                 id="importDataInput"
                 type="file"
                 accept="application/json,.json"
+                hidden
               >
 
-            </section>
+            </div>
+
+          </section>
 
 
-            <!-- =================================================
-                 DELETE LOCAL DATA
-                 ================================================= -->
+          <section class="settings-card">
 
-            <section class="settings-card">
+            <div class="settings-card-header">
 
-              <div class="settings-card-header">
+              <h2>Delete Local Data</h2>
 
-                <h2>
-                  Delete Local Data
-                </h2>
+            </div>
 
-              </div>
-
-              <p>
-                Delete the CBC MASTER workspace stored on
-                this device.
-              </p>
+            <p>
+              Delete the CBC MASTER workspace stored on
+              this device.
+            </p>
 
 
-              <br>
-
+            <div class="form-actions">
 
               <button
-                id="deleteAllDataButton"
+                id="deleteDataButton"
                 class="btn btn-danger"
                 type="button"
               >
                 Delete All Local Data
               </button>
 
-            </section>
+            </div>
+
+          </section>
 
 
-            <!-- =================================================
-                 ABOUT PRIVACY
-                 ================================================= -->
+          <section class="settings-card">
 
-            <section class="settings-card">
+            <div class="settings-card-header">
 
-              <div class="settings-card-header">
+              <h2>About CBC MASTER Privacy</h2>
 
-                <h2>
-                  About CBC MASTER Privacy
-                </h2>
+            </div>
 
-              </div>
+            <p>
+              CBC MASTER follows a local-first approach.
+              Teaching records are kept in the browser's
+              local storage unless you explicitly export
+              a backup.
+            </p>
 
-              <p>
-                CBC MASTER follows a local-first approach.
-                Teaching records are kept in the browser's
-                local storage unless you explicitly export
-                a backup.
-              </p>
+            <p>
+              Do not store unnecessary sensitive information.
+              Keep your device protected with a secure
+              screen lock and avoid sharing exported backups.
+            </p>
 
+            <p>
+              CBC MASTER does not require third-party
+              advertising or analytics services.
+            </p>
 
-              <br>
+          </section>
 
+        </div>
 
-              <p>
-                Do not store unnecessary sensitive information.
-                Keep your device protected with a secure
-                screen lock and avoid sharing exported backups.
-              </p>
+      </section>
 
-
-              <br>
-
-
-              <p>
-                CBC MASTER does not require third-party
-                advertising or analytics services.
-              </p>
-
-            </section>
-
-          </div>
-
-        </section>
-
-      </div>
+    </div>
 
 
-      <!-- =====================================================
-           MOBILE BOTTOM NAVIGATION
-           ===================================================== -->
+    <!-- =====================================================
+         MOBILE NAV
+         ===================================================== -->
 
-      <nav
-        class="bottom-nav"
-        aria-label="Mobile navigation"
+    <nav
+      class="bottom-nav"
+      aria-label="Mobile navigation"
+    >
+
+      <button
+        type="button"
+        class="bottom-nav-item active"
+        data-page="dashboard"
+        aria-current="page"
       >
-
-        <button
-          type="button"
-          class="bottom-nav-item active"
-          data-page="dashboard"
-          aria-current="page"
-        >
-
-          <span aria-hidden="true">
-            ⌂
-          </span>
-
-          <span>
-            Home
-          </span>
-
-        </button>
+        <span aria-hidden="true">⌂</span>
+        <span>Home</span>
+      </button>
 
 
-        <button
-          type="button"
-          class="bottom-nav-item"
-          data-page="documents"
-        >
-
-          <span aria-hidden="true">
-            □
-          </span>
-
-          <span>
-            Docs
-          </span>
-
-        </button>
+      <button
+        type="button"
+        class="bottom-nav-item"
+        data-page="documents"
+      >
+        <span aria-hidden="true">□</span>
+        <span>Docs</span>
+      </button>
 
 
-        <button
-          type="button"
-          class="bottom-nav-item"
-          data-page="analytics"
-        >
-
-          <span aria-hidden="true">
-            ◒
-          </span>
-
-          <span>
-            Analytics
-          </span>
-
-        </button>
+      <button
+        type="button"
+        class="bottom-nav-item"
+        data-page="analytics"
+      >
+        <span aria-hidden="true">◒</span>
+        <span>Analytics</span>
+      </button>
 
 
-        <button
-          type="button"
-          class="bottom-nav-item"
-          data-page="profile"
-        >
+      <button
+        type="button"
+        class="bottom-nav-item"
+        data-page="profile"
+      >
+        <span aria-hidden="true">○</span>
+        <span>Profile</span>
+      </button>
 
-          <span aria-hidden="true">
-            ○
-          </span>
-
-          <span>
-            Profile
-          </span>
-
-        </button>
-
-      </nav>
+    </nav>
 
 
-      <!-- =====================================================
-           TOAST
-           ===================================================== -->
+    <!-- =====================================================
+         TOAST
+         ===================================================== -->
 
-      <div
-        id="cbcToast"
-        class="toast"
-        role="status"
-        aria-live="polite"
-      ></div>
+    <div
+      id="cbcToast"
+      class="toast"
+      role="status"
+      aria-live="polite"
+    ></div>
 
-    </main>
+  </main>
 
-  </div>
+</div>
 
 
-  <!-- =========================================================
-       APP JAVASCRIPT
-       ========================================================= -->
+<!-- =========================================================
+     JAVASCRIPT
+     =========================================================
+     Core first.
+     Modules afterwards.
+     All scripts remain same-origin and CSP compatible.
+     ========================================================= -->
 
-  <script
-    src="js/app.js"
-    defer
-  ></script>
+<script
+  src="js/app.js"
+  defer
+></script>
+
+<script
+  src="js/students.js"
+  defer
+></script>
+
+<script
+  src="js/report-books.js"
+  defer
+></script>
+
+<script
+  src="js/schemes.js"
+  defer
+></script>
+
+<script
+  src="js/lesson-plans.js"
+  defer
+></script>
+
+<script
+  src="js/rubrics.js"
+  defer
+></script>
+
+<script
+  src="js/documents.js"
+  defer
+></script>
+
+<script
+  src="js/analytics.js"
+  defer
+></script>
+
+<script
+  src="js/profile.js"
+  defer
+></script>
 
 </body>
 
