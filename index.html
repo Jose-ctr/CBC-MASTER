@@ -59,6 +59,7 @@
 
   <title>CBC MASTER V2</title>
 
+
   <!-- =========================================================
        APP ICON
        ========================================================= -->
@@ -69,6 +70,7 @@
     href="icons/icon-192.png"
   >
 
+
   <!-- =========================================================
        PWA MANIFEST
        ========================================================= -->
@@ -77,6 +79,7 @@
     rel="manifest"
     href="manifest.json"
   >
+
 
   <!-- =========================================================
        STYLESHEET
@@ -105,7 +108,10 @@
 
     <aside class="sidebar">
 
-      <!-- Brand -->
+
+      <!-- =====================================================
+           BRAND
+           ===================================================== -->
 
       <div class="sidebar-brand">
 
@@ -131,7 +137,9 @@
       </div>
 
 
-      <!-- Navigation -->
+      <!-- =====================================================
+           NAVIGATION
+           ===================================================== -->
 
       <nav
         class="sidebar-nav"
@@ -149,6 +157,7 @@
           data-page="dashboard"
           aria-current="page"
         >
+
           <span
             class="nav-icon"
             aria-hidden="true"
@@ -159,6 +168,7 @@
           <span>
             Dashboard
           </span>
+
         </button>
 
 
@@ -167,6 +177,7 @@
           class="nav-item"
           data-page="report-books"
         >
+
           <span
             class="nav-icon"
             aria-hidden="true"
@@ -177,6 +188,7 @@
           <span>
             Report Books
           </span>
+
         </button>
 
 
@@ -185,6 +197,7 @@
           class="nav-item"
           data-page="schemes"
         >
+
           <span
             class="nav-icon"
             aria-hidden="true"
@@ -195,6 +208,7 @@
           <span>
             Schemes of Work
           </span>
+
         </button>
 
 
@@ -203,6 +217,7 @@
           class="nav-item"
           data-page="lesson-plans"
         >
+
           <span
             class="nav-icon"
             aria-hidden="true"
@@ -213,6 +228,7 @@
           <span>
             Lesson Plans
           </span>
+
         </button>
 
 
@@ -221,6 +237,7 @@
           class="nav-item"
           data-page="rubrics"
         >
+
           <span
             class="nav-icon"
             aria-hidden="true"
@@ -231,6 +248,7 @@
           <span>
             Assessment Rubrics
           </span>
+
         </button>
 
 
@@ -239,6 +257,7 @@
           class="nav-item"
           data-page="students"
         >
+
           <span
             class="nav-icon"
             aria-hidden="true"
@@ -249,6 +268,7 @@
           <span>
             Students
           </span>
+
         </button>
 
 
@@ -262,6 +282,7 @@
           class="nav-item"
           data-page="documents"
         >
+
           <span
             class="nav-icon"
             aria-hidden="true"
@@ -272,6 +293,7 @@
           <span>
             Saved Documents
           </span>
+
         </button>
 
 
@@ -280,6 +302,7 @@
           class="nav-item"
           data-page="analytics"
         >
+
           <span
             class="nav-icon"
             aria-hidden="true"
@@ -290,6 +313,7 @@
           <span>
             Analytics
           </span>
+
         </button>
 
 
@@ -303,6 +327,7 @@
           class="nav-item"
           data-page="profile"
         >
+
           <span
             class="nav-icon"
             aria-hidden="true"
@@ -313,6 +338,7 @@
           <span>
             Profile
           </span>
+
         </button>
 
 
@@ -321,6 +347,7 @@
           class="nav-item"
           data-page="settings"
         >
+
           <span
             class="nav-icon"
             aria-hidden="true"
@@ -331,12 +358,15 @@
           <span>
             Settings
           </span>
+
         </button>
 
       </nav>
 
 
-      <!-- Sidebar profile -->
+      <!-- =====================================================
+           SIDEBAR PROFILE
+           ===================================================== -->
 
       <div class="sidebar-profile">
 
@@ -375,8 +405,7 @@
       <!-- =====================================================
            GLOBAL TOPBAR
 
-           IMPORTANT:
-           This is the ONLY main page heading.
+           SI is metadata.
            JavaScript updates pageTitle/pageSubtitle.
            ===================================================== -->
 
@@ -384,13 +413,32 @@
 
         <div class="topbar-title">
 
-          <p class="eyebrow">
-            CBC MASTER V2
-          </p>
+
+          <!-- =================================================
+               TOPBAR METADATA
+               ================================================= -->
+
+          <div class="topbar-meta">
+
+            <p class="eyebrow">
+              CBC MASTER V2
+            </p>
+
+            <span
+              class="si-pill"
+              aria-label="System information"
+              title="System information"
+            >
+              SI
+            </span>
+
+          </div>
+
 
           <h1 id="pageTitle">
             Dashboard
           </h1>
+
 
           <p id="pageSubtitle">
             Your CBC teaching workspace
@@ -452,7 +500,9 @@
           <div class="page-content">
 
 
-            <!-- Welcome -->
+            <!-- =================================================
+                 WELCOME
+                 ================================================= -->
 
             <section class="welcome-card">
 
@@ -487,7 +537,9 @@
             </section>
 
 
-            <!-- Teaching Tools -->
+            <!-- =================================================
+                 TEACHING TOOLS
+                 ================================================= -->
 
             <section class="section-block">
 
@@ -655,7 +707,9 @@
             </section>
 
 
-            <!-- Workspace Statistics -->
+            <!-- =================================================
+                 WORKSPACE STATISTICS
+                 ================================================= -->
 
             <section class="section-block">
 
@@ -755,7 +809,9 @@
             </section>
 
 
-            <!-- Quick Actions -->
+            <!-- =================================================
+                 QUICK ACTIONS
+                 ================================================= -->
 
             <section class="section-block">
 
@@ -865,7 +921,6 @@
 
         <!-- ===================================================
              REPORT BOOKS
-             NO DUPLICATE PAGE HEADER
              =================================================== -->
 
         <section
@@ -903,7 +958,6 @@
 
         <!-- ===================================================
              SCHEMES
-             NO DUPLICATE PAGE HEADER
              =================================================== -->
 
         <section
@@ -941,7 +995,6 @@
 
         <!-- ===================================================
              LESSON PLANS
-             NO DUPLICATE PAGE HEADER
              =================================================== -->
 
         <section
@@ -979,7 +1032,6 @@
 
         <!-- ===================================================
              RUBRICS
-             NO DUPLICATE PAGE HEADER
              =================================================== -->
 
         <section
@@ -1017,7 +1069,6 @@
 
         <!-- ===================================================
              STUDENTS
-             NO DUPLICATE PAGE HEADER
              =================================================== -->
 
         <section
@@ -1046,7 +1097,6 @@
 
         <!-- ===================================================
              SAVED DOCUMENTS
-             NO DUPLICATE PAGE HEADER
              =================================================== -->
 
         <section
@@ -1084,7 +1134,6 @@
 
         <!-- ===================================================
              ANALYTICS
-             NO DUPLICATE PAGE HEADER
              =================================================== -->
 
         <section
@@ -1122,7 +1171,6 @@
 
         <!-- ===================================================
              PROFILE
-             NO DUPLICATE PAGE HEADER
              =================================================== -->
 
         <section
@@ -1160,9 +1208,6 @@
 
         <!-- ===================================================
              SETTINGS
-             IMPORTANT:
-             There is NO .page-heading here.
-             The global topbar supplies the title.
              =================================================== -->
 
         <section
@@ -1226,61 +1271,20 @@
 
                 <select id="settingsGrade">
 
-                  <option value="PP1">
-                    PP1
-                  </option>
-
-                  <option value="PP2">
-                    PP2
-                  </option>
-
-                  <option value="Grade 1">
-                    Grade 1
-                  </option>
-
-                  <option value="Grade 2">
-                    Grade 2
-                  </option>
-
-                  <option value="Grade 3">
-                    Grade 3
-                  </option>
-
-                  <option value="Grade 4">
-                    Grade 4
-                  </option>
-
-                  <option value="Grade 5">
-                    Grade 5
-                  </option>
-
-                  <option value="Grade 6">
-                    Grade 6
-                  </option>
-
-                  <option value="Grade 7">
-                    Grade 7
-                  </option>
-
-                  <option value="Grade 8">
-                    Grade 8
-                  </option>
-
-                  <option value="Grade 9">
-                    Grade 9
-                  </option>
-
-                  <option value="Grade 10">
-                    Grade 10
-                  </option>
-
-                  <option value="Grade 11">
-                    Grade 11
-                  </option>
-
-                  <option value="Grade 12">
-                    Grade 12
-                  </option>
+                  <option value="PP1">PP1</option>
+                  <option value="PP2">PP2</option>
+                  <option value="Grade 1">Grade 1</option>
+                  <option value="Grade 2">Grade 2</option>
+                  <option value="Grade 3">Grade 3</option>
+                  <option value="Grade 4">Grade 4</option>
+                  <option value="Grade 5">Grade 5</option>
+                  <option value="Grade 6">Grade 6</option>
+                  <option value="Grade 7">Grade 7</option>
+                  <option value="Grade 8">Grade 8</option>
+                  <option value="Grade 9">Grade 9</option>
+                  <option value="Grade 10">Grade 10</option>
+                  <option value="Grade 11">Grade 11</option>
+                  <option value="Grade 12">Grade 12</option>
 
                 </select>
 
@@ -1514,6 +1518,7 @@
                 You can restore it later on this device.
               </p>
 
+
               <br>
 
 
@@ -1562,6 +1567,7 @@
                 this device.
               </p>
 
+
               <br>
 
 
@@ -1597,7 +1603,9 @@
                 a backup.
               </p>
 
+
               <br>
+
 
               <p>
                 Do not store unnecessary sensitive information.
@@ -1605,7 +1613,9 @@
                 screen lock and avoid sharing exported backups.
               </p>
 
+
               <br>
+
 
               <p>
                 CBC MASTER does not require third-party
