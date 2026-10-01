@@ -1,26 +1,38 @@
 "use strict";
 
-/* =========================================================
-   CBC MASTER V2
-   Main Application
-   Privacy-first • Offline-first
-   ========================================================= */
+/*
+|--------------------------------------------------------------------------
+| CBC MASTER V2
+| Local-first application engine
+|--------------------------------------------------------------------------
+| Privacy principles:
+| - No third-party analytics
+| - No advertising trackers
+| - No automatic cloud sync
+| - No personal-data console logging
+| - Core workspace stored locally
+|--------------------------------------------------------------------------
+*/
 
 
-/* ---------------------------------------------------------
-   STORAGE
-   --------------------------------------------------------- */
+/*
+|--------------------------------------------------------------------------
+| Storage
+|--------------------------------------------------------------------------
+*/
 
 const STORAGE_KEY = "cbc_master_v2";
 const STORAGE_VERSION = 2;
 
 
-/* ---------------------------------------------------------
-   PAGE TITLES
-   The global topbar is the single source of page titles.
-   --------------------------------------------------------- */
+/*
+|--------------------------------------------------------------------------
+| Page metadata
+|--------------------------------------------------------------------------
+*/
 
 const PAGE_TITLES = {
+
   dashboard: {
     title: "Dashboard",
     subtitle: "Your CBC teaching workspace"
@@ -70,150 +82,378 @@ const PAGE_TITLES = {
     title: "Settings",
     subtitle: "Manage your CBC MASTER preferences and data"
   }
+
 };
 
 
-/* ---------------------------------------------------------
-   DEFAULT DATA
-   --------------------------------------------------------- */
+/*
+|--------------------------------------------------------------------------
+| Default local data
+|--------------------------------------------------------------------------
+*/
 
 const DEFAULT_DATA = {
+
   version: STORAGE_VERSION,
 
   teacher: {
+
     name: "Teacher",
+
     school: "",
+
     county: "",
+
     role: "CBC MASTER User"
+
   },
 
   preferences: {
+
     grade: "Grade 5",
+
     term: "Term 1",
+
     academicYear: "2026",
+
     lowDataMode: false
+
   },
 
   students: [],
+
   reportBooks: [],
+
   schemes: [],
+
   lessonPlans: [],
+
   rubrics: [],
+
   documents: [],
+
   activity: []
+
 };
 
 
-/* ---------------------------------------------------------
-   APP STATE
-   --------------------------------------------------------- */
+/*
+|--------------------------------------------------------------------------
+| Application state
+|--------------------------------------------------------------------------
+*/
 
-let appData = null;
+let appData = loadData();
+
+
+/*
+|--------------------------------------------------------------------------
+| Student search state
+|--------------------------------------------------------------------------
+*/
+
+let studentSearchQuery = "";
+
+
+/*
+|--------------------------------------------------------------------------
+| Toast state
+|--------------------------------------------------------------------------
+*/
+
 let toastTimer = null;
 
 
-/* ---------------------------------------------------------
-   DOM CACHE
-   --------------------------------------------------------- */
+/*
+|--------------------------------------------------------------------------
+| DOM helpers
+|--------------------------------------------------------------------------
+*/
 
-const elements = {
-  pageTitle: null,
-  pageSubtitle: null,
-  notificationButton: null,
-  settingsButton: null
-};
+function $(selector) {
 
-
-/* =========================================================
-   START APPLICATION
-   ========================================================= */
-
-document.addEventListener("DOMContentLoaded", () => {
-
-  appData = loadData();
-
-  cacheElements();
-
-  bindNavigation();
-
-  bindDashboardModules();
-
-  bindQuickActions();
-
-  bindHeaderActions();
-
-  bindSettingsActions();
-
-  bindStudentActions();
-
-  updateHomeDashboard();
-
-  navigateToPage("dashboard");
-
-  registerServiceWorker();
-
-});
-
-
-/* =========================================================
-   DOM
-   ========================================================= */
-
-function cacheElements() {
-
-  elements.pageTitle =
-    document.getElementById("pageTitle");
-
-  elements.pageSubtitle =
-    document.getElementById("pageSubtitle");
-
-  elements.notificationButton =
-    document.getElementById("notificationButton");
-
-  elements.settingsButton =
-    document.getElementById("settingsButton");
+  return document.querySelector(selector);
 
 }
 
 
-/* =========================================================
-   STORAGE
-   ========================================================= */
+function $$(selector) {
+
+  return Array.from(
+    document.querySelectorAll(selector)
+  );
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Safe text helper
+|--------------------------------------------------------------------------
+*/
+
+function cleanDisplayText(
+  value,
+  fallback = ""
+) {
+
+  if (
+    value === null ||
+    value === undefined
+  ) {
+
+    return fallback;
+
+  }
+
+
+  const cleaned =
+    String(value)
+      .replace(/\s+/g, " ")
+      .trim();
+
+
+  return cleaned || fallback;
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Clone default data
+|--------------------------------------------------------------------------
+*/
+
+function cloneDefaultData() {
+
+  return JSON.parse(
+    JSON.stringify(DEFAULT_DATA)
+  );
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Object validation
+|--------------------------------------------------------------------------
+*/
+
+function isObject(value) {
+
+  return (
+    value !== null &&
+    typeof value === "object" &&
+    !Array.isArray(value)
+  );
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Array helper
+|--------------------------------------------------------------------------
+*/
+
+function ensureArray(value) {
+
+  return Array.isArray(value)
+    ? value
+    : [];
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Generate local record ID
+|--------------------------------------------------------------------------
+*/
+
+function createId() {
+
+  if (
+    window.crypto &&
+    typeof window.crypto.randomUUID ===
+      "function"
+  ) {
+
+    return window.crypto.randomUUID();
+
+  }
+
+
+  if (
+    window.crypto &&
+    typeof window.crypto.getRandomValues ===
+      "function"
+  ) {
+
+    const bytes =
+      new Uint8Array(16);
+
+
+    window.crypto.getRandomValues(
+      bytes
+    );
+
+
+    return Array.from(bytes)
+      .map(
+        (byte) =>
+          byte
+            .toString(16)
+            .padStart(2, "0")
+      )
+      .join("");
+
+  }
+
+
+  return (
+    `${Date.now()}-` +
+    Math.random()
+      .toString(36)
+      .slice(2, 10)
+  );
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Normalise stored data
+|--------------------------------------------------------------------------
+*/
+
+function normaliseData(rawData) {
+
+  const defaults =
+    cloneDefaultData();
+
+
+  if (!isObject(rawData)) {
+
+    return defaults;
+
+  }
+
+
+  const data = {
+
+    ...defaults,
+
+    ...rawData
+
+  };
+
+
+  data.version =
+    STORAGE_VERSION;
+
+
+  data.teacher = {
+
+    ...defaults.teacher,
+
+    ...(
+      isObject(rawData.teacher)
+        ? rawData.teacher
+        : {}
+    )
+
+  };
+
+
+  data.preferences = {
+
+    ...defaults.preferences,
+
+    ...(
+      isObject(rawData.preferences)
+        ? rawData.preferences
+        : {}
+    )
+
+  };
+
+
+  data.students =
+    ensureArray(
+      rawData.students
+    );
+
+
+  data.reportBooks =
+    ensureArray(
+      rawData.reportBooks
+    );
+
+
+  data.schemes =
+    ensureArray(
+      rawData.schemes
+    );
+
+
+  data.lessonPlans =
+    ensureArray(
+      rawData.lessonPlans
+    );
+
+
+  data.rubrics =
+    ensureArray(
+      rawData.rubrics
+    );
+
+
+  data.documents =
+    ensureArray(
+      rawData.documents
+    );
+
+
+  data.activity =
+    ensureArray(
+      rawData.activity
+    );
+
+
+  return data;
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Load local data
+|--------------------------------------------------------------------------
+*/
 
 function loadData() {
 
   try {
 
-    const raw =
-      localStorage.getItem(STORAGE_KEY);
-
-    if (!raw) {
-
-      const fresh =
-        cloneDefaultData();
-
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(fresh)
+    const stored =
+      localStorage.getItem(
+        STORAGE_KEY
       );
 
-      return fresh;
-    }
 
-
-    const parsed =
-      JSON.parse(raw);
-
-
-    if (!isValidDataObject(parsed)) {
+    if (!stored) {
 
       return cloneDefaultData();
 
     }
 
 
-    return mergeData(
-      DEFAULT_DATA,
+    const parsed =
+      JSON.parse(stored);
+
+
+    return normaliseData(
       parsed
     );
 
@@ -226,11 +466,13 @@ function loadData() {
 }
 
 
-function saveData() {
+/*
+|--------------------------------------------------------------------------
+| Save local data
+|--------------------------------------------------------------------------
+*/
 
-  if (!appData) {
-    return false;
-  }
+function saveData() {
 
   try {
 
@@ -239,13 +481,16 @@ function saveData() {
       JSON.stringify(appData)
     );
 
+
     return true;
 
   } catch {
 
     showToast(
-      "Unable to save data on this device."
+      "Unable to save local data. Storage may be full.",
+      "error"
     );
+
 
     return false;
 
@@ -254,539 +499,809 @@ function saveData() {
 }
 
 
-function cloneDefaultData() {
+/*
+|--------------------------------------------------------------------------
+| Get current data
+|--------------------------------------------------------------------------
+*/
 
-  return JSON.parse(
-    JSON.stringify(DEFAULT_DATA)
-  );
+function getData() {
+
+  return appData;
 
 }
 
 
-function mergeData(defaults, saved) {
+/*
+|--------------------------------------------------------------------------
+| Activity
+|--------------------------------------------------------------------------
+*/
 
-  const result =
-    cloneDefaultData();
+function addActivity(message) {
 
-
-  if (
-    saved.teacher &&
-    typeof saved.teacher === "object" &&
-    !Array.isArray(saved.teacher)
-  ) {
-
-    result.teacher = {
-      ...defaults.teacher,
-      ...saved.teacher
-    };
-
-  }
+  const safeMessage =
+    cleanDisplayText(
+      message
+    );
 
 
-  if (
-    saved.preferences &&
-    typeof saved.preferences === "object" &&
-    !Array.isArray(saved.preferences)
-  ) {
+  if (!safeMessage) {
 
-    result.preferences = {
-      ...defaults.preferences,
-      ...saved.preferences
-    };
+    return;
 
   }
 
 
-  const collections = [
-    "students",
-    "reportBooks",
-    "schemes",
-    "lessonPlans",
-    "rubrics",
-    "documents",
-    "activity"
-  ];
+  if (
+    !Array.isArray(
+      appData.activity
+    )
+  ) {
+
+    appData.activity = [];
+
+  }
 
 
-  collections.forEach((collection) => {
+  appData.activity.unshift({
 
-    if (Array.isArray(saved[collection])) {
+    id:
+      createId(),
 
-      result[collection] =
-        saved[collection];
+    message:
+      safeMessage,
 
-    }
+    createdAt:
+      new Date().toISOString()
 
   });
 
 
-  result.version =
-    STORAGE_VERSION;
+  /*
+   * Keep only the latest 50
+   * generic activity records.
+   */
 
-
-  return result;
+  appData.activity =
+    appData.activity.slice(
+      0,
+      50
+    );
 
 }
 
 
-function isValidDataObject(data) {
+/*
+|--------------------------------------------------------------------------
+| Generic record helper
+|--------------------------------------------------------------------------
+*/
 
-  return (
-    data !== null &&
-    typeof data === "object" &&
-    !Array.isArray(data)
+function addRecord(
+  collectionName,
+  record,
+  activityMessage
+) {
+
+  if (
+    !Array.isArray(
+      appData[collectionName]
+    )
+  ) {
+
+    appData[collectionName] = [];
+
+  }
+
+
+  const safeRecord =
+    isObject(record)
+      ? {
+          ...record
+        }
+      : {};
+
+
+  const newRecord = {
+
+    id:
+      safeRecord.id ||
+      createId(),
+
+    createdAt:
+      safeRecord.createdAt ||
+      new Date().toISOString(),
+
+    ...safeRecord
+
+  };
+
+
+  appData[collectionName].push(
+    newRecord
+  );
+
+
+  if (activityMessage) {
+
+    addActivity(
+      activityMessage
+    );
+
+  }
+
+
+  saveData();
+
+  refresh();
+
+
+  return newRecord;
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Add student
+|--------------------------------------------------------------------------
+*/
+
+function addStudent(
+  student = {}
+) {
+
+  return addRecord(
+    "students",
+    student,
+    "Student record added."
   );
 
 }
 
 
-/* =========================================================
-   NAVIGATION
-   ========================================================= */
+/*
+|--------------------------------------------------------------------------
+| Add report book
+|--------------------------------------------------------------------------
+*/
 
-function bindNavigation() {
+function addReportBook(
+  reportBook = {}
+) {
 
-  document
-    .querySelectorAll("[data-page]")
-    .forEach((button) => {
-
-      button.addEventListener(
-        "click",
-        () => {
-
-          const page =
-            button.dataset.page;
-
-          navigateToPage(page);
-
-        }
-      );
-
-    });
+  return addRecord(
+    "reportBooks",
+    reportBook,
+    "Report book added."
+  );
 
 }
 
 
-function navigateToPage(page) {
+/*
+|--------------------------------------------------------------------------
+| Add scheme
+|--------------------------------------------------------------------------
+*/
 
-  if (!PAGE_TITLES[page]) {
-    return;
-  }
+function addScheme(
+  scheme = {}
+) {
 
-
-  updatePageTitle(page);
-
-  updateActiveNavigation(page);
-
-  showPage(page);
-
-
-  if (page === "dashboard") {
-    updateHomeDashboard();
-  }
-
-
-  if (page === "students") {
-    renderStudentsPage();
-  }
-
-
-  if (page === "settings") {
-    renderSettingsPage();
-  }
-
-
-  if (page === "profile") {
-    renderProfilePage();
-  }
-
-
-  if (page === "analytics") {
-    renderAnalyticsPage();
-  }
+  return addRecord(
+    "schemes",
+    scheme,
+    "Scheme of work added."
+  );
 
 }
 
 
-function showPage(page) {
+/*
+|--------------------------------------------------------------------------
+| Add lesson plan
+|--------------------------------------------------------------------------
+*/
 
-  const targetId =
-    getPageId(page);
+function addLessonPlan(
+  lessonPlan = {}
+) {
 
-
-  document
-    .querySelectorAll(".page-section")
-    .forEach((section) => {
-
-      const isTarget =
-        section.id === targetId ||
-        section.dataset.pageSection === page;
-
-
-      section.hidden =
-        !isTarget;
-
-    });
+  return addRecord(
+    "lessonPlans",
+    lessonPlan,
+    "Lesson plan added."
+  );
 
 }
 
 
-function getPageId(page) {
+/*
+|--------------------------------------------------------------------------
+| Add rubric
+|--------------------------------------------------------------------------
+*/
 
-  const pageMap = {
+function addRubric(
+  rubric = {}
+) {
 
-    dashboard:
-      "dashboardPage",
+  return addRecord(
+    "rubrics",
+    rubric,
+    "Assessment rubric added."
+  );
 
-    "report-books":
-      "reportBooksPage",
+}
 
-    schemes:
-      "schemesPage",
 
-    "lesson-plans":
-      "lessonPlansPage",
+/*
+|--------------------------------------------------------------------------
+| Add document
+|--------------------------------------------------------------------------
+*/
 
-    rubrics:
-      "rubricsPage",
+function addDocument(
+  documentData = {}
+) {
 
-    students:
-      "studentsPage",
+  return addRecord(
+    "documents",
+    documentData,
+    "Document saved."
+  );
 
-    documents:
-      "documentsPage",
+}
 
-    analytics:
-      "analyticsPage",
 
-    profile:
-      "profilePage",
+/*
+|--------------------------------------------------------------------------
+| Update teacher profile
+|--------------------------------------------------------------------------
+*/
 
-    settings:
-      "settingsPage"
+function updateTeacher(
+  teacher = {}
+) {
+
+  if (!isObject(teacher)) {
+
+    return false;
+
+  }
+
+
+  appData.teacher = {
+
+    ...appData.teacher,
+
+    ...teacher
 
   };
 
 
-  return pageMap[page] || "";
+  addActivity(
+    "Teacher profile updated."
+  );
+
+
+  saveData();
+
+  refresh();
+
+
+  return true;
 
 }
 
 
-/* =========================================================
-   GLOBAL PAGE HEADER
-   ========================================================= */
+/*
+|--------------------------------------------------------------------------
+| Update preferences
+|--------------------------------------------------------------------------
+*/
 
-function updatePageTitle(page) {
+function updatePreferences(
+  preferences = {}
+) {
 
-  const info =
+  if (!isObject(preferences)) {
+
+    return false;
+
+  }
+
+
+  appData.preferences = {
+
+    ...appData.preferences,
+
+    ...preferences
+
+  };
+
+
+  addActivity(
+    "Teaching preferences updated."
+  );
+
+
+  saveData();
+
+  refresh();
+
+
+  return true;
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Navigation
+|--------------------------------------------------------------------------
+*/
+
+function navigate(pageName) {
+
+  const page =
+    PAGE_TITLES[pageName]
+      ? pageName
+      : "dashboard";
+
+
+  $$(
+    "[data-page-section]"
+  ).forEach(
+    (section) => {
+
+      section.hidden =
+        section.dataset.pageSection !==
+        page;
+
+    }
+  );
+
+
+  /*
+   * Sidebar navigation
+   */
+
+  $$(".nav-item[data-page]")
+    .forEach(
+      (button) => {
+
+        const active =
+          button.dataset.page ===
+          page;
+
+
+        button.classList.toggle(
+          "active",
+          active
+        );
+
+
+        if (active) {
+
+          button.setAttribute(
+            "aria-current",
+            "page"
+          );
+
+        } else {
+
+          button.removeAttribute(
+            "aria-current"
+          );
+
+        }
+
+      }
+    );
+
+
+  /*
+   * Bottom navigation
+   */
+
+  $$(".bottom-nav-item[data-page]")
+    .forEach(
+      (button) => {
+
+        const active =
+          button.dataset.page ===
+          page;
+
+
+        button.classList.toggle(
+          "active",
+          active
+        );
+
+
+        if (active) {
+
+          button.setAttribute(
+            "aria-current",
+            "page"
+          );
+
+        } else {
+
+          button.removeAttribute(
+            "aria-current"
+          );
+
+        }
+
+      }
+    );
+
+
+  /*
+   * Header
+   */
+
+  const metadata =
     PAGE_TITLES[page];
 
 
-  if (!info) {
-    return;
+  const pageTitle =
+    $("#pageTitle");
+
+
+  const pageSubtitle =
+    $("#pageSubtitle");
+
+
+  if (pageTitle) {
+
+    pageTitle.textContent =
+      metadata.title;
+
   }
 
 
-  if (elements.pageTitle) {
+  if (pageSubtitle) {
 
-    elements.pageTitle.textContent =
-      info.title;
-
-  }
-
-
-  if (elements.pageSubtitle) {
-
-    elements.pageSubtitle.textContent =
-      info.subtitle;
+    pageSubtitle.textContent =
+      metadata.subtitle;
 
   }
 
 
   document.title =
-    `${info.title} • CBC MASTER V2`;
+    `${metadata.title} • CBC MASTER V2`;
+
+
+  /*
+   * Page-specific rendering
+   */
+
+  if (page === "settings") {
+
+    renderSettingsPage();
+
+  }
+
+
+  if (page === "profile") {
+
+    renderProfilePage();
+
+  }
+
+
+  if (page === "analytics") {
+
+    renderAnalyticsPage();
+
+  }
+
+
+  if (page === "students") {
+
+    renderStudentsPage();
+
+  }
 
 }
 
 
-/* =========================================================
-   ACTIVE NAVIGATION
-   ========================================================= */
+/*
+|--------------------------------------------------------------------------
+| Bind navigation
+|--------------------------------------------------------------------------
+*/
 
-function updateActiveNavigation(page) {
+function bindNavigation() {
 
-  document
-    .querySelectorAll("[data-page]")
-    .forEach((button) => {
+  $$("[data-page]")
+    .forEach(
+      (button) => {
 
-      const active =
-        button.dataset.page === page;
+        button.addEventListener(
+          "click",
+          () => {
 
-
-      button.classList.toggle(
-        "active",
-        active
-      );
+            const page =
+              button.dataset.page;
 
 
-      if (active) {
+            if (
+              PAGE_TITLES[page]
+            ) {
 
-        button.setAttribute(
-          "aria-current",
-          "page"
-        );
+              navigate(page);
 
-      } else {
+            }
 
-        button.removeAttribute(
-          "aria-current"
+          }
         );
 
       }
-
-    });
-
-}
-
-
-/* =========================================================
-   DASHBOARD MODULES
-   ========================================================= */
-
-function bindDashboardModules() {
-
-  document
-    .querySelectorAll("[data-module]")
-    .forEach((card) => {
-
-      card.addEventListener(
-        "click",
-        () => {
-
-          navigateToPage(
-            card.dataset.module
-          );
-
-        }
-      );
-
-    });
+    );
 
 }
 
 
-/* =========================================================
-   QUICK ACTIONS
-   ========================================================= */
+/*
+|--------------------------------------------------------------------------
+| Module navigation
+|--------------------------------------------------------------------------
+*/
+
+function bindModuleCards() {
+
+  $$("[data-module]")
+    .forEach(
+      (card) => {
+
+        card.addEventListener(
+          "click",
+          () => {
+
+            const module =
+              card.dataset.module;
+
+
+            if (
+              PAGE_TITLES[module]
+            ) {
+
+              navigate(module);
+
+            }
+
+          }
+        );
+
+      }
+    );
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Quick actions
+|--------------------------------------------------------------------------
+*/
 
 function bindQuickActions() {
 
-  document
-    .querySelectorAll("[data-action]")
-    .forEach((button) => {
+  $$("[data-action]")
+    .forEach(
+      (button) => {
 
-      button.addEventListener(
-        "click",
-        () => {
+        button.addEventListener(
+          "click",
+          () => {
 
-          handleQuickAction(
-            button.dataset.action
-          );
+            const action =
+              button.dataset.action;
 
-        }
-      );
 
-    });
+            switch (action) {
+
+              case "add-student":
+
+                navigate(
+                  "students"
+                );
+
+                openStudentForm();
+
+                break;
+
+
+              case "create-report-book":
+
+                navigate(
+                  "report-books"
+                );
+
+                showToast(
+                  "Report Books is ready."
+                );
+
+                break;
+
+
+              case "create-scheme":
+
+                navigate(
+                  "schemes"
+                );
+
+                showToast(
+                  "Schemes of Work is ready."
+                );
+
+                break;
+
+
+              case "create-lesson-plan":
+
+                navigate(
+                  "lesson-plans"
+                );
+
+                showToast(
+                  "Lesson Plans is ready."
+                );
+
+                break;
+
+
+              default:
+
+                break;
+
+            }
+
+          }
+        );
+
+      }
+    );
 
 }
 
 
-function handleQuickAction(action) {
+/*
+|--------------------------------------------------------------------------
+| Header actions
+|--------------------------------------------------------------------------
+*/
 
-  const actions = {
+function bindHeaderActions() {
 
-    "add-student": {
-      page: "students",
-      message: "Student workspace opened."
-    },
+  const notificationButton =
+    $("#notificationButton");
 
-    "create-report-book": {
-      page: "report-books",
-      message: "Report Books workspace opened."
-    },
 
-    "create-scheme": {
-      page: "schemes",
-      message: "Schemes workspace opened."
-    },
+  if (notificationButton) {
 
-    "create-lesson-plan": {
-      page: "lesson-plans",
-      message: "Lesson Plans workspace opened."
-    }
+    notificationButton.addEventListener(
+      "click",
+      () => {
+
+        showToast(
+          "Notifications are not connected to a cloud service."
+        );
+
+      }
+    );
+
+  }
+
+
+  const settingsButton =
+    $("#settingsButton");
+
+
+  if (settingsButton) {
+
+    settingsButton.addEventListener(
+      "click",
+      () => {
+
+        navigate(
+          "settings"
+        );
+
+      }
+    );
+
+  }
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Dashboard statistics
+|--------------------------------------------------------------------------
+*/
+
+function updateDashboardStats() {
+
+  const stats = {
+
+    students:
+      appData.students.length,
+
+    "report-books":
+      appData.reportBooks.length,
+
+    schemes:
+      appData.schemes.length,
+
+    documents:
+      appData.documents.length
 
   };
 
 
-  const selected =
-    actions[action];
+  Object.entries(stats)
+    .forEach(
+      ([key, value]) => {
+
+        const element =
+          document.querySelector(
+            `[data-stat="${key}"]`
+          );
 
 
-  if (!selected) {
-    return;
-  }
+        if (element) {
 
+          element.textContent =
+            String(value);
 
-  navigateToPage(
-    selected.page
-  );
-
-
-  showToast(
-    selected.message
-  );
-
-}
-
-
-/* =========================================================
-   HEADER ACTIONS
-   ========================================================= */
-
-function bindHeaderActions() {
-
-  if (elements.notificationButton) {
-
-    elements.notificationButton.addEventListener(
-      "click",
-      showNotifications
-    );
-
-  }
-
-
-  if (elements.settingsButton) {
-
-    elements.settingsButton.addEventListener(
-      "click",
-      () => {
-
-        navigateToPage("settings");
+        }
 
       }
     );
 
-  }
-
 }
 
 
-function showNotifications() {
+/*
+|--------------------------------------------------------------------------
+| Sidebar profile
+|--------------------------------------------------------------------------
+*/
 
-  const notifications =
-    getNotifications();
-
-
-  if (!notifications.length) {
-
-    showToast(
-      "No new notifications."
-    );
-
-    return;
-
-  }
-
-
-  showToast(
-    notifications[0]
-  );
-
-}
-
-
-function getNotifications() {
-
-  const notifications = [];
-
-
-  if (!appData.students.length) {
-
-    notifications.push(
-      "Your student list is empty."
-    );
-
-  }
-
-
-  if (!appData.documents.length) {
-
-    notifications.push(
-      "You have no saved documents yet."
-    );
-
-  }
-
-
-  return notifications;
-
-}
-
-
-/* =========================================================
-   DASHBOARD
-   ========================================================= */
-
-function updateHomeDashboard() {
-
-  updateTeacherIdentity();
-
-  updateWelcomeArea();
-
-  updateModuleCounts();
-
-  updateQuickStatistics();
-
-}
-
-
-/* =========================================================
-   TEACHER IDENTITY
-   ========================================================= */
-
-function updateTeacherIdentity() {
+function updateSidebarProfile() {
 
   const name =
     cleanDisplayText(
-      appData.teacher?.name,
+      appData.teacher.name,
       "Teacher"
     );
 
 
   const role =
     cleanDisplayText(
-      appData.teacher?.role,
+      appData.teacher.role,
       "CBC MASTER User"
     );
 
 
   const nameElement =
-    document.getElementById(
-      "sidebarProfileName"
-    );
+    $("#sidebarProfileName");
 
 
   const roleElement =
-    document.getElementById(
-      "sidebarProfileRole"
-    );
+    $("#sidebarProfileRole");
 
 
   const avatarElement =
-    document.getElementById(
-      "sidebarProfileAvatar"
-    );
+    $("#sidebarProfileAvatar");
 
 
   if (nameElement) {
@@ -808,806 +1323,108 @@ function updateTeacherIdentity() {
   if (avatarElement) {
 
     avatarElement.textContent =
-      getInitials(name);
+      name
+        .charAt(0)
+        .toUpperCase() ||
+      "T";
 
   }
 
 }
 
 
-/* =========================================================
-   WELCOME AREA
-   ========================================================= */
+/*
+|--------------------------------------------------------------------------
+| Settings rendering
+|--------------------------------------------------------------------------
+*/
 
-function updateWelcomeArea() {
+function renderSettingsPage() {
 
-  const titleElement =
-    document.getElementById(
-      "welcomeTitle"
-    );
-
-
-  const textElement =
-    document.getElementById(
-      "welcomeText"
-    );
-
-
-  const teacherName =
-    cleanDisplayText(
-      appData.teacher?.name,
-      "Teacher"
-    );
-
-
-  const firstName =
-    teacherName
-      .trim()
-      .split(/\s+/)[0] ||
-    "Teacher";
-
-
-  if (titleElement) {
-
-    titleElement.textContent =
-      `${getGreeting()}, ${firstName}`;
-
-  }
+  const preferences =
+    appData.preferences ||
+    {};
 
 
   const grade =
-    cleanDisplayText(
-      appData.preferences?.grade,
-      "Grade 5"
-    );
+    $("#settingsGrade");
 
 
   const term =
-    cleanDisplayText(
-      appData.preferences?.term,
-      "Term 1"
-    );
+    $("#settingsTerm");
 
 
-  if (textElement) {
+  const academicYear =
+    $("#settingsAcademicYear");
 
-    textElement.textContent =
-      `Your ${grade} • ${term} teaching workspace.`;
+
+  const lowDataMode =
+    $("#settingsLowDataMode");
+
+
+  if (grade) {
+
+    grade.value =
+      preferences.grade ||
+      "Grade 5";
 
   }
 
-}
 
+  if (term) {
 
-function getGreeting() {
+    term.value =
+      preferences.term ||
+      "Term 1";
 
-  const hour =
-    new Date().getHours();
-
-
-  if (hour < 12) {
-    return "Good morning";
   }
 
 
-  if (hour < 18) {
-    return "Good afternoon";
+  if (academicYear) {
+
+    academicYear.value =
+      preferences.academicYear ||
+      "2026";
+
   }
 
 
-  return "Good evening";
+  if (lowDataMode) {
 
-}
+    lowDataMode.checked =
+      Boolean(
+        preferences.lowDataMode
+      );
 
+  }
 
-/* =========================================================
-   DASHBOARD COUNTS
-   ========================================================= */
-
-function updateModuleCounts() {
 
   const counts = {
 
-    "report-books":
-      getCollectionLength(
-        "reportBooks"
-      ),
+    settingsStudentCount:
+      appData.students.length,
 
-    schemes:
-      getCollectionLength(
-        "schemes"
-      ),
+    settingsReportBookCount:
+      appData.reportBooks.length,
 
-    "lesson-plans":
-      getCollectionLength(
-        "lessonPlans"
-      ),
+    settingsSchemeCount:
+      appData.schemes.length,
 
-    rubrics:
-      getCollectionLength(
-        "rubrics"
-      )
+    settingsLessonPlanCount:
+      appData.lessonPlans.length,
+
+    settingsRubricCount:
+      appData.rubrics.length,
+
+    settingsDocumentCount:
+      appData.documents.length
 
   };
 
 
   Object.entries(counts)
-    .forEach(([key, value]) => {
-
-      document
-        .querySelectorAll(
-          `[data-count="${key}"]`
-        )
-        .forEach((element) => {
-
-          element.textContent =
-            String(value);
-
-        });
-
-    });
-
-}
-
-
-function updateQuickStatistics() {
-
-  const statistics = {
-
-    students:
-      getCollectionLength(
-        "students"
-      ),
-
-    "report-books":
-      getCollectionLength(
-        "reportBooks"
-      ),
-
-    schemes:
-      getCollectionLength(
-        "schemes"
-      ),
-
-    documents:
-      getCollectionLength(
-        "documents"
-      )
-
-  };
-
-
-  Object.entries(statistics)
-    .forEach(([key, value]) => {
-
-      document
-        .querySelectorAll(
-          `[data-stat="${key}"]`
-        )
-        .forEach((element) => {
-
-          element.textContent =
-            String(value);
-
-        });
-
-    });
-
-}
-
-
-/* =========================================================
-   COLLECTION HELPERS
-   ========================================================= */
-
-function getCollectionLength(name) {
-
-  return Array.isArray(
-    appData?.[name]
-  )
-    ? appData[name].length
-    : 0;
-
-}
-
-
-/* =========================================================
-   SAFE TEXT HELPERS
-   ========================================================= */
-
-function cleanDisplayText(
-  value,
-  fallback = ""
-) {
-
-  if (typeof value !== "string") {
-    return fallback;
-  }
-
-
-  const cleaned =
-    value
-      .trim()
-      .replace(/\s+/g, " ");
-
-
-  return cleaned || fallback;
-
-}
-
-
-function getInitials(name) {
-
-  const safeName =
-    cleanDisplayText(
-      name,
-      "Teacher"
-    );
-
-
-  const parts =
-    safeName
-      .split(" ")
-      .filter(Boolean);
-
-
-  if (!parts.length) {
-    return "T";
-  }
-
-
-  if (parts.length === 1) {
-
-    return parts[0]
-      .charAt(0)
-      .toUpperCase();
-
-  }
-
-
-  return (
-    parts[0].charAt(0) +
-    parts[parts.length - 1].charAt(0)
-  ).toUpperCase();
-
-}
-
-
-/* =========================================================
-   IDs
-   ========================================================= */
-
-function createId() {
-
-  if (
-    typeof crypto !== "undefined" &&
-    typeof crypto.randomUUID === "function"
-  ) {
-
-    return crypto.randomUUID();
-
-  }
-
-
-  if (
-    typeof crypto !== "undefined" &&
-    typeof crypto.getRandomValues === "function"
-  ) {
-
-    const bytes =
-      new Uint8Array(16);
-
-
-    crypto.getRandomValues(bytes);
-
-
-    return Array.from(bytes)
-      .map(
-        (byte) =>
-          byte
-            .toString(16)
-            .padStart(2, "0")
-      )
-      .join("");
-
-  }
-
-
-  return (
-    Date.now().toString(36) +
-    "-" +
-    String(Date.now())
-  );
-
-}
-
-
-/* =========================================================
-   ACTIVITY
-   ========================================================= */
-
-function addActivity(
-  type,
-  message
-) {
-
-  if (
-    typeof type !== "string" ||
-    typeof message !== "string"
-  ) {
-
-    return false;
-
-  }
-
-
-  const activity = {
-
-    id: createId(),
-
-    type:
-      type
-        .slice(0, 50),
-
-    message:
-      message
-        .slice(0, 250),
-
-    createdAt:
-      new Date().toISOString()
-
-  };
-
-
-  if (
-    !Array.isArray(
-      appData.activity
-    )
-  ) {
-
-    appData.activity = [];
-
-  }
-
-
-  appData.activity.unshift(
-    activity
-  );
-
-
-  appData.activity =
-    appData.activity.slice(
-      0,
-      100
-    );
-
-
-  return saveData();
-
-}
-
-
-/* =========================================================
-   STUDENTS
-   ========================================================= */
-
-function bindStudentActions() {
-
-  const addButton =
-    document.getElementById(
-      "addStudentBtn"
-    );
-
-
-  if (addButton) {
-
-    addButton.addEventListener(
-      "click",
-      addStudent
-    );
-
-  }
-
-}
-
-
-function renderStudentsPage() {
-
-  const page =
-    document.getElementById(
-      "studentsPage"
-    );
-
-
-  if (!page) {
-    return;
-  }
-
-
-  const content =
-    page.querySelector(
-      ".page-content"
-    );
-
-
-  if (!content) {
-    return;
-  }
-
-
-  let list =
-    document.getElementById(
-      "studentsList"
-    );
-
-
-  if (!list) {
-
-    list =
-      document.createElement(
-        "div"
-      );
-
-    list.id =
-      "studentsList";
-
-    content.prepend(list);
-
-  }
-
-
-  list.replaceChildren();
-
-
-  const students =
-    Array.isArray(
-      appData.students
-    )
-      ? appData.students
-      : [];
-
-
-  if (!students.length) {
-
-    const empty =
-      document.createElement(
-        "div"
-      );
-
-
-    empty.className =
-      "empty-page";
-
-
-    const icon =
-      document.createElement(
-        "span"
-      );
-
-    icon.className =
-      "empty-icon";
-
-    icon.textContent =
-      "♙";
-
-
-    const heading =
-      document.createElement(
-        "h2"
-      );
-
-    heading.textContent =
-      "No learners yet";
-
-
-    const paragraph =
-      document.createElement(
-        "p"
-      );
-
-    paragraph.textContent =
-      "Add your first learner to begin managing local learner records.";
-
-
-    empty.append(
-      icon,
-      heading,
-      paragraph
-    );
-
-
-    list.appendChild(empty);
-
-
-    return;
-
-  }
-
-
-  const grid =
-    document.createElement(
-      "div"
-    );
-
-
-  grid.className =
-    "list-grid";
-
-
-  students.forEach(
-    (student) => {
-
-      const card =
-        createStudentCard(
-          student
-        );
-
-
-      grid.appendChild(card);
-
-    }
-  );
-
-
-  list.appendChild(grid);
-
-}
-
-
-function createStudentCard(student) {
-
-  const card =
-    document.createElement(
-      "article"
-    );
-
-
-  card.className =
-    "stat-card";
-
-
-  const name =
-    document.createElement(
-      "strong"
-    );
-
-
-  name.textContent =
-    cleanDisplayText(
-      student?.name,
-      "Unnamed learner"
-    );
-
-
-  const details =
-    document.createElement(
-      "small"
-    );
-
-
-  const grade =
-    cleanDisplayText(
-      student?.grade,
-      ""
-    );
-
-
-  const className =
-    cleanDisplayText(
-      student?.className,
-      ""
-    );
-
-
-  const admissionNumber =
-    cleanDisplayText(
-      student?.admissionNumber,
-      ""
-    );
-
-
-  const parts = [];
-
-
-  if (grade) {
-    parts.push(grade);
-  }
-
-
-  if (className) {
-    parts.push(className);
-  }
-
-
-  if (admissionNumber) {
-    parts.push(
-      `ID: ${admissionNumber}`
-    );
-  }
-
-
-  details.textContent =
-    parts.join(" • ");
-
-
-  card.append(
-    name,
-    details
-  );
-
-
-  return card;
-
-}
-
-
-function addStudent() {
-
-  const name =
-    window.prompt(
-      "Learner name:"
-    );
-
-
-  if (name === null) {
-    return;
-  }
-
-
-  const cleanName =
-    cleanDisplayText(
-      name,
-      ""
-    );
-
-
-  if (!cleanName) {
-
-    showToast(
-      "Learner name is required."
-    );
-
-    return;
-
-  }
-
-
-  const student = {
-
-    id: createId(),
-
-    name: cleanName,
-
-    grade:
-      cleanDisplayText(
-        appData.preferences?.grade,
-        "Grade 5"
-      ),
-
-    className: "",
-
-    admissionNumber: "",
-
-    createdAt:
-      new Date().toISOString()
-
-  };
-
-
-  appData.students.push(
-    student
-  );
-
-
-  saveData();
-
-
-  addActivity(
-    "student",
-    "Learner added"
-  );
-
-
-  updateHomeDashboard();
-
-  renderStudentsPage();
-
-
-  showToast(
-    "Learner added."
-  );
-
-}
-
-
-/* =========================================================
-   SETTINGS
-   ========================================================= */
-
-function renderSettingsPage() {
-
-  const setGrade =
-    document.getElementById(
-      "settingsGrade"
-    );
-
-
-  const setTerm =
-    document.getElementById(
-      "settingsTerm"
-    );
-
-
-  const setYear =
-    document.getElementById(
-      "settingsAcademicYear"
-    );
-
-
-  const setLow =
-    document.getElementById(
-      "settingsLowDataMode"
-    );
-
-
-  if (setGrade) {
-
-    setGrade.value =
-      appData.preferences.grade;
-
-  }
-
-
-  if (setTerm) {
-
-    setTerm.value =
-      appData.preferences.term;
-
-  }
-
-
-  if (setYear) {
-
-    setYear.value =
-      appData.preferences.academicYear;
-
-  }
-
-
-  if (setLow) {
-
-    setLow.checked =
-      !!appData.preferences.lowDataMode;
-
-  }
-
-
-  const map = {
-
-    settingsStudentCount:
-      "students",
-
-    settingsReportBookCount:
-      "reportBooks",
-
-    settingsSchemeCount:
-      "schemes",
-
-    settingsLessonPlanCount:
-      "lessonPlans",
-
-    settingsRubricCount:
-      "rubrics",
-
-    settingsDocumentCount:
-      "documents"
-
-  };
-
-
-  Object.entries(map)
     .forEach(
-      ([id, collection]) => {
+      ([id, value]) => {
 
         const element =
           document.getElementById(
@@ -1618,11 +1435,7 @@ function renderSettingsPage() {
         if (element) {
 
           element.textContent =
-            String(
-              getCollectionLength(
-                collection
-              )
-            );
+            String(value);
 
         }
 
@@ -1632,28 +1445,30 @@ function renderSettingsPage() {
 }
 
 
-function bindSettingsActions() {
+/*
+|--------------------------------------------------------------------------
+| Bind Settings controls
+|--------------------------------------------------------------------------
+*/
+
+function bindSettingsControls() {
 
   const saveButton =
-    document.getElementById(
-      "saveSettingsButton"
-    );
+    $("#saveSettingsButton");
 
 
   if (saveButton) {
 
     saveButton.addEventListener(
       "click",
-      saveSettings
+      saveSettingsFromForm
     );
 
   }
 
 
   const exportButton =
-    document.getElementById(
-      "exportDataButton"
-    );
+    $("#exportDataButton");
 
 
   if (exportButton) {
@@ -1667,25 +1482,43 @@ function bindSettingsActions() {
 
 
   const importInput =
-    document.getElementById(
-      "importDataInput"
-    );
+    $("#importDataInput");
 
 
   if (importInput) {
 
     importInput.addEventListener(
       "change",
-      importData
+      async (event) => {
+
+        const file =
+          event.target.files &&
+          event.target.files[0];
+
+
+        if (!file) {
+
+          return;
+
+        }
+
+
+        await importDataFile(
+          file
+        );
+
+
+        event.target.value =
+          "";
+
+      }
     );
 
   }
 
 
   const deleteButton =
-    document.getElementById(
-      "deleteAllDataButton"
-    );
+    $("#deleteAllDataButton");
 
 
   if (deleteButton) {
@@ -1700,238 +1533,94 @@ function bindSettingsActions() {
 }
 
 
-function saveSettings() {
+/*
+|--------------------------------------------------------------------------
+| Save Settings form
+|--------------------------------------------------------------------------
+*/
+
+function saveSettingsFromForm() {
 
   const grade =
-    document.getElementById(
-      "settingsGrade"
-    )?.value;
+    $("#settingsGrade");
 
 
   const term =
-    document.getElementById(
-      "settingsTerm"
-    )?.value;
+    $("#settingsTerm");
 
 
-  const year =
-    document.getElementById(
-      "settingsAcademicYear"
-    )?.value;
+  const academicYear =
+    $("#settingsAcademicYear");
 
 
   const lowDataMode =
-    document.getElementById(
-      "settingsLowDataMode"
-    )?.checked;
+    $("#settingsLowDataMode");
 
 
-  if (grade) {
+  const preferences = {
 
-    appData.preferences.grade =
-      cleanDisplayText(
-        grade,
-        "Grade 5"
-      );
+    grade:
+      grade?.value ||
+      "Grade 5",
 
-  }
+    term:
+      term?.value ||
+      "Term 1",
 
+    academicYear:
+      academicYear?.value ||
+      "2026",
 
-  if (term) {
-
-    appData.preferences.term =
-      cleanDisplayText(
-        term,
-        "Term 1"
-      );
-
-  }
-
-
-  if (year) {
-
-    appData.preferences.academicYear =
-      cleanDisplayText(
-        year,
-        "2026"
-      );
-
-  }
-
-
-  appData.preferences.lowDataMode =
-    !!lowDataMode;
-
-
-  if (saveData()) {
-
-    updateHomeDashboard();
-
-    renderSettingsPage();
-
-    showToast(
-      "Preferences saved."
-    );
-
-  }
-
-}
-
-
-/* =========================================================
-   PROFILE
-   ========================================================= */
-
-function renderProfilePage() {
-
-  updateTeacherIdentity();
-
-}
-
-
-/* =========================================================
-   ANALYTICS
-   ========================================================= */
-
-function renderAnalyticsPage() {
-
-  const page =
-    document.getElementById(
-      "analyticsPage"
-    );
-
-
-  if (!page) {
-    return;
-  }
-
-
-  const content =
-    page.querySelector(
-      ".page-content"
-    );
-
-
-  if (!content) {
-    return;
-  }
-
-
-  content.replaceChildren();
-
-
-  const grid =
-    document.createElement(
-      "div"
-    );
-
-
-  grid.className =
-    "stats-grid";
-
-
-  const stats = [
-
-    [
-      "Students",
-      getCollectionLength(
-        "students"
+    lowDataMode:
+      Boolean(
+        lowDataMode?.checked
       )
-    ],
 
-    [
-      "Schemes",
-      getCollectionLength(
-        "schemes"
-      )
-    ],
-
-    [
-      "Lesson Plans",
-      getCollectionLength(
-        "lessonPlans"
-      )
-    ],
-
-    [
-      "Documents",
-      getCollectionLength(
-        "documents"
-      )
-    ]
-
-  ];
+  };
 
 
-  stats.forEach(
-    ([label, value]) => {
-
-      const card =
-        document.createElement(
-          "article"
-        );
-
-
-      card.className =
-        "stat-card";
-
-
-      const labelElement =
-        document.createElement(
-          "span"
-        );
-
-
-      labelElement.className =
-        "stat-label";
-
-
-      labelElement.textContent =
-        label;
-
-
-      const valueElement =
-        document.createElement(
-          "strong"
-        );
-
-
-      valueElement.className =
-        "stat-value";
-
-
-      valueElement.textContent =
-        String(value);
-
-
-      card.append(
-        labelElement,
-        valueElement
-      );
-
-
-      grid.appendChild(card);
-
-    }
+  updatePreferences(
+    preferences
   );
 
 
-  content.appendChild(grid);
+  showToast(
+    "Preferences saved on this device."
+  );
 
 }
 
 
-/* =========================================================
-   BACKUP / RESTORE
-   ========================================================= */
+/*
+|--------------------------------------------------------------------------
+| Export local backup
+|--------------------------------------------------------------------------
+*/
 
 function exportData() {
 
   try {
 
-    const dataString =
+    const backup = {
+
+      app:
+        "CBC MASTER V2",
+
+      version:
+        STORAGE_VERSION,
+
+      exportedAt:
+        new Date().toISOString(),
+
+      data:
+        appData
+
+    };
+
+
+    const json =
       JSON.stringify(
-        appData,
+        backup,
         null,
         2
       );
@@ -1939,7 +1628,7 @@ function exportData() {
 
     const blob =
       new Blob(
-        [dataString],
+        [json],
         {
           type:
             "application/json"
@@ -1959,16 +1648,18 @@ function exportData() {
       );
 
 
+    const date =
+      new Date()
+        .toISOString()
+        .slice(0, 10);
+
+
     link.href =
       url;
 
 
     link.download =
-      `cbc-master-backup-${
-        new Date()
-          .toISOString()
-          .slice(0, 10)
-      }.json`;
+      `cbc-master-v2-backup-${date}.json`;
 
 
     document.body.appendChild(
@@ -1984,20 +1675,25 @@ function exportData() {
 
     setTimeout(
       () => {
-        URL.revokeObjectURL(url);
+
+        URL.revokeObjectURL(
+          url
+        );
+
       },
       1000
     );
 
 
     showToast(
-      "Backup exported."
+      "Backup exported successfully."
     );
 
   } catch {
 
     showToast(
-      "Unable to export backup."
+      "Backup could not be created.",
+      "error"
     );
 
   }
@@ -2005,162 +1701,240 @@ function exportData() {
 }
 
 
-function importData(event) {
+/*
+|--------------------------------------------------------------------------
+| Validate imported backup
+|--------------------------------------------------------------------------
+*/
 
-  const input =
-    event.target;
+function validateImportedData(
+  candidate
+) {
 
+  if (!isObject(candidate)) {
 
-  const file =
-    input?.files?.[0];
+    return false;
 
-
-  if (!file) {
-    return;
   }
 
 
-  const MAX_BACKUP_SIZE =
-    5 * 1024 * 1024;
+  const workspace =
+    isObject(candidate.data)
+      ? candidate.data
+      : candidate;
+
+
+  if (!isObject(workspace)) {
+
+    return false;
+
+  }
+
+
+  const requiredArrays = [
+
+    "students",
+
+    "reportBooks",
+
+    "schemes",
+
+    "lessonPlans",
+
+    "rubrics",
+
+    "documents"
+
+  ];
+
+
+  for (
+    const key of requiredArrays
+  ) {
+
+    if (
+      key in workspace &&
+      !Array.isArray(
+        workspace[key]
+      )
+    ) {
+
+      return false;
+
+    }
+
+  }
+
+
+  return true;
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Import backup
+|--------------------------------------------------------------------------
+*/
+
+async function importDataFile(
+  file
+) {
+
+  if (!(file instanceof File)) {
+
+    return;
+
+  }
 
 
   if (
-    file.size >
-    MAX_BACKUP_SIZE
+    file.type !==
+      "application/json" &&
+    !file.name
+      .toLowerCase()
+      .endsWith(".json")
   ) {
 
     showToast(
-      "Backup file is too large."
+      "Please select a CBC MASTER JSON backup.",
+      "error"
     );
-
-
-    input.value =
-      "";
-
 
     return;
 
   }
 
 
-  const reader =
-    new FileReader();
+  try {
+
+    const text =
+      await file.text();
 
 
-  reader.onload = () => {
-
-    try {
-
-      const parsed =
-        JSON.parse(
-          reader.result
-        );
-
-
-      if (
-        !isValidDataObject(
-          parsed
-        )
-      ) {
-
-        throw new Error(
-          "Invalid backup"
-        );
-
-      }
-
-
-      const confirmed =
-        window.confirm(
-          "Restore this backup? Current local data will be replaced."
-        );
-
-
-      if (!confirmed) {
-
-        input.value =
-          "";
-
-        return;
-
-      }
-
-
-      appData =
-        mergeData(
-          DEFAULT_DATA,
-          parsed
-        );
-
-
-      if (!saveData()) {
-
-        input.value =
-          "";
-
-        return;
-
-      }
-
-
-      updateHomeDashboard();
-
-      renderSettingsPage();
-
+    if (
+      text.length >
+      10 * 1024 * 1024
+    ) {
 
       showToast(
-        "Backup restored."
+        "Backup file is too large.",
+        "error"
       );
 
-    } catch {
-
-      showToast(
-        "Invalid backup file."
-      );
+      return;
 
     }
 
 
-    input.value =
-      "";
+    const parsed =
+      JSON.parse(
+        text
+      );
 
-  };
+
+    if (
+      !validateImportedData(
+        parsed
+      )
+    ) {
+
+      showToast(
+        "This backup file is not valid.",
+        "error"
+      );
+
+      return;
+
+    }
 
 
-  reader.onerror = () => {
+    const confirmed =
+      window.confirm(
+        "Import this backup? Your current local workspace will be replaced."
+      );
 
-    showToast(
-      "Unable to read backup file."
+
+    if (!confirmed) {
+
+      return;
+
+    }
+
+
+    const importedWorkspace =
+      isObject(parsed.data)
+        ? parsed.data
+        : parsed;
+
+
+    appData =
+      normaliseData(
+        importedWorkspace
+      );
+
+
+    addActivity(
+      "Workspace backup imported."
     );
 
 
-    input.value =
-      "";
+    saveData();
 
-  };
+    refresh();
+
+    navigate(
+      "settings"
+    );
 
 
-  reader.readAsText(
-    file
-  );
+    showToast(
+      "Backup restored successfully."
+    );
+
+  } catch {
+
+    showToast(
+      "The backup could not be read.",
+      "error"
+    );
+
+  }
 
 }
 
 
-/* =========================================================
-   DELETE LOCAL DATA
-   ========================================================= */
+/*
+|--------------------------------------------------------------------------
+| Delete all local data
+|--------------------------------------------------------------------------
+*/
 
 function deleteAllData() {
 
   const confirmed =
     window.confirm(
-      "Delete all local CBC MASTER data? This cannot be undone."
+      "Delete ALL CBC MASTER data stored on this device? This cannot be undone unless you have a backup."
     );
 
 
   if (!confirmed) {
+
     return;
+
+  }
+
+
+  const secondConfirmation =
+    window.confirm(
+      "Final confirmation: permanently delete your local CBC MASTER workspace?"
+    );
+
+
+  if (!secondConfirmation) {
+
+    return;
+
   }
 
 
@@ -2175,21 +1949,22 @@ function deleteAllData() {
       cloneDefaultData();
 
 
-    updateHomeDashboard();
+    refresh();
 
-    renderSettingsPage();
-
-    renderStudentsPage();
+    navigate(
+      "settings"
+    );
 
 
     showToast(
-      "Local data deleted."
+      "All local CBC MASTER data has been deleted."
     );
 
   } catch {
 
     showToast(
-      "Unable to delete local data."
+      "Local data could not be deleted.",
+      "error"
     );
 
   }
@@ -2197,28 +1972,969 @@ function deleteAllData() {
 }
 
 
+/*
+|--------------------------------------------------------------------------
+| Storage summary
+|--------------------------------------------------------------------------
+*/
+
+function getStorageSummary() {
+
+  return {
+
+    students:
+      appData.students.length,
+
+    reportBooks:
+      appData.reportBooks.length,
+
+    schemes:
+      appData.schemes.length,
+
+    lessonPlans:
+      appData.lessonPlans.length,
+
+    rubrics:
+      appData.rubrics.length,
+
+    documents:
+      appData.documents.length,
+
+    activity:
+      appData.activity.length
+
+  };
+
+}
+
+
 /* =========================================================
-   TOAST
+   STUDENTS MODULE
    ========================================================= */
 
-function showToast(message) {
 
-  const toast =
-    document.getElementById(
-      "cbcToast"
+/*
+|--------------------------------------------------------------------------
+| Bind student controls
+|--------------------------------------------------------------------------
+*/
+
+function bindStudentControls() {
+
+  const addButton =
+    $("#addStudentBtn");
+
+
+  if (addButton) {
+
+    addButton.addEventListener(
+      "click",
+      () => {
+
+        openStudentForm();
+
+      }
+    );
+
+  }
+
+
+  const cancelButton =
+    $("#cancelStudentButton");
+
+
+  if (cancelButton) {
+
+    cancelButton.addEventListener(
+      "click",
+      closeStudentForm
+    );
+
+  }
+
+
+  const form =
+    $("#studentForm");
+
+
+  if (form) {
+
+    form.addEventListener(
+      "submit",
+      saveStudentFromForm
+    );
+
+  }
+
+
+  const search =
+    $("#studentSearch");
+
+
+  if (search) {
+
+    search.addEventListener(
+      "input",
+      () => {
+
+        studentSearchQuery =
+          cleanDisplayText(
+            search.value
+          ).toLowerCase();
+
+
+        renderStudentsPage();
+
+      }
+    );
+
+  }
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Open student form
+|--------------------------------------------------------------------------
+*/
+
+function openStudentForm(
+  student = null
+) {
+
+  const card =
+    $("#studentFormCard");
+
+
+  const formTitle =
+    $("#studentFormTitle");
+
+
+  const id =
+    $("#studentId");
+
+
+  const name =
+    $("#studentName");
+
+
+  const admission =
+    $("#studentAdmissionNumber");
+
+
+  const grade =
+    $("#studentGrade");
+
+
+  const className =
+    $("#studentClass");
+
+
+  if (!card) {
+
+    return;
+
+  }
+
+
+  card.hidden = false;
+
+
+  if (student) {
+
+    if (formTitle) {
+
+      formTitle.textContent =
+        "Edit Learner";
+
+    }
+
+
+    if (id) {
+
+      id.value =
+        student.id || "";
+
+    }
+
+
+    if (name) {
+
+      name.value =
+        student.name || "";
+
+    }
+
+
+    if (admission) {
+
+      admission.value =
+        student.admissionNumber ||
+        "";
+
+    }
+
+
+    if (grade) {
+
+      grade.value =
+        student.grade ||
+        appData.preferences.grade ||
+        "Grade 5";
+
+    }
+
+
+    if (className) {
+
+      className.value =
+        student.className ||
+        "";
+
+    }
+
+  } else {
+
+    if (formTitle) {
+
+      formTitle.textContent =
+        "Add Learner";
+
+    }
+
+
+    if (id) {
+
+      id.value = "";
+
+    }
+
+
+    if (name) {
+
+      name.value = "";
+
+    }
+
+
+    if (admission) {
+
+      admission.value = "";
+
+    }
+
+
+    if (grade) {
+
+      grade.value =
+        appData.preferences.grade ||
+        "Grade 5";
+
+    }
+
+
+    if (className) {
+
+      className.value = "";
+
+    }
+
+  }
+
+
+  if (name) {
+
+    name.focus();
+
+  }
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Close student form
+|--------------------------------------------------------------------------
+*/
+
+function closeStudentForm() {
+
+  const card =
+    $("#studentFormCard");
+
+
+  const form =
+    $("#studentForm");
+
+
+  if (form) {
+
+    form.reset();
+
+  }
+
+
+  if (card) {
+
+    card.hidden = true;
+
+  }
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Save student form
+|--------------------------------------------------------------------------
+*/
+
+function saveStudentFromForm(
+  event
+) {
+
+  event.preventDefault();
+
+
+  const id =
+    cleanDisplayText(
+      $("#studentId")?.value
     );
 
 
-  if (!toast) {
+  const name =
+    cleanDisplayText(
+      $("#studentName")?.value
+    );
+
+
+  const admissionNumber =
+    cleanDisplayText(
+      $("#studentAdmissionNumber")
+        ?.value
+    );
+
+
+  const grade =
+    cleanDisplayText(
+      $("#studentGrade")?.value,
+      appData.preferences.grade ||
+        "Grade 5"
+    );
+
+
+  const className =
+    cleanDisplayText(
+      $("#studentClass")?.value
+    );
+
+
+  if (!name) {
+
+    showToast(
+      "Learner name is required.",
+      "error"
+    );
+
     return;
+
+  }
+
+
+  /*
+   * Edit existing learner
+   */
+
+  if (id) {
+
+    const student =
+      appData.students.find(
+        (item) =>
+          item.id === id
+      );
+
+
+    if (!student) {
+
+      showToast(
+        "Learner record could not be found.",
+        "error"
+      );
+
+      return;
+
+    }
+
+
+    student.name =
+      name;
+
+
+    student.admissionNumber =
+      admissionNumber;
+
+
+    student.grade =
+      grade;
+
+
+    student.className =
+      className;
+
+
+    student.updatedAt =
+      new Date().toISOString();
+
+
+    addActivity(
+      "Learner record updated."
+    );
+
+
+    saveData();
+
+    closeStudentForm();
+
+    refresh();
+
+    renderStudentsPage();
+
+
+    showToast(
+      "Learner record updated."
+    );
+
+
+    return;
+
+  }
+
+
+  /*
+   * Add new learner
+   */
+
+  const student = {
+
+    id:
+      createId(),
+
+    name,
+
+    admissionNumber,
+
+    grade,
+
+    className,
+
+    createdAt:
+      new Date().toISOString(),
+
+    updatedAt:
+      new Date().toISOString()
+
+  };
+
+
+  appData.students.push(
+    student
+  );
+
+
+  addActivity(
+    "Learner record added."
+  );
+
+
+  saveData();
+
+  closeStudentForm();
+
+  refresh();
+
+  renderStudentsPage();
+
+
+  showToast(
+    "Learner added successfully."
+  );
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Render students
+|--------------------------------------------------------------------------
+*/
+
+function renderStudentsPage() {
+
+  const list =
+    $("#studentsList");
+
+
+  const emptyState =
+    $("#studentsEmptyState");
+
+
+  const count =
+    $("#studentCount");
+
+
+  if (!list) {
+
+    return;
+
+  }
+
+
+  const students =
+    Array.isArray(
+      appData.students
+    )
+      ? appData.students
+      : [];
+
+
+  const filtered =
+    students.filter(
+      (student) => {
+
+        if (!studentSearchQuery) {
+
+          return true;
+
+        }
+
+
+        const searchable = [
+
+          student.name,
+
+          student.admissionNumber,
+
+          student.grade,
+
+          student.className
+
+        ]
+          .map(
+            (value) =>
+              cleanDisplayText(
+                value
+              ).toLowerCase()
+          )
+          .join(" ");
+
+
+        return searchable.includes(
+          studentSearchQuery
+        );
+
+      }
+    );
+
+
+  list.replaceChildren();
+
+
+  if (count) {
+
+    count.textContent =
+      String(
+        filtered.length
+      );
+
+  }
+
+
+  if (!filtered.length) {
+
+    if (emptyState) {
+
+      emptyState.hidden =
+        false;
+
+    }
+
+
+    return;
+
+  }
+
+
+  if (emptyState) {
+
+    emptyState.hidden =
+      true;
+
+  }
+
+
+  filtered.forEach(
+    (student) => {
+
+      list.appendChild(
+        createStudentCard(
+          student
+        )
+      );
+
+    }
+  );
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Create student card
+|--------------------------------------------------------------------------
+*/
+
+function createStudentCard(
+  student
+) {
+
+  const card =
+    document.createElement(
+      "article"
+    );
+
+
+  card.className =
+    "stat-card";
+
+
+  const name =
+    document.createElement(
+      "strong"
+    );
+
+
+  name.textContent =
+    cleanDisplayText(
+      student.name,
+      "Unnamed learner"
+    );
+
+
+  const details =
+    document.createElement(
+      "small"
+    );
+
+
+  const detailsParts = [];
+
+
+  if (student.grade) {
+
+    detailsParts.push(
+      cleanDisplayText(
+        student.grade
+      )
+    );
+
+  }
+
+
+  if (student.className) {
+
+    detailsParts.push(
+      cleanDisplayText(
+        student.className
+      )
+    );
+
+  }
+
+
+  if (student.admissionNumber) {
+
+    detailsParts.push(
+      `Admission: ${
+        cleanDisplayText(
+          student.admissionNumber
+        )
+      }`
+    );
+
+  }
+
+
+  details.textContent =
+    detailsParts.join(
+      " • "
+    );
+
+
+  const actions =
+    document.createElement(
+      "div"
+    );
+
+
+  actions.className =
+    "form-actions";
+
+
+  const editButton =
+    document.createElement(
+      "button"
+    );
+
+
+  editButton.type =
+    "button";
+
+
+  editButton.className =
+    "btn btn-secondary";
+
+
+  editButton.textContent =
+    "Edit";
+
+
+  editButton.addEventListener(
+    "click",
+    () => {
+
+      openStudentForm(
+        student
+      );
+
+    }
+  );
+
+
+  const deleteButton =
+    document.createElement(
+      "button"
+    );
+
+
+  deleteButton.type =
+    "button";
+
+
+  deleteButton.className =
+    "btn btn-danger";
+
+
+  deleteButton.textContent =
+    "Delete";
+
+
+  deleteButton.addEventListener(
+    "click",
+    () => {
+
+      deleteStudent(
+        student.id
+      );
+
+    }
+  );
+
+
+  actions.append(
+    editButton,
+    deleteButton
+  );
+
+
+  card.append(
+    name,
+    details,
+    actions
+  );
+
+
+  return card;
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Delete student
+|--------------------------------------------------------------------------
+*/
+
+function deleteStudent(
+  studentId
+) {
+
+  const student =
+    appData.students.find(
+      (item) =>
+        item.id === studentId
+    );
+
+
+  if (!student) {
+
+    return;
+
+  }
+
+
+  const studentName =
+    cleanDisplayText(
+      student.name,
+      "this learner"
+    );
+
+
+  const confirmed =
+    window.confirm(
+      `Delete ${studentName}'s learner record?`
+    );
+
+
+  if (!confirmed) {
+
+    return;
+
+  }
+
+
+  appData.students =
+    appData.students.filter(
+      (item) =>
+        item.id !== studentId
+    );
+
+
+  addActivity(
+    "Learner record deleted."
+  );
+
+
+  saveData();
+
+  refresh();
+
+  renderStudentsPage();
+
+
+  showToast(
+    "Learner record deleted."
+  );
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Profile renderer
+|--------------------------------------------------------------------------
+*/
+
+function renderProfilePage() {
+
+  updateSidebarProfile();
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Analytics renderer
+|--------------------------------------------------------------------------
+*/
+
+function renderAnalyticsPage() {
+
+  /*
+   * Analytics will use real local
+   * workspace data.
+   */
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Refresh application
+|--------------------------------------------------------------------------
+*/
+
+function refresh() {
+
+  updateDashboardStats();
+
+  updateSidebarProfile();
+
+  renderSettingsPage();
+
+  /*
+   * Only render Students when the
+   * Students section exists.
+   */
+
+  if ($("#studentsPage")) {
+
+    renderStudentsPage();
+
+  }
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Toast
+|--------------------------------------------------------------------------
+*/
+
+function showToast(
+  message,
+  type = "success"
+) {
+
+  const toast =
+    $("#cbcToast");
+
+
+  if (!toast) {
+
+    return;
+
   }
 
 
   toast.textContent =
     cleanDisplayText(
-      String(message),
-      ""
+      message
     );
+
+
+  toast.classList.remove(
+    "show",
+    "error"
+  );
+
+
+  if (type === "error") {
+
+    toast.classList.add(
+      "error"
+    );
+
+  }
+
+
+  /*
+   * Force reflow so repeated messages
+   * can animate correctly.
+   */
+
+  void toast.offsetWidth;
 
 
   toast.classList.add(
@@ -2226,9 +2942,13 @@ function showToast(message) {
   );
 
 
-  clearTimeout(
-    toastTimer
-  );
+  if (toastTimer) {
+
+    clearTimeout(
+      toastTimer
+    );
+
+  }
 
 
   toastTimer =
@@ -2240,29 +2960,149 @@ function showToast(message) {
         );
 
       },
-      2500
+      3000
     );
 
 }
 
 
-/* =========================================================
-   SERVICE WORKER
-   ========================================================= */
+/*
+|--------------------------------------------------------------------------
+| Service worker
+|--------------------------------------------------------------------------
+*/
 
 function registerServiceWorker() {
 
   if (
-    "serviceWorker" in
-    navigator
+    !("serviceWorker" in navigator)
   ) {
 
-    navigator.serviceWorker
-      .register("./sw.js")
-      .catch(() => {
-        /* Intentionally silent. */
-      });
+    return;
 
   }
+
+
+  window.addEventListener(
+    "load",
+    () => {
+
+      navigator.serviceWorker
+        .register(
+          "./sw.js"
+        )
+        .catch(() => {
+
+          /*
+           * Deliberately silent.
+           * No user or application
+           * data is logged.
+           */
+
+        });
+
+    }
+  );
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Initialisation
+|--------------------------------------------------------------------------
+*/
+
+function init() {
+
+  bindNavigation();
+
+  bindModuleCards();
+
+  bindQuickActions();
+
+  bindHeaderActions();
+
+  bindSettingsControls();
+
+  bindStudentControls();
+
+  refresh();
+
+  navigate(
+    "dashboard"
+  );
+
+  registerServiceWorker();
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Public application API
+|--------------------------------------------------------------------------
+*/
+
+window.CBCMaster =
+  Object.freeze({
+
+    getData,
+
+    getStorageSummary,
+
+    saveData,
+
+    refresh,
+
+    navigate,
+
+    addStudent,
+
+    addReportBook,
+
+    addScheme,
+
+    addLessonPlan,
+
+    addRubric,
+
+    addDocument,
+
+    updateTeacher,
+
+    updatePreferences,
+
+    exportData,
+
+    importDataFile,
+
+    deleteAllData
+
+  });
+
+
+/*
+|--------------------------------------------------------------------------
+| Start application
+|--------------------------------------------------------------------------
+*/
+
+if (
+  document.readyState ===
+  "loading"
+) {
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    init,
+    {
+      once: true
+    }
+  );
+
+} else {
+
+  init();
 
 }
