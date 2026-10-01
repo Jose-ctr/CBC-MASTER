@@ -558,11 +558,6 @@ function addActivity(message) {
   });
 
 
-  /*
-   * Keep only the latest 50
-   * generic activity records.
-   */
-
   appData.activity =
     appData.activity.slice(
       0,
@@ -865,10 +860,6 @@ function navigate(pageName) {
   );
 
 
-  /*
-   * Sidebar navigation
-   */
-
   $$(".nav-item[data-page]")
     .forEach(
       (button) => {
@@ -902,10 +893,6 @@ function navigate(pageName) {
       }
     );
 
-
-  /*
-   * Bottom navigation
-   */
 
   $$(".bottom-nav-item[data-page]")
     .forEach(
@@ -941,10 +928,6 @@ function navigate(pageName) {
     );
 
 
-  /*
-   * Header
-   */
-
   const metadata =
     PAGE_TITLES[page];
 
@@ -976,10 +959,6 @@ function navigate(pageName) {
   document.title =
     `${metadata.title} • CBC MASTER V2`;
 
-
-  /*
-   * Page-specific rendering
-   */
 
   if (page === "settings") {
 
@@ -2342,10 +2321,6 @@ function saveStudentFromForm(
   }
 
 
-  /*
-   * Edit existing learner
-   */
-
   if (id) {
 
     const student =
@@ -2410,10 +2385,6 @@ function saveStudentFromForm(
 
   }
 
-
-  /*
-   * Add new learner
-   */
 
   const student = {
 
@@ -2872,11 +2843,6 @@ function refresh() {
 
   renderSettingsPage();
 
-  /*
-   * Only render Students when the
-   * Students section exists.
-   */
-
   if ($("#studentsPage")) {
 
     renderStudentsPage();
@@ -2928,11 +2894,6 @@ function showToast(
 
   }
 
-
-  /*
-   * Force reflow so repeated messages
-   * can animate correctly.
-   */
 
   void toast.offsetWidth;
 
