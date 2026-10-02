@@ -720,18 +720,32 @@ function bindNavigation() {
 |--------------------------------------------------------------------------
 | Module cards
 |--------------------------------------------------------------------------
+|
+| Dashboard module cards use:
+|
+|   data-module="schemes"
+|
+| They are intentionally different
+| from sidebar navigation buttons,
+| which use:
+|
+|   data-page="schemes"
+|--------------------------------------------------------------------------
 */
 
 function bindModuleCards() {
   $$(
-    "[data-module-page]"
+    "[data-module]"
   ).forEach((card) => {
     card.addEventListener(
       "click",
       () => {
-        navigate(
-          card.dataset.modulePage
-        );
+        const page =
+          card.dataset.module;
+
+        if (PAGE_TITLES[page]) {
+          navigate(page);
+        }
       }
     );
   });
@@ -743,8 +757,16 @@ function bindModuleCards() {
 | Quick actions
 |--------------------------------------------------------------------------
 |
-| Module-specific quick actions
-| are handled by their own files.
+| Handles dashboard actions such as:
+|
+| - Add Learner
+| - Open Students
+| - Open Analytics
+| - Open Settings
+| - Open Profile
+|
+| Module-specific forms remain
+| controlled by their own modules.
 |--------------------------------------------------------------------------
 */
 
@@ -758,32 +780,75 @@ function bindQuickActions() {
         const action =
           button.dataset.action;
 
+        /*
+         * Add Learner
+         *
+         * First navigate to Students,
+         * then ask the Students module
+         * to open its learner form.
+         */
+
+        if (
+          action ===
+          "add-student"
+        ) {
+          navigate("students");
+
+          window.CBCMasterStudents?.open();
+
+          return;
+        }
+
+        /*
+         * Open Students
+         */
+
         if (
           action ===
           "open-students"
         ) {
           navigate("students");
+
+          return;
         }
+
+        /*
+         * Open Analytics
+         */
 
         if (
           action ===
           "open-analytics"
         ) {
           navigate("analytics");
+
+          return;
         }
+
+        /*
+         * Open Settings
+         */
 
         if (
           action ===
           "open-settings"
         ) {
           navigate("settings");
+
+          return;
         }
+
+        /*
+         * Open Profile
+         */
 
         if (
           action ===
           "open-profile"
         ) {
           navigate("profile");
+
+          return;
         }
       }
     );
