@@ -2,891 +2,570 @@
 
 /*
 |--------------------------------------------------------------------------
-| CBC MASTER V2
-| Students Module
+| CBC MASTER V2 — Students Module
 |--------------------------------------------------------------------------
-| Handles:
-| - Add learner
-| - Edit learner
-| - Delete learner
-| - Search learners
-| - Render learner records
+| Local-first learner management.
 |
-| Data remains in the local CBC MASTER workspace.
+| Privacy:
+| - Learner records remain in localStorage.
+| - No third-party analytics.
+| - No external requests.
+| - No learner names/details in activity logs.
 |--------------------------------------------------------------------------
 */
 
-
-/*
-|--------------------------------------------------------------------------
-| Module state
-|--------------------------------------------------------------------------
-*/
-
-let studentSearchQuery = "";
-
-
-/*
-|--------------------------------------------------------------------------
-| DOM helper
-|--------------------------------------------------------------------------
-*/
-
-function student$(selector) {
-
-  return document.querySelector(
-    selector
-  );
-
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Open student form
-|--------------------------------------------------------------------------
-*/
-
-function openStudentForm(
-  student = null
-) {
-
-  const card =
-    student$("#studentFormCard");
-
-  const formTitle =
-    student$("#studentFormTitle");
-
-  const id =
-    student$("#studentId");
-
-  const name =
-    student$("#studentName");
-
-  const admission =
-    student$("#studentAdmissionNumber");
-
-  const grade =
-    student$("#studentGrade");
-
-  const className =
-    student$("#studentClass");
-
-
-  if (!card) {
-
-    return;
-
-  }
-
-
-  card.hidden = false;
-
-
-  if (student) {
-
-    if (formTitle) {
-
-      formTitle.textContent =
-        "Edit Learner";
-
-    }
-
-
-    if (id) {
-
-      id.value =
-        student.id || "";
-
-    }
-
-
-    if (name) {
-
-      name.value =
-        student.name || "";
-
-    }
-
-
-    if (admission) {
-
-      admission.value =
-        student.admissionNumber || "";
-
-    }
-
-
-    if (grade) {
-
-      grade.value =
-        student.grade ||
-        CBCMaster
-          .getData()
-          .preferences
-          .grade ||
-        "Grade 5";
-
-    }
-
-
-    if (className) {
-
-      className.value =
-        student.className || "";
-
-    }
-
-  } else {
-
-    if (formTitle) {
-
-      formTitle.textContent =
-        "Add Learner";
-
-    }
-
-
-    if (id) {
-
-      id.value = "";
-
-    }
-
-
-    if (name) {
-
-      name.value = "";
-
-    }
-
-
-    if (admission) {
-
-      admission.value = "";
-
-    }
-
-
-    if (grade) {
-
-      grade.value =
-        CBCMaster
-          .getData()
-          .preferences
-          .grade ||
-        "Grade 5";
-
-    }
-
-
-    if (className) {
-
-      className.value = "";
-
-    }
-
-  }
-
-
-  if (name) {
-
-    name.focus();
-
-  }
-
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Close student form
-|--------------------------------------------------------------------------
-*/
-
-function closeStudentForm() {
-
-  const card =
-    student$("#studentFormCard");
-
-  const form =
-    student$("#studentForm");
-
-
-  if (form) {
-
-    form.reset();
-
-  }
-
-
-  if (card) {
-
-    card.hidden = true;
-
-  }
-
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Save student form
-|--------------------------------------------------------------------------
-*/
-
-function saveStudentFromForm(
-  event
-) {
-
-  event.preventDefault();
-
-
-  const data =
-    CBCMaster.getData();
-
-
-  const id =
-    CBCMaster.cleanDisplayText(
-      student$("#studentId")?.value
-    );
-
-
-  const name =
-    CBCMaster.cleanDisplayText(
-      student$("#studentName")?.value
-    );
-
-
-  const admissionNumber =
-    CBCMaster.cleanDisplayText(
-      student$("#studentAdmissionNumber")
-        ?.value
-    );
-
-
-  const grade =
-    CBCMaster.cleanDisplayText(
-      student$("#studentGrade")?.value,
-      data.preferences.grade ||
-        "Grade 5"
-    );
-
-
-  const className =
-    CBCMaster.cleanDisplayText(
-      student$("#studentClass")?.value
-    );
-
-
-  if (!name) {
-
-    CBCMaster.showToast(
-      "Learner name is required.",
-      "error"
-    );
-
-    return;
-
-  }
-
+(() => {
+  let studentSearchQuery = "";
+  let studentsInitialized = false;
 
   /*
-   * Edit existing learner
-   */
+  |--------------------------------------------------------------------------
+  | Helpers
+  |--------------------------------------------------------------------------
+  */
 
-  if (id) {
+  function student$(selector) {
+    return document.querySelector(selector);
+  }
 
-    const student =
-      data.students.find(
-        (item) =>
-          item.id === id
+  function getStudents() {
+    const data = CBCMaster.getData();
+
+    if (!Array.isArray(data.students)) {
+      data.students = [];
+    }
+
+    return data.students;
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | Form
+  |--------------------------------------------------------------------------
+  */
+
+  function openStudentForm(student = null) {
+    const card = student$("#studentFormCard");
+    const form = student$("#studentForm");
+
+    if (!card || !form) {
+      return;
+    }
+
+    const title = student$("#studentFormTitle");
+    const idField = student$("#studentId");
+    const nameField = student$("#studentName");
+    const admissionField = student$("#studentAdmissionNumber");
+    const gradeField = student$("#studentGrade");
+    const classField = student$("#studentClass");
+
+    if (student) {
+      if (title) {
+        title.textContent = "Edit Student";
+      }
+
+      if (idField) {
+        idField.value = student.id || "";
+      }
+
+      if (nameField) {
+        nameField.value = student.name || "";
+      }
+
+      if (admissionField) {
+        admissionField.value = student.admissionNumber || "";
+      }
+
+      if (gradeField) {
+        gradeField.value = student.grade || "";
+      }
+
+      if (classField) {
+        classField.value = student.className || "";
+      }
+    } else {
+      if (title) {
+        title.textContent = "Add Student";
+      }
+
+      form.reset();
+
+      if (idField) {
+        idField.value = "";
+      }
+
+      const data = CBCMaster.getData();
+      const defaultGrade =
+        data.preferences?.grade || "Grade 5";
+
+      if (gradeField) {
+        gradeField.value = defaultGrade;
+      }
+    }
+
+    card.hidden = false;
+    card.removeAttribute("hidden");
+
+    if (nameField) {
+      window.setTimeout(() => {
+        nameField.focus();
+      }, 50);
+    }
+  }
+
+  function closeStudentForm() {
+    const card = student$("#studentFormCard");
+    const form = student$("#studentForm");
+
+    if (form) {
+      form.reset();
+    }
+
+    if (card) {
+      card.hidden = true;
+      card.setAttribute("hidden", "");
+    }
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | Save Student
+  |--------------------------------------------------------------------------
+  */
+
+  function saveStudentFromForm(event) {
+    event.preventDefault();
+
+    const data = CBCMaster.getData();
+
+    if (!Array.isArray(data.students)) {
+      data.students = [];
+    }
+
+    const idField = student$("#studentId");
+    const nameField = student$("#studentName");
+    const admissionField = student$("#studentAdmissionNumber");
+    const gradeField = student$("#studentGrade");
+    const classField = student$("#studentClass");
+
+    const id = CBCMaster.cleanDisplayText(
+      idField?.value || ""
+    );
+
+    const name = CBCMaster.cleanDisplayText(
+      nameField?.value || ""
+    );
+
+    const admissionNumber = CBCMaster.cleanDisplayText(
+      admissionField?.value || ""
+    );
+
+    const grade = CBCMaster.cleanDisplayText(
+      gradeField?.value || ""
+    );
+
+    const className = CBCMaster.cleanDisplayText(
+      classField?.value || ""
+    );
+
+    if (!name) {
+      CBCMaster.showToast(
+        "Please enter the student's name.",
+        true
       );
 
+      nameField?.focus();
+      return;
+    }
 
-    if (!student) {
+    const now = new Date().toISOString();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Edit existing student
+    |--------------------------------------------------------------------------
+    */
+
+    if (id) {
+      const index = data.students.findIndex(
+        (student) => student.id === id
+      );
+
+      if (index === -1) {
+        CBCMaster.showToast(
+          "Student record could not be found.",
+          true
+        );
+        return;
+      }
+
+      const existing = data.students[index];
+
+      data.students[index] = {
+        ...existing,
+        name,
+        admissionNumber,
+        grade,
+        className,
+        updatedAt: now
+      };
+
+      if (!CBCMaster.saveData(data)) {
+        return;
+      }
+
+      CBCMaster.addActivity(
+        "Updated learner record"
+      );
+
+      closeStudentForm();
+      CBCMaster.refresh();
 
       CBCMaster.showToast(
-        "Learner record could not be found.",
-        "error"
+        "Student updated successfully."
       );
 
       return;
-
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Add new student
+    |--------------------------------------------------------------------------
+    */
 
-    student.name =
-      name;
+    const student = {
+      id: CBCMaster.createId("student"),
+      name,
+      admissionNumber,
+      grade,
+      className,
+      createdAt: now,
+      updatedAt: now
+    };
 
+    data.students.push(student);
 
-    student.admissionNumber =
-      admissionNumber;
+    if (!CBCMaster.saveData(data)) {
+      return;
+    }
 
-
-    student.grade =
-      grade;
-
-
-    student.className =
-      className;
-
-
-    student.updatedAt =
-      new Date().toISOString();
-
-
-    CBCMaster.saveData();
+    CBCMaster.addActivity(
+      "Added learner record"
+    );
 
     closeStudentForm();
+    CBCMaster.refresh();
+
+    CBCMaster.showToast(
+      "Student added successfully."
+    );
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | Search
+  |--------------------------------------------------------------------------
+  */
+
+  function matchesSearch(student) {
+    if (!studentSearchQuery) {
+      return true;
+    }
+
+    const searchableText = [
+      student.name,
+      student.admissionNumber,
+      student.grade,
+      student.className
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+
+    return searchableText.includes(
+      studentSearchQuery.toLowerCase()
+    );
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | Render
+  |--------------------------------------------------------------------------
+  */
+
+  function renderStudentsPage() {
+    const list = student$("#studentsList");
+    const emptyState = student$("#studentsEmptyState");
+    const count = student$("#studentCount");
+
+    if (!list) {
+      return;
+    }
+
+    const students = getStudents()
+      .filter(matchesSearch)
+      .sort((a, b) =>
+        String(a.name || "").localeCompare(
+          String(b.name || ""),
+          undefined,
+          { sensitivity: "base" }
+        )
+      );
+
+    list.replaceChildren();
+
+    if (count) {
+      count.textContent = String(students.length);
+    }
+
+    if (students.length === 0) {
+      if (emptyState) {
+        emptyState.hidden = false;
+        emptyState.removeAttribute("hidden");
+      }
+
+      return;
+    }
+
+    if (emptyState) {
+      emptyState.hidden = true;
+      emptyState.setAttribute("hidden", "");
+    }
+
+    const fragment = document.createDocumentFragment();
+
+    students.forEach((student) => {
+      fragment.appendChild(
+        createStudentCard(student)
+      );
+    });
+
+    list.appendChild(fragment);
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | Student Card
+  |--------------------------------------------------------------------------
+  */
+
+  function createStudentCard(student) {
+    const card = document.createElement("article");
+
+    card.className = "stat-card";
+    card.dataset.studentId = student.id || "";
+
+    const header = document.createElement("div");
+    header.className = "stat-card-header";
+
+    const title = document.createElement("h3");
+    title.textContent = student.name || "Unnamed Student";
+
+    header.appendChild(title);
+
+    if (student.grade) {
+      const badge = document.createElement("span");
+
+      badge.className = "badge";
+      badge.textContent = student.grade;
+
+      header.appendChild(badge);
+    }
+
+    const details = document.createElement("div");
+    details.className = "stat-card-details";
+
+    if (student.admissionNumber) {
+      const admission = document.createElement("p");
+
+      admission.textContent =
+        `Admission: ${student.admissionNumber}`;
+
+      details.appendChild(admission);
+    }
+
+    if (student.className) {
+      const classInfo = document.createElement("p");
+
+      classInfo.textContent =
+        `Class: ${student.className}`;
+
+      details.appendChild(classInfo);
+    }
+
+    const actions = document.createElement("div");
+    actions.className = "card-actions";
+
+    const editButton = document.createElement("button");
+
+    editButton.type = "button";
+    editButton.className = "button secondary";
+    editButton.textContent = "Edit";
+
+    editButton.addEventListener("click", () => {
+      openStudentForm(student);
+    });
+
+    const deleteButton = document.createElement("button");
+
+    deleteButton.type = "button";
+    deleteButton.className = "button danger";
+    deleteButton.textContent = "Delete";
+
+    deleteButton.addEventListener("click", () => {
+      deleteStudent(student.id);
+    });
+
+    actions.append(
+      editButton,
+      deleteButton
+    );
+
+    card.append(
+      header,
+      details,
+      actions
+    );
+
+    return card;
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | Delete
+  |--------------------------------------------------------------------------
+  */
+
+  function deleteStudent(studentId) {
+    const data = CBCMaster.getData();
+
+    if (!Array.isArray(data.students)) {
+      return;
+    }
+
+    const student = data.students.find(
+      (item) => item.id === studentId
+    );
+
+    if (!student) {
+      CBCMaster.showToast(
+        "Student record not found.",
+        true
+      );
+      return;
+    }
+
+    const confirmed = window.confirm(
+      "Delete this student record?"
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    data.students = data.students.filter(
+      (item) => item.id !== studentId
+    );
+
+    if (!CBCMaster.saveData(data)) {
+      return;
+    }
+
+    CBCMaster.addActivity(
+      "Deleted learner record"
+    );
 
     CBCMaster.refresh();
 
-    renderStudentsPage();
-
-
     CBCMaster.showToast(
-      "Learner record updated."
+      "Student deleted."
     );
-
-
-    return;
-
   }
-
 
   /*
-   * Add new learner
-   */
-
-  const student = {
-
-    id:
-      CBCMaster.createId(),
-
-    name,
-
-    admissionNumber,
-
-    grade,
-
-    className,
-
-    createdAt:
-      new Date().toISOString(),
-
-    updatedAt:
-      new Date().toISOString()
-
-  };
-
-
-  data.students.push(
-    student
-  );
-
-
-  CBCMaster.saveData();
-
-  closeStudentForm();
-
-  CBCMaster.refresh();
-
-  renderStudentsPage();
-
-
-  CBCMaster.showToast(
-    "Learner added successfully."
-  );
-
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Render students
-|--------------------------------------------------------------------------
-*/
-
-function renderStudentsPage() {
-
-  const list =
-    student$("#studentsList");
-
-  const emptyState =
-    student$("#studentsEmptyState");
-
-  const count =
-    student$("#studentCount");
-
-
-  if (!list) {
-
-    return;
-
-  }
-
-
-  const data =
-    CBCMaster.getData();
-
-
-  const students =
-    Array.isArray(data.students)
-      ? data.students
-      : [];
-
-
-  const filtered =
-    students.filter(
-      (student) => {
-
-        if (!studentSearchQuery) {
-
-          return true;
-
-        }
-
-
-        const searchable = [
-
-          student.name,
-
-          student.admissionNumber,
-
-          student.grade,
-
-          student.className
-
-        ]
-          .map(
-            (value) =>
-              CBCMaster
-                .cleanDisplayText(
-                  value
-                )
-                .toLowerCase()
-          )
-          .join(" ");
-
-
-        return searchable.includes(
-          studentSearchQuery
-        );
-
-      }
-    );
-
-
-  list.replaceChildren();
-
-
-  if (count) {
-
-    count.textContent =
-      String(
-        filtered.length
-      );
-
-  }
-
-
-  if (!filtered.length) {
-
-    if (emptyState) {
-
-      emptyState.hidden =
-        false;
-
-    }
-
-
-    return;
-
-  }
-
-
-  if (emptyState) {
-
-    emptyState.hidden =
-      true;
-
-  }
-
-
-  filtered.forEach(
-    (student) => {
-
-      list.appendChild(
-        createStudentCard(
-          student
-        )
-      );
-
-    }
-  );
-
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Create student card
-|--------------------------------------------------------------------------
-*/
-
-function createStudentCard(
-  student
-) {
-
-  const card =
-    document.createElement(
-      "article"
-    );
-
-
-  card.className =
-    "stat-card";
-
-
-  const name =
-    document.createElement(
-      "strong"
-    );
-
-
-  name.textContent =
-    CBCMaster.cleanDisplayText(
-      student.name,
-      "Unnamed learner"
-    );
-
-
-  const details =
-    document.createElement(
-      "small"
-    );
-
-
-  const detailsParts = [];
-
-
-  if (student.grade) {
-
-    detailsParts.push(
-      CBCMaster.cleanDisplayText(
-        student.grade
-      )
-    );
-
-  }
-
-
-  if (student.className) {
-
-    detailsParts.push(
-      CBCMaster.cleanDisplayText(
-        student.className
-      )
-    );
-
-  }
-
-
-  if (student.admissionNumber) {
-
-    detailsParts.push(
-      `Admission: ${
-        CBCMaster.cleanDisplayText(
-          student.admissionNumber
-        )
-      }`
-    );
-
-  }
-
-
-  details.textContent =
-    detailsParts.join(
-      " • "
-    );
-
-
-  const actions =
-    document.createElement(
-      "div"
-    );
-
-
-  actions.className =
-    "form-actions";
-
-
-  const editButton =
-    document.createElement(
-      "button"
-    );
-
-
-  editButton.type =
-    "button";
-
-
-  editButton.className =
-    "btn btn-secondary";
-
-
-  editButton.textContent =
-    "Edit";
-
-
-  editButton.addEventListener(
-    "click",
-    () => {
-
-      openStudentForm(
-        student
-      );
-
-    }
-  );
-
-
-  const deleteButton =
-    document.createElement(
-      "button"
-    );
-
-
-  deleteButton.type =
-    "button";
-
-
-  deleteButton.className =
-    "btn btn-danger";
-
-
-  deleteButton.textContent =
-    "Delete";
-
-
-  deleteButton.addEventListener(
-    "click",
-    () => {
-
-      deleteStudent(
-        student.id
-      );
-
-    }
-  );
-
-
-  actions.append(
-    editButton,
-    deleteButton
-  );
-
-
-  card.append(
-    name,
-    details,
-    actions
-  );
-
-
-  return card;
-
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Delete student
-|--------------------------------------------------------------------------
-*/
-
-function deleteStudent(
-  studentId
-) {
-
-  const data =
-    CBCMaster.getData();
-
-
-  const student =
-    data.students.find(
-      (item) =>
-        item.id === studentId
-    );
-
-
-  if (!student) {
-
-    return;
-
-  }
-
-
-  const studentName =
-    CBCMaster.cleanDisplayText(
-      student.name,
-      "this learner"
-    );
-
-
-  const confirmed =
-    window.confirm(
-      `Delete ${studentName}'s learner record?`
-    );
-
-
-  if (!confirmed) {
-
-    return;
-
-  }
-
-
-  data.students =
-    data.students.filter(
-      (item) =>
-        item.id !== studentId
-    );
-
-
-  CBCMaster.saveData();
-
-  CBCMaster.refresh();
-
-  renderStudentsPage();
-
-
-  CBCMaster.showToast(
-    "Learner record deleted."
-  );
-
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Bind student controls
-|--------------------------------------------------------------------------
-*/
-
-function bindStudentControls() {
-
-  const addButton =
-    student$("#addStudentBtn");
-
-
-  if (addButton) {
-
-    addButton.addEventListener(
+  |--------------------------------------------------------------------------
+  | Controls
+  |--------------------------------------------------------------------------
+  */
+
+  function bindStudentControls() {
+    const addButton = student$("#addStudentBtn");
+    const cancelButton = student$("#cancelStudentButton");
+    const form = student$("#studentForm");
+    const search = student$("#studentSearch");
+
+    addButton?.addEventListener(
       "click",
-      () => {
-
-        openStudentForm();
-
-      }
+      () => openStudentForm()
     );
 
-  }
-
-
-  const cancelButton =
-    student$("#cancelStudentButton");
-
-
-  if (cancelButton) {
-
-    cancelButton.addEventListener(
+    cancelButton?.addEventListener(
       "click",
       closeStudentForm
     );
 
-  }
-
-
-  const form =
-    student$("#studentForm");
-
-
-  if (form) {
-
-    form.addEventListener(
+    form?.addEventListener(
       "submit",
       saveStudentFromForm
     );
 
-  }
-
-
-  const search =
-    student$("#studentSearch");
-
-
-  if (search) {
-
-    search.addEventListener(
+    search?.addEventListener(
       "input",
-      () => {
-
+      (event) => {
         studentSearchQuery =
-          CBCMaster
-            .cleanDisplayText(
-              search.value
-            )
-            .toLowerCase();
-
+          CBCMaster.cleanDisplayText(
+            event.target.value || ""
+          );
 
         renderStudentsPage();
-
       }
     );
-
   }
 
-}
+  /*
+  |--------------------------------------------------------------------------
+  | Initialization
+  |--------------------------------------------------------------------------
+  */
 
-
-/*
-|--------------------------------------------------------------------------
-| Students module initialisation
-|--------------------------------------------------------------------------
-*/
-
-function initStudentsModule() {
-
-  bindStudentControls();
-
-  renderStudentsPage();
-
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Start Students module
-|--------------------------------------------------------------------------
-*/
-
-if (
-  document.readyState ===
-  "loading"
-) {
-
-  document.addEventListener(
-    "DOMContentLoaded",
-    initStudentsModule,
-    {
-      once: true
+  function initStudentsModule() {
+    if (studentsInitialized) {
+      return;
     }
-  );
 
-} else {
+    studentsInitialized = true;
 
-  initStudentsModule();
+    bindStudentControls();
+    renderStudentsPage();
+  }
 
-}
+  /*
+  |--------------------------------------------------------------------------
+  | Public API
+  |--------------------------------------------------------------------------
+  */
+
+  window.CBCMasterStudents = Object.freeze({
+    render: renderStudentsPage,
+    open: openStudentForm,
+    close: closeStudentForm,
+    delete: deleteStudent
+  });
+
+  /*
+  |--------------------------------------------------------------------------
+  | Start
+  |--------------------------------------------------------------------------
+  */
+
+  if (document.readyState === "loading") {
+    document.addEventListener(
+      "DOMContentLoaded",
+      initStudentsModule,
+      { once: true }
+    );
+  } else {
+    initStudentsModule();
+  }
+})();
