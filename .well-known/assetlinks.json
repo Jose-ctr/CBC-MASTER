@@ -1,1 +1,8 @@
-
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.cbcmaster.kenya",
+        "sha256_cert_fingerprints": ["CB:22:4D:60:5A:1E:D3:38:0C:11:B5:51:31:DC:AD:1E:29:39:1B:03:A9:87:8F:82:D5:53:DA:60:8E:90:6A:A3"]
+      }
+    }]
