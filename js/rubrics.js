@@ -2,643 +2,465 @@
 
 /*
 |--------------------------------------------------------------------------
-| CBC MASTER V2
-| Assessment Rubrics Module
+| CBC MASTER V2 — Rubrics Module
 |--------------------------------------------------------------------------
-| Local-first
-| No external requests
-| No personal-data logging
+| Local-first rubric management.
+| No external requests or third-party tracking.
 |--------------------------------------------------------------------------
 */
 
 (() => {
-  const CBC = window.CBCMaster;
-
-  if (!CBC) {
-    return;
-  }
-
   let rubricSearchQuery = "";
+  let rubricsInitialized = false;
 
   const $ = (selector) =>
     document.querySelector(selector);
 
+  const clean = (value) =>
+    CBCMaster.cleanDisplayText(value || "");
+
+  function getRubrics() {
+    const data = CBCMaster.getData();
+
+    return Array.isArray(data.rubrics)
+      ? data.rubrics
+      : [];
+  }
+
   /*
   |--------------------------------------------------------------------------
-  | Open form
+  | Form
   |--------------------------------------------------------------------------
   */
 
-  function openRubricForm(record = null) {
-    const formCard = $("#rubricFormCard");
-    const formTitle = $("#rubricFormTitle");
+  function openRubricForm(rubric = null) {
+    const card = $("#rubricFormCard");
     const form = $("#rubricForm");
 
-    if (!formCard || !form) {
-      return;
-    }
-
-    form.reset();
-
-    $("#rubricId").value = "";
-    $("#rubricGrade").value =
-      CBC.getData().preferences.grade || "Grade 5";
-    $("#rubricTerm").value =
-      CBC.getData().preferences.term || "Term 1";
-
-    if (record) {
-      formTitle.textContent = "Edit Assessment Rubric";
-
-      $("#rubricId").value = record.id;
-      $("#rubricGrade").value = record.grade || "";
-      $("#rubricTerm").value = record.term || "";
-      $("#rubricSubject").value = record.subject || "";
-      $("#rubricTitle").value = record.title || "";
-      $("#rubricCompetency").value =
-        record.competency || "";
-      $("#rubricCriteria").value =
-        record.criteria || "";
-      $("#rubricBeginning").value =
-        record.beginning || "";
-      $("#rubricDeveloping").value =
-        record.developing || "";
-      $("#rubricMeeting").value =
-        record.meeting || "";
-      $("#rubricExceeding").value =
-        record.exceeding || "";
-    } else {
-      formTitle.textContent =
-        "Create Assessment Rubric";
-    }
-
-    formCard.hidden = false;
-
-    formCard.scrollIntoView({
-      behavior: "smooth",
-      block: "start"
-    });
-
-    const titleInput = $("#rubricTitle");
-
-    if (titleInput) {
-      setTimeout(() => titleInput.focus(), 100);
-    }
-  }
-
-  /*
-  |--------------------------------------------------------------------------
-  | Close form
-  |--------------------------------------------------------------------------
-  */
-
-  function closeRubricForm() {
-    const formCard = $("#rubricFormCard");
-
-    if (formCard) {
-      formCard.hidden = true;
-    }
-  }
-
-  /*
-  |--------------------------------------------------------------------------
-  | Save rubric
-  |--------------------------------------------------------------------------
-  */
-
-  function saveRubricFromForm(event) {
-    event.preventDefault();
-
-    const data = CBC.getData();
-
-    const id = $("#rubricId").value.trim();
-
-    const record = {
-      id: id || CBC.createId("rubric"),
-
-      grade: CBC.cleanDisplayText(
-        $("#rubricGrade").value
-      ),
-
-      term: CBC.cleanDisplayText(
-        $("#rubricTerm").value
-      ),
-
-      subject: CBC.cleanDisplayText(
-        $("#rubricSubject").value
-      ),
-
-      title: CBC.cleanDisplayText(
-        $("#rubricTitle").value
-      ),
-
-      competency: CBC.cleanDisplayText(
-        $("#rubricCompetency").value
-      ),
-
-      criteria: CBC.cleanDisplayText(
-        $("#rubricCriteria").value
-      ),
-
-      beginning: CBC.cleanDisplayText(
-        $("#rubricBeginning").value
-      ),
-
-      developing: CBC.cleanDisplayText(
-        $("#rubricDeveloping").value
-      ),
-
-      meeting: CBC.cleanDisplayText(
-        $("#rubricMeeting").value
-      ),
-
-      exceeding: CBC.cleanDisplayText(
-        $("#rubricExceeding").value
-      ),
-
-      updatedAt: new Date().toISOString()
-    };
-
-    if (
-      !record.title ||
-      !record.subject ||
-      !record.criteria
-    ) {
-      CBC.showToast(
-        "Title, subject and criteria are required.",
+    if (!card || !form) {
+      CBCMaster.showToast(
+        "Rubric form is unavailable.",
         true
       );
       return;
     }
 
-    if (id) {
-      const index =
-        data.rubrics.findIndex(
-          (item) => item.id === id
-        );
+    const fields = {
+      id: $("#rubricId"),
+      title: $("#rubricTitle"),
+      grade: $("#rubricGrade"),
+      subject: $("#rubricSubject"),
+      term: $("#rubricTerm"),
+      criteria: $("#rubricCriteria"),
+      levels: $("#rubricLevels"),
+      description: $("#rubricDescription")
+    };
 
-      if (index !== -1) {
-        data.rubrics[index] = {
-          ...data.rubrics[index],
-          ...record
-        };
+    const heading = $("#rubricFormTitle");
+
+    if (rubric) {
+      if (heading) {
+        heading.textContent = "Edit Rubric";
       }
-    } else {
-      record.createdAt =
-        new Date().toISOString();
 
-      data.rubrics.unshift(record);
+      Object.entries(fields).forEach(
+        ([key, field]) => {
+          if (field) {
+            field.value = rubric[key] ?? "";
+          }
+        }
+      );
+    } else {
+      form.reset();
+
+      if (heading) {
+        heading.textContent = "Create Rubric";
+      }
+
+      const data = CBCMaster.getData();
+
+      if (fields.id) fields.id.value = "";
+
+      if (fields.grade) {
+        fields.grade.value =
+          data.preferences?.grade || "Grade 5";
+      }
+
+      if (fields.term) {
+        fields.term.value =
+          data.preferences?.term || "Term 1";
+      }
     }
 
-    CBC.saveData(data);
-    CBC.refresh();
+    card.hidden = false;
+    card.removeAttribute("hidden");
+
+    fields.title?.focus();
+  }
+
+  function closeRubricForm() {
+    const card = $("#rubricFormCard");
+    const form = $("#rubricForm");
+
+    form?.reset();
+
+    if (card) {
+      card.hidden = true;
+      card.setAttribute("hidden", "");
+    }
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | Save
+  |--------------------------------------------------------------------------
+  */
+
+  function saveRubric(event) {
+    event.preventDefault();
+
+    const data = CBCMaster.getData();
+
+    if (!Array.isArray(data.rubrics)) {
+      data.rubrics = [];
+    }
+
+    const rubric = {
+      id: clean($("#rubricId")?.value),
+      title: clean($("#rubricTitle")?.value),
+      grade: clean($("#rubricGrade")?.value),
+      subject: clean($("#rubricSubject")?.value),
+      term: clean($("#rubricTerm")?.value),
+      criteria: clean($("#rubricCriteria")?.value),
+      levels: clean($("#rubricLevels")?.value),
+      description: clean($("#rubricDescription")?.value)
+    };
+
+    if (!rubric.title) {
+      CBCMaster.showToast(
+        "Enter a rubric title.",
+        true
+      );
+      $("#rubricTitle")?.focus();
+      return;
+    }
+
+    if (!rubric.criteria) {
+      CBCMaster.showToast(
+        "Enter rubric criteria.",
+        true
+      );
+      $("#rubricCriteria")?.focus();
+      return;
+    }
+
+    const isEditing = Boolean(rubric.id);
+    const now = new Date().toISOString();
+
+    if (isEditing) {
+      const index = data.rubrics.findIndex(
+        (item) => item.id === rubric.id
+      );
+
+      if (index === -1) {
+        CBCMaster.showToast(
+          "Rubric not found.",
+          true
+        );
+        return;
+      }
+
+      data.rubrics[index] = {
+        ...data.rubrics[index],
+        ...rubric,
+        updatedAt: now
+      };
+    } else {
+      rubric.id = CBCMaster.createId("rubric");
+      rubric.createdAt = now;
+      rubric.updatedAt = now;
+
+      data.rubrics.push(rubric);
+    }
+
+    if (!CBCMaster.saveData(data)) {
+      return;
+    }
+
+    CBCMaster.addActivity(
+      isEditing
+        ? "Updated assessment rubric"
+        : "Created assessment rubric"
+    );
 
     closeRubricForm();
+    CBCMaster.refresh();
 
-    CBC.showToast(
-      id
-        ? "Assessment Rubric updated."
-        : "Assessment Rubric saved."
+    CBCMaster.showToast(
+      isEditing
+        ? "Rubric updated."
+        : "Rubric created."
     );
   }
 
   /*
   |--------------------------------------------------------------------------
-  | Render page
+  | Search
   |--------------------------------------------------------------------------
   */
 
-  function renderRubricsPage() {
-    const list = $("#rubricsList");
-    const emptyState =
-      $("#rubricsEmptyState");
-    const count = $("#rubricCount");
-
-    if (!list) {
-      return;
+  function matchesSearch(rubric) {
+    if (!rubricSearchQuery) {
+      return true;
     }
 
-    const data = CBC.getData();
+    const searchable = [
+      rubric.title,
+      rubric.grade,
+      rubric.subject,
+      rubric.term,
+      rubric.criteria,
+      rubric.levels,
+      rubric.description
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
 
-    let records =
-      Array.isArray(data.rubrics)
-        ? data.rubrics
-        : [];
-
-    const query =
-      rubricSearchQuery
-        .trim()
-        .toLowerCase();
-
-    if (query) {
-      records = records.filter(
-        (record) =>
-          [
-            record.title,
-            record.subject,
-            record.grade,
-            record.term,
-            record.competency,
-            record.criteria
-          ]
-            .filter(Boolean)
-            .join(" ")
-            .toLowerCase()
-            .includes(query)
-      );
-    }
-
-    list.innerHTML = "";
-
-    if (count) {
-      count.textContent =
-        String(records.length);
-    }
-
-    if (!records.length) {
-      if (emptyState) {
-        emptyState.hidden = false;
-      }
-
-      return;
-    }
-
-    if (emptyState) {
-      emptyState.hidden = true;
-    }
-
-    records.forEach((record) => {
-      list.appendChild(
-        createRubricCard(record)
-      );
-    });
+    return searchable.includes(
+      rubricSearchQuery.toLowerCase()
+    );
   }
 
   /*
   |--------------------------------------------------------------------------
-  | Rubric card
+  | Card
   |--------------------------------------------------------------------------
   */
 
-  function createRubricCard(record) {
-    const card =
-      document.createElement("article");
+  function createRubricCard(rubric) {
+    const card = document.createElement("article");
+    card.className = "stat-card";
 
-    card.className =
-      "module-record-card rubric-record-card";
+    const header = document.createElement("div");
+    header.className = "stat-card-header";
 
-    const title =
-      CBC.cleanDisplayText(
-        record.title ||
-          "Untitled Rubric"
-      );
+    const title = document.createElement("h3");
+    title.textContent =
+      rubric.title || "Untitled Rubric";
 
-    const subject =
-      CBC.cleanDisplayText(
-        record.subject ||
-          "Subject"
-      );
+    header.appendChild(title);
 
-    const grade =
-      CBC.cleanDisplayText(
-        record.grade || ""
-      );
+    const details = document.createElement("div");
+    details.className = "stat-card-details";
 
-    const term =
-      CBC.cleanDisplayText(
-        record.term || ""
-      );
+    const fields = [
+      ["Grade", rubric.grade],
+      ["Subject", rubric.subject],
+      ["Term", rubric.term],
+      ["Criteria", rubric.criteria],
+      ["Performance levels", rubric.levels],
+      ["Description", rubric.description]
+    ];
 
-    const competency =
-      CBC.cleanDisplayText(
-        record.competency || ""
-      );
+    fields.forEach(([label, value]) => {
+      if (!value) return;
 
-    const criteria =
-      CBC.cleanDisplayText(
-        record.criteria || ""
-      );
+      const paragraph = document.createElement("p");
+      paragraph.textContent = `${label}: ${value}`;
 
-    const beginning =
-      CBC.cleanDisplayText(
-        record.beginning || ""
-      );
+      details.appendChild(paragraph);
+    });
 
-    const developing =
-      CBC.cleanDisplayText(
-        record.developing || ""
-      );
+    const actions = document.createElement("div");
+    actions.className = "card-actions";
 
-    const meeting =
-      CBC.cleanDisplayText(
-        record.meeting || ""
-      );
+    const editButton = document.createElement("button");
+    editButton.type = "button";
+    editButton.className = "button secondary";
+    editButton.textContent = "Edit";
 
-    const exceeding =
-      CBC.cleanDisplayText(
-        record.exceeding || ""
-      );
+    editButton.addEventListener("click", () => {
+      openRubricForm(rubric);
+    });
 
-    card.innerHTML = `
-      <div class="module-record-header">
-        <div>
-          <span class="record-kicker">
-            ${subject}
-          </span>
+    const deleteButton = document.createElement("button");
+    deleteButton.type = "button";
+    deleteButton.className = "button danger";
+    deleteButton.textContent = "Delete";
 
-          <h3>
-            ${title}
-          </h3>
-        </div>
+    deleteButton.addEventListener("click", () => {
+      deleteRubric(rubric.id);
+    });
 
-        <span class="record-badge">
-          Rubric
-        </span>
-      </div>
-
-      <div class="record-meta">
-        <span>${grade}</span>
-        <span>${term}</span>
-      </div>
-
-      ${
-        competency
-          ? `
-            <div class="module-record-preview">
-              <strong>Competency</strong>
-              <p>${competency}</p>
-            </div>
-          `
-          : ""
-      }
-
-      ${
-        criteria
-          ? `
-            <div class="module-record-preview">
-              <strong>Assessment Criteria</strong>
-              <p>${criteria}</p>
-            </div>
-          `
-          : ""
-      }
-
-      <div class="rubric-levels">
-
-        ${
-          beginning
-            ? `
-              <div class="rubric-level">
-                <strong>Beginning</strong>
-                <p>${beginning}</p>
-              </div>
-            `
-            : ""
-        }
-
-        ${
-          developing
-            ? `
-              <div class="rubric-level">
-                <strong>Developing</strong>
-                <p>${developing}</p>
-              </div>
-            `
-            : ""
-        }
-
-        ${
-          meeting
-            ? `
-              <div class="rubric-level">
-                <strong>Meeting</strong>
-                <p>${meeting}</p>
-              </div>
-            `
-            : ""
-        }
-
-        ${
-          exceeding
-            ? `
-              <div class="rubric-level">
-                <strong>Exceeding</strong>
-                <p>${exceeding}</p>
-              </div>
-            `
-            : ""
-        }
-
-      </div>
-
-      <div class="form-actions">
-
-        <button
-          type="button"
-          class="btn btn-secondary"
-          data-edit-rubric="${record.id}">
-          Edit
-        </button>
-
-        <button
-          type="button"
-          class="btn btn-danger"
-          data-delete-rubric="${record.id}">
-          Delete
-        </button>
-
-      </div>
-    `;
+    actions.append(editButton, deleteButton);
+    card.append(header, details, actions);
 
     return card;
   }
 
   /*
   |--------------------------------------------------------------------------
-  | Delete rubric
+  | Render
+  |--------------------------------------------------------------------------
+  */
+
+  function renderRubricsPage() {
+    const list = $("#rubricsList");
+    const emptyState = $("#rubricsEmptyState");
+    const count = $("#rubricCount");
+
+    if (!list) return;
+
+    const rubrics = getRubrics()
+      .filter(matchesSearch)
+      .sort((a, b) =>
+        String(b.updatedAt || "")
+          .localeCompare(String(a.updatedAt || ""))
+      );
+
+    list.replaceChildren();
+
+    if (count) {
+      count.textContent = String(rubrics.length);
+    }
+
+    if (emptyState) {
+      emptyState.hidden = rubrics.length > 0;
+    }
+
+    const fragment = document.createDocumentFragment();
+
+    rubrics.forEach((rubric) => {
+      fragment.appendChild(
+        createRubricCard(rubric)
+      );
+    });
+
+    list.appendChild(fragment);
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | Delete
   |--------------------------------------------------------------------------
   */
 
   function deleteRubric(id) {
-    const data = CBC.getData();
+    const data = CBCMaster.getData();
 
-    const record =
-      data.rubrics.find(
-        (item) => item.id === id
-      );
-
-    if (!record) {
-      return;
-    }
-
-    const confirmed =
-      window.confirm(
-        `Delete the rubric "${record.title || "this rubric"}"?`
-      );
-
-    if (!confirmed) {
-      return;
-    }
-
-    data.rubrics =
-      data.rubrics.filter(
-        (item) => item.id !== id
-      );
-
-    CBC.saveData(data);
-    CBC.refresh();
-
-    CBC.showToast(
-      "Assessment Rubric deleted."
+    const exists = data.rubrics.some(
+      (rubric) => rubric.id === id
     );
+
+    if (!exists) {
+      CBCMaster.showToast(
+        "Rubric not found.",
+        true
+      );
+      return;
+    }
+
+    if (!window.confirm(
+      "Delete this rubric?"
+    )) {
+      return;
+    }
+
+    data.rubrics = data.rubrics.filter(
+      (rubric) => rubric.id !== id
+    );
+
+    if (!CBCMaster.saveData(data)) {
+      return;
+    }
+
+    CBCMaster.addActivity(
+      "Deleted assessment rubric"
+    );
+
+    CBCMaster.refresh();
+    CBCMaster.showToast("Rubric deleted.");
   }
 
   /*
   |--------------------------------------------------------------------------
-  | Bind controls
+  | Controls
   |--------------------------------------------------------------------------
   */
 
-  function bindRubricControls() {
-    const addButton =
-      $("#addRubricBtn");
-
-    const cancelButton =
-      $("#cancelRubricButton");
-
-    const form =
-      $("#rubricForm");
-
-    const search =
-      $("#rubricSearch");
-
-    if (addButton) {
-      addButton.addEventListener(
-        "click",
-        () => openRubricForm()
-      );
-    }
-
-    if (cancelButton) {
-      cancelButton.addEventListener(
-        "click",
-        closeRubricForm
-      );
-    }
-
-    if (form) {
-      form.addEventListener(
-        "submit",
-        saveRubricFromForm
-      );
-    }
-
-    if (search) {
-      search.addEventListener(
-        "input",
-        (event) => {
-          rubricSearchQuery =
-            event.target.value || "";
-
-          renderRubricsPage();
-        }
-      );
-    }
-
-    document.addEventListener(
+  function bindControls() {
+    $("#addRubricBtn")?.addEventListener(
       "click",
+      () => openRubricForm()
+    );
+
+    $("#cancelRubricButton")?.addEventListener(
+      "click",
+      closeRubricForm
+    );
+
+    $("#cancelRubricBtn")?.addEventListener(
+      "click",
+      closeRubricForm
+    );
+
+    $("#rubricForm")?.addEventListener(
+      "submit",
+      saveRubric
+    );
+
+    $("#rubricSearch")?.addEventListener(
+      "input",
       (event) => {
-        const editButton =
-          event.target.closest(
-            "[data-edit-rubric]"
-          );
-
-        if (editButton) {
-          const id =
-            editButton.dataset
-              .editRubric;
-
-          const record =
-            CBC.getData()
-              .rubrics
-              .find(
-                (item) =>
-                  item.id === id
-              );
-
-          if (record) {
-            openRubricForm(record);
-          }
-
-          return;
-        }
-
-        const deleteButton =
-          event.target.closest(
-            "[data-delete-rubric]"
-          );
-
-        if (deleteButton) {
-          deleteRubric(
-            deleteButton.dataset
-              .deleteRubric
-          );
-        }
+        rubricSearchQuery = clean(
+          event.target.value
+        );
+        renderRubricsPage();
       }
     );
   }
 
   /*
   |--------------------------------------------------------------------------
-  | Quick action
-  |--------------------------------------------------------------------------
-  */
-
-  function bindRubricQuickAction() {
-    document.addEventListener(
-      "click",
-      (event) => {
-        const button =
-          event.target.closest(
-            '[data-action="create-rubric"]'
-          );
-
-        if (!button) {
-          return;
-        }
-
-        CBC.navigate("rubrics");
-        openRubricForm();
-      }
-    );
-  }
-
-  /*
-  |--------------------------------------------------------------------------
-  | Initialize
+  | Initialization
   |--------------------------------------------------------------------------
   */
 
   function initRubricsModule() {
-    bindRubricControls();
-    bindRubricQuickAction();
+    if (rubricsInitialized) return;
+
+    rubricsInitialized = true;
+    bindControls();
     renderRubricsPage();
   }
 
   /*
   |--------------------------------------------------------------------------
-  | Public module API
+  | Public API
   |--------------------------------------------------------------------------
   */
 
-  window.CBCMasterRubrics =
-    Object.freeze({
-      open: openRubricForm,
-      close: closeRubricForm,
-      render: renderRubricsPage
-    });
+  window.CBCMasterRubrics = Object.freeze({
+    render: renderRubricsPage,
+    open: openRubricForm,
+    close: closeRubricForm,
+    delete: deleteRubric
+  });
 
-  document.addEventListener(
-    "DOMContentLoaded",
-    initRubricsModule
-  );
+  /*
+  |--------------------------------------------------------------------------
+  | Start
+  |--------------------------------------------------------------------------
+  */
+
+  if (document.readyState === "loading") {
+    document.addEventListener(
+      "DOMContentLoaded",
+      initRubricsModule,
+      { once: true }
+    );
+  } else {
+    initRubricsModule();
+  }
 })();
