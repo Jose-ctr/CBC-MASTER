@@ -53,6 +53,7 @@ const STORAGE_VERSION = 2;
 */
 
 const PAGE_TITLES = {
+
   dashboard: {
     title: "Dashboard",
     subtitle: "Your CBC teaching workspace"
@@ -107,6 +108,7 @@ const PAGE_TITLES = {
     title: "Settings",
     subtitle: "Privacy, preferences and local data"
   }
+
 };
 
 
@@ -117,6 +119,7 @@ const PAGE_TITLES = {
 */
 
 const DEFAULT_DATA = {
+
   version: STORAGE_VERSION,
 
   teacher: {
@@ -141,6 +144,7 @@ const DEFAULT_DATA = {
   documents: [],
   timetable: [],
   activity: []
+
 };
 
 
@@ -148,17 +152,106 @@ const DEFAULT_DATA = {
 |--------------------------------------------------------------------------
 | DOM helpers
 |--------------------------------------------------------------------------
+|
+| Important:
+| Modules may call:
+|
+| API.$("studentFormCard")
+|
+| while other parts of the application
+| may call:
+|
+| $("#pageTitle")
+|
+| This helper now supports BOTH forms.
+|
+|--------------------------------------------------------------------------
 */
 
 function $(selector) {
-  return document.querySelector(selector);
+
+  if (
+    typeof selector !== "string"
+  ) {
+    return null;
+  }
+
+  const value =
+    selector.trim();
+
+  if (!value) {
+    return null;
+  }
+
+
+  /*
+   * Simple names such as:
+   *
+   * "studentFormCard"
+   * "studentName"
+   * "studentId"
+   *
+   * are treated as element IDs.
+   */
+
+  if (
+    /^[A-Za-z][A-Za-z0-9_-]*$/.test(
+      value
+    )
+  ) {
+
+    return document.getElementById(
+      value
+    );
+
+  }
+
+
+  /*
+   * CSS selectors such as:
+   *
+   * "#pageTitle"
+   * ".button"
+   * "[data-page]"
+   */
+
+  try {
+
+    return document.querySelector(
+      value
+    );
+
+  } catch (_) {
+
+    return null;
+
+  }
+
 }
 
 
 function $$(selector) {
-  return Array.from(
-    document.querySelectorAll(selector)
-  );
+
+  if (
+    typeof selector !== "string"
+  ) {
+    return [];
+  }
+
+  try {
+
+    return Array.from(
+      document.querySelectorAll(
+        selector
+      )
+    );
+
+  } catch (_) {
+
+    return [];
+
+  }
+
 }
 
 
@@ -169,9 +262,11 @@ function $$(selector) {
 */
 
 function cleanDisplayText(value) {
+
   return String(value ?? "")
     .replace(/[<>]/g, "")
     .trim();
+
 }
 
 
@@ -182,18 +277,22 @@ function cleanDisplayText(value) {
 */
 
 function isObject(value) {
+
   return (
     value !== null &&
     typeof value === "object" &&
     !Array.isArray(value)
   );
+
 }
 
 
 function ensureArray(value) {
+
   return Array.isArray(value)
     ? value
     : [];
+
 }
 
 
@@ -204,9 +303,13 @@ function ensureArray(value) {
 */
 
 function cloneDefaultData() {
+
   return JSON.parse(
-    JSON.stringify(DEFAULT_DATA)
+    JSON.stringify(
+      DEFAULT_DATA
+    )
   );
+
 }
 
 
@@ -216,12 +319,21 @@ function cloneDefaultData() {
 |--------------------------------------------------------------------------
 */
 
-function createId(prefix = "record") {
+function createId(
+  prefix = "record"
+) {
+
   if (
     window.crypto &&
-    typeof window.crypto.randomUUID === "function"
+    typeof window.crypto.randomUUID ===
+      "function"
   ) {
-    return `${prefix}_${window.crypto.randomUUID()}`;
+
+    return (
+      `${prefix}_` +
+      window.crypto.randomUUID()
+    );
+
   }
 
   return (
@@ -232,6 +344,7 @@ function createId(prefix = "record") {
       .toString(36)
       .slice(2, 10)
   );
+
 }
 
 
@@ -242,6 +355,7 @@ function createId(prefix = "record") {
 */
 
 function normaliseData(input) {
+
   const defaults =
     cloneDefaultData();
 
@@ -250,22 +364,28 @@ function normaliseData(input) {
   }
 
   const normalized = {
-    version: STORAGE_VERSION,
+
+    version:
+      STORAGE_VERSION,
 
     teacher: {
+
       ...defaults.teacher,
 
       ...(isObject(input.teacher)
         ? input.teacher
         : {})
+
     },
 
     preferences: {
+
       ...defaults.preferences,
 
       ...(isObject(input.preferences)
         ? input.preferences
         : {})
+
     },
 
     students:
@@ -291,19 +411,22 @@ function normaliseData(input) {
 
     activity:
       ensureArray(input.activity)
+
   };
 
-  /*
-   * Keep only the most recent
-   * local activity records.
-   */
 
-  if (normalized.activity.length > 100) {
+  if (
+    normalized.activity.length >
+    100
+  ) {
+
     normalized.activity =
       normalized.activity.slice(-100);
+
   }
 
   return normalized;
+
 }
 
 
@@ -313,35 +436,30 @@ function normaliseData(input) {
 |--------------------------------------------------------------------------
 */
 
-function isValidBackupPayload(input) {
+function isValidBackupPayload(
+  input
+) {
+
   if (!isObject(input)) {
     return false;
   }
 
-  /*
-   * Accept:
-   *
-   * {
-   *   app: "CBC MASTER V2",
-   *   version: 2,
-   *   data: {...}
-   * }
-   *
-   * and direct data objects.
-   */
 
-  if (isObject(input.data)) {
+  if (
+    isObject(input.data)
+  ) {
+
     return (
-      input.app === "CBC MASTER V2" &&
+      input.app ===
+        "CBC MASTER V2" &&
       isObject(input.data)
     );
+
   }
 
-  /*
-   * Direct local-data format.
-   */
 
   return (
+
     "teacher" in input ||
     "preferences" in input ||
     "students" in input ||
@@ -351,7 +469,9 @@ function isValidBackupPayload(input) {
     "rubrics" in input ||
     "documents" in input ||
     "timetable" in input
+
   );
+
 }
 
 
@@ -362,7 +482,9 @@ function isValidBackupPayload(input) {
 */
 
 function loadData() {
+
   try {
+
     const raw =
       localStorage.getItem(
         STORAGE_KEY
@@ -375,16 +497,16 @@ function loadData() {
     const parsed =
       JSON.parse(raw);
 
-    return normaliseData(parsed);
+    return normaliseData(
+      parsed
+    );
 
-  } catch (error) {
-
-    /*
-     * Never log local teaching data.
-     */
+  } catch (_) {
 
     return cloneDefaultData();
+
   }
+
 }
 
 
@@ -395,18 +517,22 @@ function loadData() {
 */
 
 function saveData(data) {
+
   try {
+
     const normalized =
       normaliseData(data);
 
     localStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify(normalized)
+      JSON.stringify(
+        normalized
+      )
     );
 
     return true;
 
-  } catch (error) {
+  } catch (_) {
 
     showToast(
       "Unable to save local data.",
@@ -414,7 +540,9 @@ function saveData(data) {
     );
 
     return false;
+
   }
+
 }
 
 
@@ -425,7 +553,9 @@ function saveData(data) {
 */
 
 function getData() {
+
   return loadData();
+
 }
 
 
@@ -439,25 +569,19 @@ function addActivity(
   action,
   metadata = {}
 ) {
+
   const data =
     getData();
 
-  /*
-   * Activity metadata must remain
-   * simple and local.
-   *
-   * Do not place student names,
-   * phone numbers, marks or other
-   * unnecessary personal information
-   * inside activity metadata.
-   */
-
   data.activity.push({
+
     id:
       createId("activity"),
 
     action:
-      cleanDisplayText(action),
+      cleanDisplayText(
+        action
+      ),
 
     timestamp:
       new Date().toISOString(),
@@ -466,14 +590,23 @@ function addActivity(
       isObject(metadata)
         ? metadata
         : {}
+
   });
 
-  if (data.activity.length > 100) {
+
+  if (
+    data.activity.length >
+    100
+  ) {
+
     data.activity =
       data.activity.slice(-100);
+
   }
 
+
   saveData(data);
+
 }
 
 
@@ -487,6 +620,7 @@ function addRecord(
   collection,
   record
 ) {
+
   const data =
     getData();
 
@@ -495,15 +629,20 @@ function addRecord(
       data[collection]
     )
   ) {
+
     data[collection] = [];
+
   }
+
 
   const source =
     isObject(record)
       ? record
       : {};
 
+
   const newRecord = {
+
     ...source,
 
     id:
@@ -516,11 +655,14 @@ function addRecord(
 
     updatedAt:
       new Date().toISOString()
+
   };
+
 
   data[collection].unshift(
     newRecord
   );
+
 
   const saved =
     saveData(data);
@@ -528,6 +670,7 @@ function addRecord(
   return saved
     ? newRecord
     : null;
+
 }
 
 
@@ -538,58 +681,72 @@ function addRecord(
 */
 
 function addStudent(student) {
+
   return addRecord(
     "students",
     student
   );
+
 }
 
 
 function addReportBook(record) {
+
   return addRecord(
     "reportBooks",
     record
   );
+
 }
 
 
 function addScheme(record) {
+
   return addRecord(
     "schemes",
     record
   );
+
 }
 
 
 function addLessonPlan(record) {
+
   return addRecord(
     "lessonPlans",
     record
   );
+
 }
 
 
 function addRubric(record) {
+
   return addRecord(
     "rubrics",
     record
   );
+
 }
 
 
 function addDocument(record) {
+
   return addRecord(
     "documents",
     record
   );
+
 }
 
 
 function addTimetableEntry(record) {
+
   return addRecord(
     "timetable",
     record
   );
+
 }
 
 
@@ -602,31 +759,47 @@ function addTimetableEntry(record) {
 function updateTeacher(
   teacherUpdates
 ) {
+
   const data =
     getData();
 
   if (
-    !isObject(teacherUpdates)
+    !isObject(
+      teacherUpdates
+    )
   ) {
+
     return false;
+
   }
 
+
   data.teacher = {
+
     ...data.teacher,
+
     ...teacherUpdates
+
   };
+
 
   const saved =
     saveData(data);
 
+
   if (saved) {
+
     renderSidebarProfile();
+
     renderSettings();
 
     window.CBCMasterProfile?.render();
+
   }
 
+
   return saved;
+
 }
 
 
@@ -639,29 +812,45 @@ function updateTeacher(
 function updatePreferences(
   preferenceUpdates
 ) {
+
   const data =
     getData();
 
   if (
-    !isObject(preferenceUpdates)
+    !isObject(
+      preferenceUpdates
+    )
   ) {
+
     return false;
+
   }
 
+
   data.preferences = {
+
     ...data.preferences,
+
     ...preferenceUpdates
+
   };
+
 
   const saved =
     saveData(data);
 
+
   if (saved) {
+
     renderSettings();
+
     renderSidebarProfile();
+
   }
 
+
   return saved;
+
 }
 
 
@@ -672,102 +861,113 @@ function updatePreferences(
 */
 
 function navigate(page) {
-  if (!PAGE_TITLES[page]) {
-    page = "dashboard";
+
+  if (
+    !PAGE_TITLES[page]
+  ) {
+
+    page =
+      "dashboard";
+
   }
+
 
   const metadata =
     PAGE_TITLES[page];
 
+
   const title =
     $("#pageTitle");
+
 
   const subtitle =
     $("#pageSubtitle");
 
+
   if (title) {
+
     title.textContent =
       metadata.title;
+
   }
+
 
   if (subtitle) {
+
     subtitle.textContent =
       metadata.subtitle;
+
   }
 
-  /*
-   * Show only the selected page.
-   */
 
   $$(
     "[data-page-section]"
-  ).forEach((section) => {
+  ).forEach(
+    (section) => {
 
-    const isActive =
-      section.dataset.pageSection === page;
+      const isActive =
+        section.dataset.pageSection ===
+        page;
 
-    section.hidden =
-      !isActive;
 
-    section.setAttribute(
-      "aria-hidden",
-      String(!isActive)
-    );
-  });
+      section.hidden =
+        !isActive;
 
-  /*
-   * Update navigation state.
-   */
+
+      section.setAttribute(
+        "aria-hidden",
+        String(!isActive)
+      );
+
+    }
+  );
+
 
   $$(
     "[data-page]"
-  ).forEach((button) => {
+  ).forEach(
+    (button) => {
 
-    const active =
-      button.dataset.page === page;
+      const active =
+        button.dataset.page ===
+        page;
 
-    button.classList.toggle(
-      "active",
-      active
-    );
 
-    if (active) {
-
-      button.setAttribute(
-        "aria-current",
-        "page"
+      button.classList.toggle(
+        "active",
+        active
       );
 
-    } else {
 
-      button.removeAttribute(
-        "aria-current"
-      );
+      if (active) {
+
+        button.setAttribute(
+          "aria-current",
+          "page"
+        );
+
+      } else {
+
+        button.removeAttribute(
+          "aria-current"
+        );
+
+      }
+
     }
-  });
+  );
 
-  /*
-   * Render the active module.
-   */
 
   renderPageModule(page);
 
-  /*
-   * Close forms belonging to
-   * modules that are no longer active.
-   */
-
   closeInactiveModules(page);
 
-  /*
-   * Return to the top of the
-   * application workspace.
-   */
 
   window.scrollTo({
     top: 0,
     behavior: "smooth"
   });
+
 }
 
 
@@ -777,69 +977,89 @@ function navigate(page) {
 |--------------------------------------------------------------------------
 */
 
-function renderPageModule(page) {
+function renderPageModule(
+  page
+) {
 
   switch (page) {
 
     case "students":
 
-      window.CBCMasterStudents?.render();
+      window
+        .CBCMasterStudents
+        ?.render();
 
       break;
 
 
     case "report-books":
 
-      window.CBCMasterReportBooks?.render();
+      window
+        .CBCMasterReportBooks
+        ?.render();
 
       break;
 
 
     case "schemes":
 
-      window.CBCMasterSchemes?.render();
+      window
+        .CBCMasterSchemes
+        ?.render();
 
       break;
 
 
     case "lesson-plans":
 
-      window.CBCMasterLessonPlans?.render();
+      window
+        .CBCMasterLessonPlans
+        ?.render();
 
       break;
 
 
     case "timetable":
 
-      window.CBCMasterTimetable?.render();
+      window
+        .CBCMasterTimetable
+        ?.render();
 
       break;
 
 
     case "rubrics":
 
-      window.CBCMasterRubrics?.render();
+      window
+        .CBCMasterRubrics
+        ?.render();
 
       break;
 
 
     case "documents":
 
-      window.CBCMasterDocuments?.render();
+      window
+        .CBCMasterDocuments
+        ?.render();
 
       break;
 
 
     case "analytics":
 
-      window.CBCMasterAnalytics?.render();
+      window
+        .CBCMasterAnalytics
+        ?.render();
 
       break;
 
 
     case "profile":
 
-      window.CBCMasterProfile?.render();
+      window
+        .CBCMasterProfile
+        ?.render();
 
       break;
 
@@ -856,10 +1076,13 @@ function renderPageModule(page) {
     default:
 
       renderDashboardStats();
+
       renderSidebarProfile();
 
       break;
+
   }
+
 }
 
 
@@ -869,35 +1092,72 @@ function renderPageModule(page) {
 |--------------------------------------------------------------------------
 */
 
-function closeInactiveModules(page) {
+function closeInactiveModules(
+  page
+) {
 
   if (page !== "students") {
-    window.CBCMasterStudents?.close();
+
+    window
+      .CBCMasterStudents
+      ?.close();
+
   }
+
 
   if (page !== "report-books") {
-    window.CBCMasterReportBooks?.close();
+
+    window
+      .CBCMasterReportBooks
+      ?.close();
+
   }
+
 
   if (page !== "schemes") {
-    window.CBCMasterSchemes?.close();
+
+    window
+      .CBCMasterSchemes
+      ?.close();
+
   }
+
 
   if (page !== "lesson-plans") {
-    window.CBCMasterLessonPlans?.close();
+
+    window
+      .CBCMasterLessonPlans
+      ?.close();
+
   }
+
 
   if (page !== "timetable") {
-    window.CBCMasterTimetable?.close();
+
+    window
+      .CBCMasterTimetable
+      ?.close();
+
   }
+
 
   if (page !== "rubrics") {
-    window.CBCMasterRubrics?.close();
+
+    window
+      .CBCMasterRubrics
+      ?.close();
+
   }
 
+
   if (page !== "documents") {
-    window.CBCMasterDocuments?.close();
+
+    window
+      .CBCMasterDocuments
+      ?.close();
+
   }
+
 }
 
 
@@ -911,20 +1171,23 @@ function bindNavigation() {
 
   $$(
     "[data-page]"
-  ).forEach((button) => {
+  ).forEach(
+    (button) => {
 
-    button.addEventListener(
-      "click",
-      () => {
+      button.addEventListener(
+        "click",
+        () => {
 
-        navigate(
-          button.dataset.page
-        );
+          navigate(
+            button.dataset.page
+          );
 
-      }
-    );
+        }
+      );
 
-  });
+    }
+  );
+
 }
 
 
@@ -938,73 +1201,83 @@ function bindModuleCards() {
 
   $$(
     "[data-module]"
-  ).forEach((card) => {
-
-    card.addEventListener(
-      "click",
-      () => {
-
-        const page =
-          card.dataset.module;
-
-        if (PAGE_TITLES[page]) {
-          navigate(page);
-        }
-
-      }
-    );
-
-
-    /*
-     * Keyboard accessibility for
-     * non-button module cards.
-     */
-
-    if (
-      !(
-        card instanceof
-        HTMLButtonElement
-      ) &&
-      !(
-        card instanceof
-        HTMLAnchorElement
-      )
-    ) {
-
-      card.setAttribute(
-        "role",
-        "button"
-      );
-
-      card.setAttribute(
-        "tabindex",
-        "0"
-      );
+  ).forEach(
+    (card) => {
 
       card.addEventListener(
-        "keydown",
-        (event) => {
+        "click",
+        () => {
+
+          const page =
+            card.dataset.module;
 
           if (
-            event.key === "Enter" ||
-            event.key === " "
+            PAGE_TITLES[page]
           ) {
 
-            event.preventDefault();
+            navigate(page);
 
-            const page =
-              card.dataset.module;
-
-            if (PAGE_TITLES[page]) {
-              navigate(page);
-            }
           }
 
         }
       );
-    }
 
-  });
+
+      if (
+        !(
+          card instanceof
+          HTMLButtonElement
+        ) &&
+        !(
+          card instanceof
+          HTMLAnchorElement
+        )
+      ) {
+
+        card.setAttribute(
+          "role",
+          "button"
+        );
+
+        card.setAttribute(
+          "tabindex",
+          "0"
+        );
+
+
+        card.addEventListener(
+          "keydown",
+          (event) => {
+
+            if (
+              event.key ===
+                "Enter" ||
+              event.key === " "
+            ) {
+
+              event.preventDefault();
+
+              const page =
+                card.dataset.module;
+
+              if (
+                PAGE_TITLES[page]
+              ) {
+
+                navigate(page);
+
+              }
+
+            }
+
+          }
+        );
+
+      }
+
+    }
+  );
+
 }
 
 
@@ -1018,83 +1291,142 @@ function bindQuickActions() {
 
   $$(
     "[data-action]"
-  ).forEach((button) => {
+  ).forEach(
+    (button) => {
 
-    button.addEventListener(
-      "click",
-      () => {
+      button.addEventListener(
+        "click",
+        () => {
 
-        const action =
-          button.dataset.action;
+          const action =
+            button.dataset.action;
 
 
-        switch (action) {
+          switch (action) {
 
-          /*
-           * ADD LEARNER FIX
-           *
-           * First navigate to Students.
-           * Then wait briefly for the Students
-           * module to render before opening
-           * its form.
-           */
+            /*
+             * Add Learner
+             */
 
-          case "add-student": {
+            case "add-student": {
 
-            navigate("students");
+              navigate(
+                "students"
+              );
 
-            window.setTimeout(
-              () => {
 
-                window
-                  .CBCMasterStudents
-                  ?.open();
+              /*
+               * Wait for the Students
+               * module and form DOM.
+               */
 
-              },
-              50
-            );
+              let attempts = 0;
 
-            break;
+
+              const openLearner =
+                window.setInterval(
+                  () => {
+
+                    attempts += 1;
+
+
+                    const studentsAPI =
+                      window.CBCMasterStudents;
+
+
+                    const form =
+                      document.getElementById(
+                        "studentFormCard"
+                      );
+
+
+                    if (
+                      studentsAPI &&
+                      typeof studentsAPI.open ===
+                        "function" &&
+                      form
+                    ) {
+
+                      window.clearInterval(
+                        openLearner
+                      );
+
+
+                      studentsAPI.open();
+
+                      return;
+
+                    }
+
+
+                    if (
+                      attempts >= 20
+                    ) {
+
+                      window.clearInterval(
+                        openLearner
+                      );
+
+                    }
+
+                  },
+                  100
+                );
+
+
+              break;
+
+            }
+
+
+            case "open-students":
+
+              navigate(
+                "students"
+              );
+
+              break;
+
+
+            case "open-analytics":
+
+              navigate(
+                "analytics"
+              );
+
+              break;
+
+
+            case "open-settings":
+
+              navigate(
+                "settings"
+              );
+
+              break;
+
+
+            case "open-profile":
+
+              navigate(
+                "profile"
+              );
+
+              break;
+
+
+            default:
+
+              break;
+
           }
 
-
-          case "open-students":
-
-            navigate("students");
-
-            break;
-
-
-          case "open-analytics":
-
-            navigate("analytics");
-
-            break;
-
-
-          case "open-settings":
-
-            navigate("settings");
-
-            break;
-
-
-          case "open-profile":
-
-            navigate("profile");
-
-            break;
-
-
-          default:
-
-            break;
         }
+      );
 
-      }
-    );
+    }
+  );
 
-  });
 }
 
 
@@ -1119,7 +1451,9 @@ function bindHeaderActions() {
       "click",
       () => {
 
-        navigate("settings");
+        navigate(
+          "settings"
+        );
 
       }
     );
@@ -1141,6 +1475,7 @@ function bindHeaderActions() {
     );
 
   }
+
 }
 
 
@@ -1154,6 +1489,7 @@ function renderDashboardStats() {
 
   const data =
     getData();
+
 
   const stats = {
 
@@ -1174,22 +1510,26 @@ function renderDashboardStats() {
 
     documents:
       data.documents.length
+
   };
 
 
   $$(
     "[data-stat]"
-  ).forEach((element) => {
+  ).forEach(
+    (element) => {
 
-    const key =
-      element.dataset.stat;
+      const key =
+        element.dataset.stat;
 
-    element.textContent =
-      String(
-        stats[key] ?? 0
-      );
+      element.textContent =
+        String(
+          stats[key] ?? 0
+        );
 
-  });
+    }
+  );
+
 }
 
 
@@ -1256,6 +1596,7 @@ function renderSidebarProfile() {
       getInitials(name);
 
   }
+
 }
 
 
@@ -1289,9 +1630,15 @@ function getInitials(name) {
 
 
   return (
+
     words[0].charAt(0) +
-    words[words.length - 1].charAt(0)
+
+    words[
+      words.length - 1
+    ].charAt(0)
+
   ).toUpperCase();
+
 }
 
 
@@ -1370,6 +1717,7 @@ function renderSettings() {
 
 
   renderStorageSummary();
+
 }
 
 
@@ -1384,14 +1732,11 @@ function bindSettingsControls() {
   const form =
     $("#settingsForm");
 
-
   const exportButton =
     $("#exportDataButton");
 
-
   const importInput =
     $("#importDataInput");
-
 
   const deleteButton =
     $("#deleteDataButton");
@@ -1408,19 +1753,22 @@ function bindSettingsControls() {
 
         const grade =
           cleanDisplayText(
-            $("#settingsGrade")?.value
+            $("#settingsGrade")
+              ?.value
           ) || "Grade 5";
 
 
         const term =
           cleanDisplayText(
-            $("#settingsTerm")?.value
+            $("#settingsTerm")
+              ?.value
           ) || "Term 1";
 
 
         const academicYear =
           cleanDisplayText(
-            $("#settingsAcademicYear")?.value
+            $("#settingsAcademicYear")
+              ?.value
           ) || "2026";
 
 
@@ -1490,6 +1838,7 @@ function bindSettingsControls() {
     );
 
   }
+
 }
 
 
@@ -1513,6 +1862,7 @@ function setValue(
       String(value ?? "");
 
   }
+
 }
 
 
@@ -1536,6 +1886,7 @@ function setText(
       cleanDisplayText(value);
 
   }
+
 }
 
 
@@ -1614,29 +1965,21 @@ function renderStorageSummary() {
 
 
   const total =
-    Object.entries(counts)
-      .reduce(
-        (sum, [key, value]) => {
-
-          /*
-           * Timetable entries are
-           * application records too.
-           */
-
-          return (
-            sum +
-            Number(value || 0)
-          );
-
-        },
-        0
-      );
+    Object.values(
+      counts
+    ).reduce(
+      (sum, value) =>
+        sum +
+        Number(value || 0),
+      0
+    );
 
 
   setText(
     "#settingsTotalRecords",
     total
   );
+
 }
 
 
@@ -1689,11 +2032,15 @@ function exportLocalData() {
 
 
     const url =
-      URL.createObjectURL(blob);
+      URL.createObjectURL(
+        blob
+      );
 
 
     const link =
-      document.createElement("a");
+      document.createElement(
+        "a"
+      );
 
 
     link.href =
@@ -1708,11 +2055,12 @@ function exportLocalData() {
       "none";
 
 
-    document.body.appendChild(link);
+    document.body.appendChild(
+      link
+    );
 
 
     link.click();
-
 
     link.remove();
 
@@ -1720,7 +2068,9 @@ function exportLocalData() {
     window.setTimeout(
       () => {
 
-        URL.revokeObjectURL(url);
+        URL.revokeObjectURL(
+          url
+        );
 
       },
       1000
@@ -1734,7 +2084,7 @@ function exportLocalData() {
 
     return true;
 
-  } catch (error) {
+  } catch (_) {
 
     showToast(
       "Unable to export local backup.",
@@ -1742,7 +2092,9 @@ function exportLocalData() {
     );
 
     return false;
+
   }
+
 }
 
 
@@ -1752,7 +2104,9 @@ function exportLocalData() {
 |--------------------------------------------------------------------------
 */
 
-function handleImportFile(event) {
+function handleImportFile(
+  event
+) {
 
   const file =
     event.target.files?.[0];
@@ -1762,10 +2116,6 @@ function handleImportFile(event) {
     return;
   }
 
-
-  /*
-   * Basic file-type check.
-   */
 
   if (
     file.type &&
@@ -1786,6 +2136,7 @@ function handleImportFile(event) {
       "";
 
     return;
+
   }
 
 
@@ -1825,7 +2176,9 @@ function handleImportFile(event) {
 
 
       const normalized =
-        normaliseData(source);
+        normaliseData(
+          source
+        );
 
 
       const confirmed =
@@ -1840,11 +2193,14 @@ function handleImportFile(event) {
           "";
 
         return;
+
       }
 
 
       const saved =
-        saveData(normalized);
+        saveData(
+          normalized
+        );
 
 
       if (!saved) {
@@ -1853,18 +2209,18 @@ function handleImportFile(event) {
           "";
 
         return;
+
       }
 
 
       refresh();
-
 
       showToast(
         "Local backup restored."
       );
 
 
-    } catch (error) {
+    } catch (_) {
 
       showToast(
         "The selected backup is not valid.",
@@ -1894,7 +2250,10 @@ function handleImportFile(event) {
   };
 
 
-  reader.readAsText(file);
+  reader.readAsText(
+    file
+  );
+
 }
 
 
@@ -1937,8 +2296,9 @@ function deleteLocalData() {
 
     refresh();
 
-
-    navigate("dashboard");
+    navigate(
+      "dashboard"
+    );
 
 
     showToast(
@@ -1946,7 +2306,7 @@ function deleteLocalData() {
     );
 
 
-  } catch (error) {
+  } catch (_) {
 
     showToast(
       "Unable to delete local data.",
@@ -1954,6 +2314,7 @@ function deleteLocalData() {
     );
 
   }
+
 }
 
 
@@ -1976,16 +2337,25 @@ function getDateStamp() {
   const month =
     String(
       date.getMonth() + 1
-    ).padStart(2, "0");
+    ).padStart(
+      2,
+      "0"
+    );
 
 
   const day =
     String(
       date.getDate()
-    ).padStart(2, "0");
+    ).padStart(
+      2,
+      "0"
+    );
 
 
-  return `${year}-${month}-${day}`;
+  return (
+    `${year}-${month}-${day}`
+  );
+
 }
 
 
@@ -2004,28 +2374,50 @@ function refresh() {
   renderSettings();
 
 
-  /*
-   * Refresh modules only when
-   * they have already registered.
-   */
+  window
+    .CBCMasterStudents
+    ?.render();
 
-  window.CBCMasterStudents?.render();
 
-  window.CBCMasterReportBooks?.render();
+  window
+    .CBCMasterReportBooks
+    ?.render();
 
-  window.CBCMasterSchemes?.render();
 
-  window.CBCMasterLessonPlans?.render();
+  window
+    .CBCMasterSchemes
+    ?.render();
 
-  window.CBCMasterTimetable?.render();
 
-  window.CBCMasterRubrics?.render();
+  window
+    .CBCMasterLessonPlans
+    ?.render();
 
-  window.CBCMasterDocuments?.render();
 
-  window.CBCMasterAnalytics?.render();
+  window
+    .CBCMasterTimetable
+    ?.render();
 
-  window.CBCMasterProfile?.render();
+
+  window
+    .CBCMasterRubrics
+    ?.render();
+
+
+  window
+    .CBCMasterDocuments
+    ?.render();
+
+
+  window
+    .CBCMasterAnalytics
+    ?.render();
+
+
+  window
+    .CBCMasterProfile
+    ?.render();
+
 }
 
 
@@ -2050,7 +2442,9 @@ function showToast(
 
 
   toast.textContent =
-    cleanDisplayText(message);
+    cleanDisplayText(
+      message
+    );
 
 
   toast.classList.toggle(
@@ -2080,6 +2474,7 @@ function showToast(
       },
       3200
     );
+
 }
 
 
@@ -2092,16 +2487,16 @@ function showToast(
 function registerServiceWorker() {
 
   if (
-    !("serviceWorker" in navigator)
+    !(
+      "serviceWorker" in
+      navigator
+    )
   ) {
+
     return;
+
   }
 
-
-  /*
-   * Service workers require a secure
-   * context, except for localhost.
-   */
 
   if (
     !window.isSecureContext &&
@@ -2110,7 +2505,9 @@ function registerServiceWorker() {
     location.hostname !==
       "127.0.0.1"
   ) {
+
     return;
+
   }
 
 
@@ -2119,21 +2516,17 @@ function registerServiceWorker() {
     () => {
 
       navigator.serviceWorker
-        .register("./sw.js")
-        .catch(() => {
-
-          /*
-           * Keep technical service-worker
-           * errors out of the UI.
-           */
-
-        });
+        .register(
+          "./sw.js"
+        )
+        .catch(() => {});
 
     },
     {
       once: true
     }
   );
+
 }
 
 
@@ -2150,16 +2543,13 @@ window.CBCMaster =
 
     STORAGE_VERSION,
 
-
     $,
 
     $$,
 
-
     cleanDisplayText,
 
     createId,
-
 
     getData,
 
@@ -2169,11 +2559,9 @@ window.CBCMaster =
 
     normaliseData,
 
-
     addActivity,
 
     addRecord,
-
 
     addStudent,
 
@@ -2189,16 +2577,13 @@ window.CBCMaster =
 
     addTimetableEntry,
 
-
     updateTeacher,
 
     updatePreferences,
 
-
     navigate,
 
     refresh,
-
 
     showToast
 
@@ -2237,19 +2622,16 @@ function init() {
   bindSettingsControls();
 
 
-  /*
-   * Establish the application
-   * workspace before opening
-   * the dashboard.
-   */
-
   refresh();
 
 
-  navigate("dashboard");
+  navigate(
+    "dashboard"
+  );
 
 
   registerServiceWorker();
+
 }
 
 
