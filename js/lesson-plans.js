@@ -2,607 +2,554 @@
 
 /*
 |--------------------------------------------------------------------------
-| CBC MASTER V2
-| Lesson Plans Module
+| CBC MASTER V2 — Lesson Plans Module
 |--------------------------------------------------------------------------
-| Local-first
-| No external requests
-| No personal-data logging
+| Features:
+| - Add lesson plans
+| - Edit lesson plans
+| - Search lesson plans
+| - Delete lesson plans
+| - Store records locally
 |--------------------------------------------------------------------------
 */
 
 (() => {
-  const CBC = window.CBCMaster;
-
-  if (!CBC) {
-    return;
-  }
-
   let lessonPlanSearchQuery = "";
+  let lessonPlansInitialized = false;
+
+  /*
+  |--------------------------------------------------------------------------
+  | Helpers
+  |--------------------------------------------------------------------------
+  */
 
   const $ = (selector) =>
     document.querySelector(selector);
 
+  const clean = (value) =>
+    CBCMaster.cleanDisplayText(value || "");
+
+  function getLessonPlans() {
+    const data = CBCMaster.getData();
+
+    return Array.isArray(data.lessonPlans)
+      ? data.lessonPlans
+      : [];
+  }
+
   /*
   |--------------------------------------------------------------------------
-  | Open form
+  | Form
   |--------------------------------------------------------------------------
   */
 
-  function openLessonPlanForm(record = null) {
-    const formCard = $("#lessonPlanFormCard");
-    const formTitle = $("#lessonPlanFormTitle");
+  function openLessonPlanForm(plan = null) {
+    const card = $("#lessonPlanFormCard");
     const form = $("#lessonPlanForm");
 
-    if (!formCard || !form) {
-      return;
-    }
-
-    form.reset();
-
-    $("#lessonPlanId").value = "";
-    $("#lessonPlanGrade").value =
-      CBC.getData().preferences.grade || "Grade 5";
-    $("#lessonPlanTerm").value =
-      CBC.getData().preferences.term || "Term 1";
-
-    if (record) {
-      formTitle.textContent = "Edit Lesson Plan";
-
-      $("#lessonPlanId").value = record.id;
-      $("#lessonPlanGrade").value = record.grade || "";
-      $("#lessonPlanTerm").value = record.term || "";
-      $("#lessonPlanSubject").value = record.subject || "";
-      $("#lessonPlanDate").value = record.date || "";
-      $("#lessonPlanDuration").value =
-        record.duration || "";
-      $("#lessonPlanTopic").value =
-        record.topic || "";
-      $("#lessonPlanObjectives").value =
-        record.objectives || "";
-      $("#lessonPlanIntroduction").value =
-        record.introduction || "";
-      $("#lessonPlanActivities").value =
-        record.activities || "";
-      $("#lessonPlanResources").value =
-        record.resources || "";
-      $("#lessonPlanAssessment").value =
-        record.assessment || "";
-      $("#lessonPlanReflection").value =
-        record.reflection || "";
-    } else {
-      formTitle.textContent = "Create Lesson Plan";
-    }
-
-    formCard.hidden = false;
-
-    formCard.scrollIntoView({
-      behavior: "smooth",
-      block: "start"
-    });
-
-    const subject = $("#lessonPlanSubject");
-
-    if (subject) {
-      setTimeout(() => subject.focus(), 100);
-    }
-  }
-
-  /*
-  |--------------------------------------------------------------------------
-  | Close form
-  |--------------------------------------------------------------------------
-  */
-
-  function closeLessonPlanForm() {
-    const formCard =
-      $("#lessonPlanFormCard");
-
-    if (formCard) {
-      formCard.hidden = true;
-    }
-  }
-
-  /*
-  |--------------------------------------------------------------------------
-  | Save lesson plan
-  |--------------------------------------------------------------------------
-  */
-
-  function saveLessonPlanFromForm(event) {
-    event.preventDefault();
-
-    const data = CBC.getData();
-
-    const id =
-      $("#lessonPlanId").value.trim();
-
-    const record = {
-      id: id || CBC.createId("lesson"),
-      grade: CBC.cleanDisplayText(
-        $("#lessonPlanGrade").value
-      ),
-      term: CBC.cleanDisplayText(
-        $("#lessonPlanTerm").value
-      ),
-      subject: CBC.cleanDisplayText(
-        $("#lessonPlanSubject").value
-      ),
-      date: $("#lessonPlanDate").value,
-      duration: CBC.cleanDisplayText(
-        $("#lessonPlanDuration").value
-      ),
-      topic: CBC.cleanDisplayText(
-        $("#lessonPlanTopic").value
-      ),
-      objectives: CBC.cleanDisplayText(
-        $("#lessonPlanObjectives").value
-      ),
-      introduction: CBC.cleanDisplayText(
-        $("#lessonPlanIntroduction").value
-      ),
-      activities: CBC.cleanDisplayText(
-        $("#lessonPlanActivities").value
-      ),
-      resources: CBC.cleanDisplayText(
-        $("#lessonPlanResources").value
-      ),
-      assessment: CBC.cleanDisplayText(
-        $("#lessonPlanAssessment").value
-      ),
-      reflection: CBC.cleanDisplayText(
-        $("#lessonPlanReflection").value
-      ),
-      updatedAt: new Date().toISOString()
-    };
-
-    if (
-      !record.subject ||
-      !record.topic ||
-      !record.objectives
-    ) {
-      CBC.showToast(
-        "Subject, topic and objectives are required.",
+    if (!card || !form) {
+      CBCMaster.showToast(
+        "Lesson plan form is unavailable.",
         true
       );
       return;
     }
 
-    if (id) {
-      const index =
-        data.lessonPlans.findIndex(
-          (item) => item.id === id
-        );
+    const fields = {
+      id: $("#lessonPlanId"),
+      title: $("#lessonPlanTitle"),
+      grade: $("#lessonPlanGrade"),
+      subject: $("#lessonPlanSubject"),
+      term: $("#lessonPlanTerm"),
+      week: $("#lessonPlanWeek"),
+      date: $("#lessonPlanDate"),
+      duration: $("#lessonPlanDuration"),
+      strand: $("#lessonPlanStrand"),
+      subStrand: $("#lessonPlanSubStrand"),
+      objectives: $("#lessonPlanObjectives"),
+      activities: $("#lessonPlanActivities"),
+      resources: $("#lessonPlanResources"),
+      assessment: $("#lessonPlanAssessment"),
+      reflection: $("#lessonPlanReflection")
+    };
 
-      if (index !== -1) {
-        data.lessonPlans[index] = {
-          ...data.lessonPlans[index],
-          ...record
-        };
+    const heading = $("#lessonPlanFormTitle");
+
+    if (plan) {
+      if (heading) {
+        heading.textContent = "Edit Lesson Plan";
       }
-    } else {
-      record.createdAt =
-        new Date().toISOString();
 
-      data.lessonPlans.unshift(record);
+      Object.entries(fields).forEach(
+        ([key, field]) => {
+          if (field) {
+            field.value = plan[key] ?? "";
+          }
+        }
+      );
+    } else {
+      form.reset();
+
+      if (heading) {
+        heading.textContent = "Create Lesson Plan";
+      }
+
+      const data = CBCMaster.getData();
+
+      if (fields.id) {
+        fields.id.value = "";
+      }
+
+      if (fields.grade) {
+        fields.grade.value =
+          data.preferences?.grade || "Grade 5";
+      }
+
+      if (fields.term) {
+        fields.term.value =
+          data.preferences?.term || "Term 1";
+      }
     }
 
-    CBC.saveData(data);
-    CBC.refresh();
+    card.hidden = false;
+    card.removeAttribute("hidden");
+
+    fields.title?.focus();
+  }
+
+  function closeLessonPlanForm() {
+    const card = $("#lessonPlanFormCard");
+    const form = $("#lessonPlanForm");
+
+    form?.reset();
+
+    if (card) {
+      card.hidden = true;
+      card.setAttribute("hidden", "");
+    }
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | Save
+  |--------------------------------------------------------------------------
+  */
+
+  function saveLessonPlan(event) {
+    event.preventDefault();
+
+    const data = CBCMaster.getData();
+
+    if (!Array.isArray(data.lessonPlans)) {
+      data.lessonPlans = [];
+    }
+
+    const plan = {
+      id: clean($("#lessonPlanId")?.value),
+      title: clean($("#lessonPlanTitle")?.value),
+      grade: clean($("#lessonPlanGrade")?.value),
+      subject: clean($("#lessonPlanSubject")?.value),
+      term: clean($("#lessonPlanTerm")?.value),
+      week: clean($("#lessonPlanWeek")?.value),
+      date: clean($("#lessonPlanDate")?.value),
+      duration: clean($("#lessonPlanDuration")?.value),
+      strand: clean($("#lessonPlanStrand")?.value),
+      subStrand: clean($("#lessonPlanSubStrand")?.value),
+      objectives: clean($("#lessonPlanObjectives")?.value),
+      activities: clean($("#lessonPlanActivities")?.value),
+      resources: clean($("#lessonPlanResources")?.value),
+      assessment: clean($("#lessonPlanAssessment")?.value),
+      reflection: clean($("#lessonPlanReflection")?.value)
+    };
+
+    if (!plan.title) {
+      CBCMaster.showToast(
+        "Enter a lesson title.",
+        true
+      );
+      $("#lessonPlanTitle")?.focus();
+      return;
+    }
+
+    if (!plan.subject) {
+      CBCMaster.showToast(
+        "Enter a subject.",
+        true
+      );
+      $("#lessonPlanSubject")?.focus();
+      return;
+    }
+
+    const isEditing = Boolean(plan.id);
+    const now = new Date().toISOString();
+
+    if (isEditing) {
+      const index = data.lessonPlans.findIndex(
+        (item) => item.id === plan.id
+      );
+
+      if (index === -1) {
+        CBCMaster.showToast(
+          "Lesson plan not found.",
+          true
+        );
+        return;
+      }
+
+      data.lessonPlans[index] = {
+        ...data.lessonPlans[index],
+        ...plan,
+        updatedAt: now
+      };
+    } else {
+      plan.id = CBCMaster.createId("lesson-plan");
+      plan.createdAt = now;
+      plan.updatedAt = now;
+
+      data.lessonPlans.push(plan);
+    }
+
+    if (!CBCMaster.saveData(data)) {
+      return;
+    }
+
+    CBCMaster.addActivity(
+      isEditing
+        ? "Updated lesson plan"
+        : "Created lesson plan"
+    );
 
     closeLessonPlanForm();
+    CBCMaster.refresh();
 
-    CBC.showToast(
-      id
-        ? "Lesson Plan updated."
-        : "Lesson Plan saved."
+    CBCMaster.showToast(
+      isEditing
+        ? "Lesson plan updated."
+        : "Lesson plan created."
     );
   }
 
   /*
   |--------------------------------------------------------------------------
-  | Render page
+  | Search
   |--------------------------------------------------------------------------
   */
 
-  function renderLessonPlansPage() {
-    const list =
-      $("#lessonPlansList");
-
-    const emptyState =
-      $("#lessonPlansEmptyState");
-
-    const count =
-      $("#lessonPlanCount");
-
-    if (!list) {
-      return;
+  function matchesSearch(plan) {
+    if (!lessonPlanSearchQuery) {
+      return true;
     }
 
-    const data = CBC.getData();
+    const searchable = [
+      plan.title,
+      plan.grade,
+      plan.subject,
+      plan.term,
+      plan.week,
+      plan.strand,
+      plan.subStrand,
+      plan.date
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
 
-    let records =
-      Array.isArray(data.lessonPlans)
-        ? data.lessonPlans
-        : [];
-
-    const query =
-      lessonPlanSearchQuery
-        .trim()
-        .toLowerCase();
-
-    if (query) {
-      records = records.filter(
-        (record) =>
-          [
-            record.subject,
-            record.topic,
-            record.grade,
-            record.term,
-            record.objectives
-          ]
-            .filter(Boolean)
-            .join(" ")
-            .toLowerCase()
-            .includes(query)
-      );
-    }
-
-    list.innerHTML = "";
-
-    if (count) {
-      count.textContent =
-        String(records.length);
-    }
-
-    if (!records.length) {
-      if (emptyState) {
-        emptyState.hidden = false;
-      }
-
-      return;
-    }
-
-    if (emptyState) {
-      emptyState.hidden = true;
-    }
-
-    records.forEach((record) => {
-      list.appendChild(
-        createLessonPlanCard(record)
-      );
-    });
+    return searchable.includes(
+      lessonPlanSearchQuery.toLowerCase()
+    );
   }
 
   /*
   |--------------------------------------------------------------------------
-  | Create lesson plan card
+  | Card
   |--------------------------------------------------------------------------
   */
 
-  function createLessonPlanCard(record) {
-    const card =
-      document.createElement("article");
+  function createLessonPlanCard(plan) {
+    const card = document.createElement("article");
+    card.className = "stat-card";
 
-    card.className =
-      "module-record-card";
+    const header = document.createElement("div");
+    header.className = "stat-card-header";
 
-    const topic =
-      CBC.cleanDisplayText(
-        record.topic ||
-          "Untitled Lesson"
+    const title = document.createElement("h3");
+    title.textContent =
+      plan.title || "Untitled Lesson";
+
+    header.appendChild(title);
+
+    const details = document.createElement("div");
+    details.className = "stat-card-details";
+
+    const detailItems = [
+      ["Grade", plan.grade],
+      ["Subject", plan.subject],
+      ["Term", plan.term],
+      ["Week", plan.week],
+      ["Date", plan.date],
+      ["Duration", plan.duration],
+      ["Strand", plan.strand],
+      ["Sub-strand", plan.subStrand]
+    ];
+
+    detailItems.forEach(([label, value]) => {
+      if (!value) return;
+
+      const paragraph = document.createElement("p");
+      paragraph.textContent = `${label}: ${value}`;
+
+      details.appendChild(paragraph);
+    });
+
+    if (plan.objectives) {
+      appendSection(
+        details,
+        "Learning objectives",
+        plan.objectives
       );
+    }
 
-    const subject =
-      CBC.cleanDisplayText(
-        record.subject ||
-          "Subject"
+    if (plan.activities) {
+      appendSection(
+        details,
+        "Learning activities",
+        plan.activities
       );
+    }
 
-    const grade =
-      CBC.cleanDisplayText(
-        record.grade || ""
+    if (plan.resources) {
+      appendSection(
+        details,
+        "Learning resources",
+        plan.resources
       );
+    }
 
-    const term =
-      CBC.cleanDisplayText(
-        record.term || ""
+    if (plan.assessment) {
+      appendSection(
+        details,
+        "Assessment",
+        plan.assessment
       );
+    }
 
-    const date =
-      CBC.cleanDisplayText(
-        record.date || ""
+    if (plan.reflection) {
+      appendSection(
+        details,
+        "Reflection",
+        plan.reflection
       );
+    }
 
-    const duration =
-      CBC.cleanDisplayText(
-        record.duration || ""
-      );
+    const actions = document.createElement("div");
+    actions.className = "card-actions";
 
-    const objectives =
-      CBC.cleanDisplayText(
-        record.objectives || ""
-      );
+    const editButton = document.createElement("button");
+    editButton.type = "button";
+    editButton.className = "button secondary";
+    editButton.textContent = "Edit";
 
-    const activities =
-      CBC.cleanDisplayText(
-        record.activities || ""
-      );
+    editButton.addEventListener("click", () => {
+      openLessonPlanForm(plan);
+    });
 
-    const assessment =
-      CBC.cleanDisplayText(
-        record.assessment || ""
-      );
+    const deleteButton = document.createElement("button");
+    deleteButton.type = "button";
+    deleteButton.className = "button danger";
+    deleteButton.textContent = "Delete";
 
-    card.innerHTML = `
-      <div class="module-record-header">
-        <div>
-          <span class="record-kicker">
-            ${subject}
-          </span>
+    deleteButton.addEventListener("click", () => {
+      deleteLessonPlan(plan.id);
+    });
 
-          <h3>
-            ${topic}
-          </h3>
-        </div>
+    actions.append(editButton, deleteButton);
 
-        <span class="record-badge">
-          ${date || "Lesson"}
-        </span>
-      </div>
-
-      <div class="record-meta">
-        <span>${grade}</span>
-        <span>${term}</span>
-        ${
-          duration
-            ? `<span>${duration}</span>`
-            : ""
-        }
-      </div>
-
-      ${
-        objectives
-          ? `
-            <div class="module-record-preview">
-              <strong>Learning Objectives</strong>
-              <p>${objectives}</p>
-            </div>
-          `
-          : ""
-      }
-
-      ${
-        activities
-          ? `
-            <div class="module-record-preview">
-              <strong>Learning Activities</strong>
-              <p>${activities}</p>
-            </div>
-          `
-          : ""
-      }
-
-      ${
-        assessment
-          ? `
-            <div class="module-record-preview">
-              <strong>Assessment</strong>
-              <p>${assessment}</p>
-            </div>
-          `
-          : ""
-      }
-
-      <div class="form-actions">
-        <button
-          type="button"
-          class="btn btn-secondary"
-          data-edit-lesson-plan="${record.id}">
-          Edit
-        </button>
-
-        <button
-          type="button"
-          class="btn btn-danger"
-          data-delete-lesson-plan="${record.id}">
-          Delete
-        </button>
-      </div>
-    `;
+    card.append(header, details, actions);
 
     return card;
   }
 
+  function appendSection(container, label, value) {
+    const section = document.createElement("div");
+    section.className = "lesson-plan-section";
+
+    const heading = document.createElement("strong");
+    heading.textContent = label;
+
+    const paragraph = document.createElement("p");
+    paragraph.textContent = value;
+
+    section.append(heading, paragraph);
+    container.appendChild(section);
+  }
+
   /*
   |--------------------------------------------------------------------------
-  | Delete lesson plan
+  | Render
+  |--------------------------------------------------------------------------
+  */
+
+  function renderLessonPlansPage() {
+    const list = $("#lessonPlansList");
+    const emptyState = $("#lessonPlansEmptyState");
+    const count = $("#lessonPlanCount");
+
+    if (!list) return;
+
+    const plans = getLessonPlans()
+      .filter(matchesSearch)
+      .sort((a, b) =>
+        String(b.updatedAt || "")
+          .localeCompare(String(a.updatedAt || ""))
+      );
+
+    list.replaceChildren();
+
+    if (count) {
+      count.textContent = String(plans.length);
+    }
+
+    if (emptyState) {
+      emptyState.hidden = plans.length > 0;
+    }
+
+    const fragment = document.createDocumentFragment();
+
+    plans.forEach((plan) => {
+      fragment.appendChild(
+        createLessonPlanCard(plan)
+      );
+    });
+
+    list.appendChild(fragment);
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | Delete
   |--------------------------------------------------------------------------
   */
 
   function deleteLessonPlan(id) {
-    const data = CBC.getData();
+    const data = CBCMaster.getData();
 
-    const record =
-      data.lessonPlans.find(
-        (item) => item.id === id
+    const exists = data.lessonPlans.some(
+      (plan) => plan.id === id
+    );
+
+    if (!exists) {
+      CBCMaster.showToast(
+        "Lesson plan not found.",
+        true
       );
-
-    if (!record) {
       return;
     }
 
-    const confirmed =
-      window.confirm(
-        `Delete the lesson plan for "${record.topic || "this lesson"}"?`
-      );
-
-    if (!confirmed) {
+    if (!window.confirm(
+      "Delete this lesson plan?"
+    )) {
       return;
     }
 
-    data.lessonPlans =
-      data.lessonPlans.filter(
-        (item) => item.id !== id
-      );
+    data.lessonPlans = data.lessonPlans.filter(
+      (plan) => plan.id !== id
+    );
 
-    CBC.saveData(data);
-    CBC.refresh();
+    if (!CBCMaster.saveData(data)) {
+      return;
+    }
 
-    CBC.showToast(
-      "Lesson Plan deleted."
+    CBCMaster.addActivity(
+      "Deleted lesson plan"
+    );
+
+    CBCMaster.refresh();
+
+    CBCMaster.showToast(
+      "Lesson plan deleted."
     );
   }
 
   /*
   |--------------------------------------------------------------------------
-  | Bind controls
+  | Controls
   |--------------------------------------------------------------------------
   */
 
-  function bindLessonPlanControls() {
-    const addButton =
-      $("#addLessonPlanBtn");
-
-    const cancelButton =
-      $("#cancelLessonPlanButton");
-
-    const form =
-      $("#lessonPlanForm");
-
-    const search =
-      $("#lessonPlanSearch");
-
-    if (addButton) {
-      addButton.addEventListener(
-        "click",
-        () => openLessonPlanForm()
-      );
-    }
-
-    if (cancelButton) {
-      cancelButton.addEventListener(
-        "click",
-        closeLessonPlanForm
-      );
-    }
-
-    if (form) {
-      form.addEventListener(
-        "submit",
-        saveLessonPlanFromForm
-      );
-    }
-
-    if (search) {
-      search.addEventListener(
-        "input",
-        (event) => {
-          lessonPlanSearchQuery =
-            event.target.value || "";
-
-          renderLessonPlansPage();
-        }
-      );
-    }
-
-    document.addEventListener(
+  function bindControls() {
+    $("#addLessonPlanBtn")?.addEventListener(
       "click",
+      () => openLessonPlanForm()
+    );
+
+    $("#cancelLessonPlanButton")?.addEventListener(
+      "click",
+      closeLessonPlanForm
+    );
+
+    $("#cancelLessonPlanBtn")?.addEventListener(
+      "click",
+      closeLessonPlanForm
+    );
+
+    $("#lessonPlanForm")?.addEventListener(
+      "submit",
+      saveLessonPlan
+    );
+
+    $("#lessonPlanSearch")?.addEventListener(
+      "input",
       (event) => {
-        const editButton =
-          event.target.closest(
-            "[data-edit-lesson-plan]"
-          );
+        lessonPlanSearchQuery = clean(
+          event.target.value
+        );
 
-        if (editButton) {
-          const id =
-            editButton.dataset
-              .editLessonPlan;
-
-          const record =
-            CBC.getData()
-              .lessonPlans
-              .find(
-                (item) =>
-                  item.id === id
-              );
-
-          if (record) {
-            openLessonPlanForm(
-              record
-            );
-          }
-
-          return;
-        }
-
-        const deleteButton =
-          event.target.closest(
-            "[data-delete-lesson-plan]"
-          );
-
-        if (deleteButton) {
-          deleteLessonPlan(
-            deleteButton.dataset
-              .deleteLessonPlan
-          );
-        }
+        renderLessonPlansPage();
       }
     );
   }
 
   /*
   |--------------------------------------------------------------------------
-  | Quick action
-  |--------------------------------------------------------------------------
-  */
-
-  function bindLessonPlanQuickAction() {
-    document.addEventListener(
-      "click",
-      (event) => {
-        const button =
-          event.target.closest(
-            '[data-action="create-lesson-plan"]'
-          );
-
-        if (!button) {
-          return;
-        }
-
-        CBC.navigate("lesson-plans");
-        openLessonPlanForm();
-      }
-    );
-  }
-
-  /*
-  |--------------------------------------------------------------------------
-  | Initialize
+  | Initialization
   |--------------------------------------------------------------------------
   */
 
   function initLessonPlansModule() {
-    bindLessonPlanControls();
-    bindLessonPlanQuickAction();
+    if (lessonPlansInitialized) return;
+
+    lessonPlansInitialized = true;
+
+    bindControls();
     renderLessonPlansPage();
   }
 
   /*
   |--------------------------------------------------------------------------
-  | Public module API
+  | Public API
   |--------------------------------------------------------------------------
   */
 
-  window.CBCMasterLessonPlans =
-    Object.freeze({
-      open: openLessonPlanForm,
-      close: closeLessonPlanForm,
-      render: renderLessonPlansPage
-    });
+  window.CBCMasterLessonPlans = Object.freeze({
+    render: renderLessonPlansPage,
+    open: openLessonPlanForm,
+    close: closeLessonPlanForm,
+    delete: deleteLessonPlan
+  });
 
-  document.addEventListener(
-    "DOMContentLoaded",
-    initLessonPlansModule
-  );
+  /*
+  |--------------------------------------------------------------------------
+  | Start
+  |--------------------------------------------------------------------------
+  */
+
+  if (document.readyState === "loading") {
+    document.addEventListener(
+      "DOMContentLoaded",
+      initLessonPlansModule,
+      { once: true }
+    );
+  } else {
+    initLessonPlansModule();
+  }
 })();
