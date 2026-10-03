@@ -1,12 +1,11 @@
 {
-  "id": "/CBC-MASTER/",
   "name": "CBC MASTER V2",
   "short_name": "CBC MASTER",
-  "description": "Private, offline-first Kenyan CBC teacher toolkit for PP1 to Grade 12.",
+  "description": "Kenyan CBC Toolkit for PP1 to Grade 12",
   "lang": "en-KE",
   "dir": "ltr",
-  "start_url": "./",
-  "scope": "./",
+  "start_url": "/CBC-MASTER/",
+  "scope": "/CBC-MASTER/",
   "display": "standalone",
   "background_color": "#061321",
   "theme_color": "#0B1F33",
@@ -26,7 +25,24 @@
       "src": "icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "CBC MASTER dashboard"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Add learner",
+      "short_name": "Add learner",
+      "url": "/CBC-MASTER/?shortcut=add-learner",
+      "description": "Add new CBC learner fast"
     }
   ]
 }
