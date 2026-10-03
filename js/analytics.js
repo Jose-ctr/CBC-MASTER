@@ -18,7 +18,6 @@
   const API = window.CBCMaster;
 
   if (!API) {
-    console.error("CBCMaster core is not available.");
     return;
   }
 
@@ -40,17 +39,20 @@
       : String(value ?? "").trim();
   }
 
-  function number(value) {
-    const n = Number(value);
-    return Number.isFinite(n) ? n : 0;
-  }
-
-  function countItems(value) {
-    return Array.isArray(value) ? value.length : 0;
-  }
-
   function getCollection(data, key) {
     return Array.isArray(data[key]) ? data[key] : [];
+  }
+
+  function formatNumber(value) {
+    return Number(value || 0).toLocaleString("en-KE");
+  }
+
+  function setText(id, value) {
+    const element = $(id);
+
+    if (element) {
+      element.textContent = String(value);
+    }
   }
 
   /*
@@ -69,58 +71,73 @@
     const documents = getCollection(data, "documents");
     const activities = getCollection(data, "activities");
 
-    let totalMarks = 0;
-    let markedRecords = 0;
+    /*
+    |--------------------------------------------------------------------------
+    | Total workspace records
+    |--------------------------------------------------------------------------
+    */
 
-    reportBooks.forEach(function (record) {
+    const totalRecords =
+      students.length +
+      reportBooks.length +
+      schemes.length +
+      lessonPlans.length +
+      rubrics.length +
+      documents.length;
 
-      const score =
-        record.score !== undefined
-          ? record.score
-          : record.marks;
+    /*
+    |--------------------------------------------------------------------------
+    | Teaching plans
+    |--------------------------------------------------------------------------
+    */
 
-      if (score !== undefined && score !== "") {
-        const value = number(score);
+    const totalTeachingPlans =
+      schemes.length +
+      lessonPlans.length;
 
-        if (Number.isFinite(value)) {
-          totalMarks += value;
-          markedRecords++;
-        }
+    /*
+    |--------------------------------------------------------------------------
+    | Assessment items
+    |--------------------------------------------------------------------------
+    */
+
+    const totalAssessmentItems =
+      reportBooks.length +
+      rubrics.length;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Category counts
+    |--------------------------------------------------------------------------
+    */
+
+    const categories = [
+      {
+        key: "schemes",
+        label: "Schemes of Work",
+        count: schemes.length
+      },
+      {
+        key: "lessonPlans",
+        label: "Lesson Plans",
+        count: lessonPlans.length
+      },
+      {
+        key: "rubrics",
+        label: "Rubrics",
+        count: rubrics.length
+      },
+      {
+        key: "documents",
+        label: "Documents",
+        count: documents.length
+      },
+      {
+        key: "reportBooks",
+        label: "Report Books",
+        count: reportBooks.length
       }
-    });
-
-    const average =
-      markedRecords > 0
-        ? totalMarks / markedRecords
-        : 0;
-
-    const gradeCounts = {};
-
-    students.forEach(function (student) {
-
-      const grade = safe(
-        student.grade ||
-        student.classGrade ||
-        "Unassigned"
-      );
-
-      gradeCounts[grade] =
-        (gradeCounts[grade] || 0) + 1;
-    });
-
-    const typeCounts = {};
-
-    documents.forEach(function (document) {
-
-      const type = safe(
-        document.type ||
-        document.documentType ||
-        "Other"
-      );
-
-      typeCounts[type] =
-        (typeCounts[type] || 0) + 1;
-    });
+    ];
 
     return {
       students: students.length,
@@ -130,212 +147,243 @@
       rubrics: rubrics.length,
       documents: documents.length,
       activities: activities.length,
-      average,
-      markedRecords,
-      gradeCounts,
-      typeCounts
+      totalRecords,
+      totalTeachingPlans,
+      totalAssessmentItems,
+      categories
     };
   }
 
   /*
   |--------------------------------------------------------------------------
-  | Number formatting
+  | Progress bar
   |--------------------------------------------------------------------------
   */
 
-  function formatNumber(value) {
-    return Number(value || 0).toLocaleString("en-KE");
-  }
+  function updateBar(valueId, barId, count, total) {
 
-  function formatAverage(value) {
+    setText(valueId, formatNumber(count));
 
-    if (!value) {
-      return "—";
+    const bar = $(barId);
+
+    if (!bar) {
+      return;
     }
 
-    return Number(value).toFixed(1) + "%";
+    const percentage =
+      total > 0
+        ? Math.round((count / total) * 100)
+        : 0;
+
+    bar.style.width = percentage + "%";
+    bar.setAttribute("aria-valuenow", String(percentage));
+    bar.setAttribute("aria-valuemin", "0");
+    bar.setAttribute("aria-valuemax", "100");
   }
 
   /*
   |--------------------------------------------------------------------------
-  | Empty state
+  | Distribution
   |--------------------------------------------------------------------------
   */
 
-  function emptyState(message) {
+  function renderDistribution(stats) {
 
-    return `
-      <div class="empty-state">
-        <div class="empty-state-icon">📊</div>
-        <h3>No analytics yet</h3>
-        <p>${safe(message)}</p>
-      </div>
-    `;
-  }
-
-  /*
-  |--------------------------------------------------------------------------
-  | Stat card
-  |--------------------------------------------------------------------------
-  */
-
-  function statCard(label, value, icon) {
-
-    return `
-      <article class="analytics-stat-card">
-        <div class="analytics-stat-icon">${icon}</div>
-
-        <div class="analytics-stat-content">
-          <span class="analytics-stat-label">
-            ${safe(label)}
-          </span>
-
-          <strong class="analytics-stat-value">
-            ${safe(value)}
-          </strong>
-        </div>
-      </article>
-    `;
-  }
-
-  /*
-  |--------------------------------------------------------------------------
-  | Grade breakdown
-  |--------------------------------------------------------------------------
-  */
-
-  function renderGradeBreakdown(stats) {
-
-    const container = $("analyticsGradeBreakdown");
+    const container = $("analyticsDistribution");
 
     if (!container) {
       return;
     }
 
-    const entries = Object.entries(stats.gradeCounts);
+    container.replaceChildren();
 
-    if (!entries.length) {
+    if (!stats.totalRecords) {
 
-      container.innerHTML =
-        emptyState("Add learners to see the grade breakdown.");
+      const empty = document.createElement("p");
+
+      empty.className = "analytics-muted";
+      empty.textContent =
+        "Your workspace distribution will appear here as you add records.";
+
+      container.appendChild(empty);
 
       return;
     }
 
-    entries.sort(function (a, b) {
-      return a[0].localeCompare(b[0]);
-    });
-
-    container.innerHTML = entries.map(function (entry) {
-
-      const grade = entry[0];
-      const count = entry[1];
+    stats.categories.forEach(function (item) {
 
       const percentage =
-        stats.students > 0
-          ? Math.round((count / stats.students) * 100)
-          : 0;
+        Math.round(
+          (item.count / stats.totalRecords) * 100
+        );
 
-      return `
-        <div class="analytics-row">
+      const row = document.createElement("div");
 
-          <div class="analytics-row-header">
-            <span>${safe(grade)}</span>
-            <strong>${formatNumber(count)}</strong>
-          </div>
+      row.className = "analytics-row";
 
-          <div class="analytics-progress">
-            <div
-              class="analytics-progress-fill"
-              style="width:${percentage}%"
-            ></div>
-          </div>
+      const header = document.createElement("div");
 
-          <small>${percentage}% of learners</small>
+      header.className = "analytics-row-header";
 
-        </div>
-      `;
+      const label = document.createElement("span");
 
-    }).join("");
-  }
+      label.textContent = item.label;
 
-  /*
-  |--------------------------------------------------------------------------
-  | Document breakdown
-  |--------------------------------------------------------------------------
-  */
+      const count = document.createElement("strong");
 
-  function renderDocumentBreakdown(stats) {
+      count.textContent =
+        formatNumber(item.count);
 
-    const container = $("analyticsDocumentBreakdown");
+      header.appendChild(label);
+      header.appendChild(count);
 
-    if (!container) {
-      return;
-    }
+      const progress = document.createElement("div");
 
-    const entries = Object.entries(stats.typeCounts);
+      progress.className = "analytics-progress";
 
-    if (!entries.length) {
+      const fill = document.createElement("div");
 
-      container.innerHTML =
-        emptyState("Create documents to see document usage.");
+      fill.className = "analytics-progress-fill";
+      fill.style.width = percentage + "%";
 
-      return;
-    }
+      progress.appendChild(fill);
 
-    entries.sort(function (a, b) {
-      return b[1] - a[1];
+      const meta = document.createElement("small");
+
+      meta.textContent =
+        percentage + "% of workspace records";
+
+      row.appendChild(header);
+      row.appendChild(progress);
+      row.appendChild(meta);
+
+      container.appendChild(row);
     });
-
-    container.innerHTML = entries.map(function (entry) {
-
-      return `
-        <div class="analytics-list-item">
-
-          <span>${safe(entry[0])}</span>
-
-          <strong>
-            ${formatNumber(entry[1])}
-          </strong>
-
-        </div>
-      `;
-
-    }).join("");
   }
 
   /*
   |--------------------------------------------------------------------------
-  | Activity summary
+  | Recent activity
   |--------------------------------------------------------------------------
   */
 
-  function renderActivitySummary(stats) {
+  function getActivityText(activity) {
 
-    const container = $("analyticsActivitySummary");
+    if (!activity || typeof activity !== "object") {
+      return "Workspace activity";
+    }
+
+    return safe(
+      activity.message ||
+      activity.text ||
+      activity.action ||
+      activity.title ||
+      activity.type ||
+      "Workspace activity"
+    );
+  }
+
+  function getActivityDate(activity) {
+
+    if (!activity || typeof activity !== "object") {
+      return "";
+    }
+
+    const value =
+      activity.createdAt ||
+      activity.timestamp ||
+      activity.date ||
+      activity.created_at;
+
+    if (!value) {
+      return "";
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return "";
+    }
+
+    return date.toLocaleString("en-KE", {
+      dateStyle: "medium",
+      timeStyle: "short"
+    });
+  }
+
+  function renderActivity(stats, data) {
+
+    const container = $("analyticsActivityList");
 
     if (!container) {
       return;
     }
 
-    if (!stats.activities) {
+    container.replaceChildren();
 
-      container.innerHTML =
-        emptyState("Your recent activity will appear here.");
+    const activities = getCollection(data, "activities");
+
+    if (!activities.length) {
+
+      const empty = document.createElement("p");
+
+      empty.className = "analytics-muted";
+      empty.textContent =
+        "Recent workspace activity will appear here.";
+
+      container.appendChild(empty);
 
       return;
     }
 
-    container.innerHTML = `
-      <div class="analytics-activity-total">
-        <span>Total local activities</span>
-        <strong>${formatNumber(stats.activities)}</strong>
-      </div>
+    const recent = activities
+      .slice()
+      .sort(function (a, b) {
 
-      <p class="analytics-muted">
-        Activity records are stored locally on this device.
-      </p>
-    `;
+        const dateA = new Date(
+          a?.createdAt ||
+          a?.timestamp ||
+          a?.date ||
+          a?.created_at ||
+          0
+        ).getTime();
+
+        const dateB = new Date(
+          b?.createdAt ||
+          b?.timestamp ||
+          b?.date ||
+          b?.created_at ||
+          0
+        ).getTime();
+
+        return dateB - dateA;
+      })
+      .slice(0, 8);
+
+    recent.forEach(function (activity) {
+
+      const item = document.createElement("div");
+
+      item.className = "analytics-list-item";
+
+      const text = document.createElement("span");
+
+      text.textContent =
+        getActivityText(activity);
+
+      const date = document.createElement("small");
+
+      date.textContent =
+        getActivityDate(activity);
+
+      item.appendChild(text);
+
+      if (date.textContent) {
+        item.appendChild(date);
+      }
+
+      container.appendChild(item);
+    });
   }
 
   /*
@@ -351,110 +399,86 @@
 
     /*
     |--------------------------------------------------------------------------
-    | Main stat elements
+    | Top analytics cards
     |--------------------------------------------------------------------------
     */
 
-    const totalStudents = $("analyticsTotalStudents");
-    const totalReportBooks = $("analyticsTotalReportBooks");
-    const totalSchemes = $("analyticsTotalSchemes");
-    const totalLessonPlans = $("analyticsTotalLessonPlans");
-    const totalRubrics = $("analyticsTotalRubrics");
-    const totalDocuments = $("analyticsTotalDocuments");
-    const averageScore = $("analyticsAverageScore");
+    setText(
+      "analyticsStudents",
+      formatNumber(stats.students)
+    );
 
-    if (totalStudents) {
-      totalStudents.textContent =
-        formatNumber(stats.students);
-    }
+    setText(
+      "analyticsTotalRecords",
+      formatNumber(stats.totalRecords)
+    );
 
-    if (totalReportBooks) {
-      totalReportBooks.textContent =
-        formatNumber(stats.reportBooks);
-    }
+    setText(
+      "analyticsTotalTeachingPlans",
+      formatNumber(stats.totalTeachingPlans)
+    );
 
-    if (totalSchemes) {
-      totalSchemes.textContent =
-        formatNumber(stats.schemes);
-    }
-
-    if (totalLessonPlans) {
-      totalLessonPlans.textContent =
-        formatNumber(stats.lessonPlans);
-    }
-
-    if (totalRubrics) {
-      totalRubrics.textContent =
-        formatNumber(stats.rubrics);
-    }
-
-    if (totalDocuments) {
-      totalDocuments.textContent =
-        formatNumber(stats.documents);
-    }
-
-    if (averageScore) {
-      averageScore.textContent =
-        formatAverage(stats.average);
-    }
+    setText(
+      "analyticsTotalAssessmentItems",
+      formatNumber(stats.totalAssessmentItems)
+    );
 
     /*
     |--------------------------------------------------------------------------
-    | Optional dynamic dashboard
+    | Workspace activity bars
     |--------------------------------------------------------------------------
     */
 
-    const statsContainer = $("analyticsStats");
+    updateBar(
+      "analyticsSchemesValue",
+      "analyticsSchemesBar",
+      stats.schemes,
+      stats.totalRecords
+    );
 
-    if (
-      statsContainer &&
-      !statsContainer.children.length
-    ) {
+    updateBar(
+      "analyticsLessonPlansValue",
+      "analyticsLessonPlansBar",
+      stats.lessonPlans,
+      stats.totalRecords
+    );
 
-      statsContainer.innerHTML = [
+    updateBar(
+      "analyticsRubricsValue",
+      "analyticsRubricsBar",
+      stats.rubrics,
+      stats.totalRecords
+    );
 
-        statCard(
-          "Learners",
-          formatNumber(stats.students),
-          "👥"
-        ),
+    updateBar(
+      "analyticsDocumentsValue",
+      "analyticsDocumentsBar",
+      stats.documents,
+      stats.totalRecords
+    );
 
-        statCard(
-          "Report Records",
-          formatNumber(stats.reportBooks),
-          "📘"
-        ),
+    updateBar(
+      "analyticsReportBooksValue",
+      "analyticsReportBooksBar",
+      stats.reportBooks,
+      stats.totalRecords
+    );
 
-        statCard(
-          "Schemes",
-          formatNumber(stats.schemes),
-          "📚"
-        ),
+    /*
+    |--------------------------------------------------------------------------
+    | Distribution
+    |--------------------------------------------------------------------------
+    */
 
-        statCard(
-          "Lesson Plans",
-          formatNumber(stats.lessonPlans),
-          "📝"
-        ),
+    renderDistribution(stats);
 
-        statCard(
-          "Rubrics",
-          formatNumber(stats.rubrics),
-          "📊"
-        ),
+    /*
+    |--------------------------------------------------------------------------
+    | Recent activity
+    |--------------------------------------------------------------------------
+    */
 
-        statCard(
-          "Documents",
-          formatNumber(stats.documents),
-          "📄"
-        )
-
-      ].join("");
-    }
-
-    renderGradeBreakdown(stats);
-    renderDocumentBreakdown(stats);
-    renderActivitySummary(stats);
+    renderActivity(stats, data);
   }
 
   /*
