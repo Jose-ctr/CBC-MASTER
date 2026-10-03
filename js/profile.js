@@ -3,23 +3,46 @@
 /*
 |--------------------------------------------------------------------------
 | CBC MASTER V2
-| Teacher Profile Module
+| Local Teacher Profile Module
 |--------------------------------------------------------------------------
-| Local-first
-| No external requests
-| No personal-data logging
+| Privacy:
+| - Teacher profile stays in localStorage
+| - No tracking
+| - No third-party analytics
+| - No external profile requests
 |--------------------------------------------------------------------------
 */
 
-(() => {
-  const CBC = window.CBCMaster;
+(function () {
 
-  if (!CBC) {
+  const API = window.CBCMaster;
+
+  if (!API) {
+    console.error("CBCMaster core is not available.");
     return;
   }
 
-  const $ = (selector) =>
-    document.querySelector(selector);
+  const $ = API.$;
+
+  /*
+  |--------------------------------------------------------------------------
+  | Helpers
+  |--------------------------------------------------------------------------
+  */
+
+  function getData() {
+    return API.getData();
+  }
+
+  function clean(value) {
+    return API.cleanDisplayText
+      ? API.cleanDisplayText(value)
+      : String(value ?? "").trim();
+  }
+
+  function save(data) {
+    API.saveData(data);
+  }
 
   /*
   |--------------------------------------------------------------------------
@@ -27,162 +50,155 @@
   |--------------------------------------------------------------------------
   */
 
-  function renderProfilePage() {
-    const data = CBC.getData();
+  function render() {
+
+    const data = getData();
+
     const teacher = data.teacher || {};
-    const preferences =
-      data.preferences || {};
+    const preferences = data.preferences || {};
 
-    setValue(
-      "#profileTeacherName",
-      teacher.name || ""
-    );
+    /*
+    |--------------------------------------------------------------------------
+    | Teacher name
+    |--------------------------------------------------------------------------
+    */
 
-    setValue(
-      "#profileSchool",
-      teacher.school || ""
-    );
+    const name =
+      clean(teacher.name) ||
+      "Teacher";
 
-    setValue(
-      "#profileCounty",
-      teacher.county || ""
-    );
+    const teacherName = $("profileTeacherName");
 
-    setValue(
-      "#profileRole",
-      teacher.role ||
-        "CBC MASTER User"
-    );
-
-    setValue(
-      "#profileGrade",
-      preferences.grade ||
-        "Grade 5"
-    );
-
-    setValue(
-      "#profileTerm",
-      preferences.term ||
-        "Term 1"
-    );
-
-    setValue(
-      "#profileAcademicYear",
-      preferences.academicYear ||
-        "2026"
-    );
-
-    updateProfileSummary(
-      teacher,
-      preferences
-    );
-  }
-
-  /*
-  |--------------------------------------------------------------------------
-  | Set input value
-  |--------------------------------------------------------------------------
-  */
-
-  function setValue(
-    selector,
-    value
-  ) {
-    const element = $(selector);
-
-    if (!element) {
-      return;
+    if (teacherName) {
+      teacherName.textContent = name;
     }
 
-    element.value = value;
-  }
+    const profileName = $("teacherName");
 
-  /*
-  |--------------------------------------------------------------------------
-  | Profile summary
-  |--------------------------------------------------------------------------
-  */
+    if (profileName) {
+      profileName.value = teacher.name || "";
+    }
 
-  function updateProfileSummary(
-    teacher,
-    preferences
-  ) {
-    const name =
-      CBC.cleanDisplayText(
-        teacher.name ||
-          "Teacher"
-      );
+    /*
+    |--------------------------------------------------------------------------
+    | Email
+    |--------------------------------------------------------------------------
+    */
 
-    const school =
-      CBC.cleanDisplayText(
-        teacher.school ||
-          "School not set"
-      );
+    const emailInput = $("teacherEmail");
 
-    const county =
-      CBC.cleanDisplayText(
-        teacher.county ||
-          "County not set"
-      );
+    if (emailInput) {
+      emailInput.value = teacher.email || "";
+    }
 
-    const nameElement =
-      $("#profileDisplayName");
+    /*
+    |--------------------------------------------------------------------------
+    | Phone
+    |--------------------------------------------------------------------------
+    */
 
-    const schoolElement =
-      $("#profileDisplaySchool");
+    const phoneInput = $("teacherPhone");
 
-    const countyElement =
-      $("#profileDisplayCounty");
+    if (phoneInput) {
+      phoneInput.value = teacher.phone || "";
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | School
+    |--------------------------------------------------------------------------
+    */
+
+    const schoolInput = $("teacherSchool");
+
+    if (schoolInput) {
+      schoolInput.value = teacher.school || "";
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Grade
+    |--------------------------------------------------------------------------
+    */
+
+    const gradeInput = $("teacherGrade");
+
+    if (gradeInput) {
+      gradeInput.value =
+        preferences.grade ||
+        teacher.grade ||
+        "Grade 5";
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Term
+    |--------------------------------------------------------------------------
+    */
+
+    const termInput = $("teacherTerm");
+
+    if (termInput) {
+      termInput.value =
+        preferences.term ||
+        teacher.term ||
+        "Term 1";
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Academic year
+    |--------------------------------------------------------------------------
+    */
+
+    const yearInput = $("teacherAcademicYear");
+
+    if (yearInput) {
+      yearInput.value =
+        preferences.academicYear ||
+        teacher.academicYear ||
+        new Date().getFullYear();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Low-data mode
+    |--------------------------------------------------------------------------
+    */
+
+    const lowDataMode =
+      $("lowDataMode");
+
+    if (lowDataMode) {
+      lowDataMode.checked =
+        Boolean(preferences.lowDataMode);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Profile initials
+    |--------------------------------------------------------------------------
+    */
 
     const avatar =
-      $("#profileAvatar");
-
-    if (nameElement) {
-      nameElement.textContent =
-        name;
-    }
-
-    if (schoolElement) {
-      schoolElement.textContent =
-        school;
-    }
-
-    if (countyElement) {
-      countyElement.textContent =
-        county;
-    }
+      $("profileAvatar");
 
     if (avatar) {
       avatar.textContent =
         getInitials(name);
     }
 
-    const gradeElement =
-      $("#profileSummaryGrade");
+    /*
+    |--------------------------------------------------------------------------
+    | Display name elements
+    |--------------------------------------------------------------------------
+    */
 
-    const termElement =
-      $("#profileSummaryTerm");
-
-    const yearElement =
-      $("#profileSummaryYear");
-
-    if (gradeElement) {
-      gradeElement.textContent =
-        preferences.grade ||
-        "Grade 5";
-    }
-
-    if (termElement) {
-      termElement.textContent =
-        preferences.term ||
-        "Term 1";
-    }
-
-    if (yearElement) {
-      yearElement.textContent =
-        preferences.academicYear ||
-        "2026";
-    }
+    document
+      .querySelectorAll("[data-profile-name]")
+      .forEach(function (element) {
+        element.textContent = name;
+      });
   }
 
   /*
@@ -192,9 +208,9 @@
   */
 
   function getInitials(name) {
+
     const words =
-      String(name)
-        .trim()
+      clean(name)
         .split(/\s+/)
         .filter(Boolean);
 
@@ -210,8 +226,7 @@
 
     return (
       words[0].charAt(0) +
-      words[words.length - 1]
-        .charAt(0)
+      words[words.length - 1].charAt(0)
     ).toUpperCase();
   }
 
@@ -222,139 +237,238 @@
   */
 
   function saveProfile(event) {
-    event.preventDefault();
 
-    const data = CBC.getData();
+    if (event) {
+      event.preventDefault();
+    }
 
-    const name =
-      CBC.cleanDisplayText(
-        $("#profileTeacherName").value
+    const data = getData();
+
+    data.teacher =
+      data.teacher || {};
+
+    const nameInput =
+      $("teacherName");
+
+    const emailInput =
+      $("teacherEmail");
+
+    const phoneInput =
+      $("teacherPhone");
+
+    const schoolInput =
+      $("teacherSchool");
+
+    data.teacher.name =
+      nameInput
+        ? clean(nameInput.value)
+        : data.teacher.name || "Teacher";
+
+    data.teacher.email =
+      emailInput
+        ? clean(emailInput.value)
+        : data.teacher.email || "";
+
+    data.teacher.phone =
+      phoneInput
+        ? clean(phoneInput.value)
+        : data.teacher.phone || "";
+
+    data.teacher.school =
+      schoolInput
+        ? clean(schoolInput.value)
+        : data.teacher.school || "";
+
+    save(data);
+
+    if (typeof API.showToast === "function") {
+      API.showToast("Profile saved locally.");
+    }
+
+    render();
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | Save preferences
+  |--------------------------------------------------------------------------
+  */
+
+  function savePreferences() {
+
+    const data = getData();
+
+    data.preferences =
+      data.preferences || {};
+
+    const gradeInput =
+      $("teacherGrade");
+
+    const termInput =
+      $("teacherTerm");
+
+    const yearInput =
+      $("teacherAcademicYear");
+
+    const lowDataMode =
+      $("lowDataMode");
+
+    if (gradeInput) {
+      data.preferences.grade =
+        clean(gradeInput.value);
+    }
+
+    if (termInput) {
+      data.preferences.term =
+        clean(termInput.value);
+    }
+
+    if (yearInput) {
+      data.preferences.academicYear =
+        numberOrCurrentYear(yearInput.value);
+    }
+
+    if (lowDataMode) {
+      data.preferences.lowDataMode =
+        Boolean(lowDataMode.checked);
+    }
+
+    save(data);
+
+    if (typeof API.showToast === "function") {
+      API.showToast("Preferences saved locally.");
+    }
+
+    render();
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | Year helper
+  |--------------------------------------------------------------------------
+  */
+
+  function numberOrCurrentYear(value) {
+
+    const year =
+      Number.parseInt(value, 10);
+
+    if (
+      Number.isInteger(year) &&
+      year >= 2000 &&
+      year <= 2100
+    ) {
+      return year;
+    }
+
+    return new Date().getFullYear();
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | Delete local data
+  |--------------------------------------------------------------------------
+  */
+
+  function deleteLocalData() {
+
+    const confirmed =
+      window.confirm(
+        "Delete all CBC MASTER data stored on this device? This cannot be undone."
       );
 
-    const school =
-      CBC.cleanDisplayText(
-        $("#profileSchool").value
-      );
-
-    const county =
-      CBC.cleanDisplayText(
-        $("#profileCounty").value
-      );
-
-    const role =
-      CBC.cleanDisplayText(
-        $("#profileRole").value
-      );
-
-    if (!name) {
-      CBC.showToast(
-        "Teacher name is required.",
-        true
-      );
-
+    if (!confirmed) {
       return;
     }
 
-    data.teacher = {
-      ...data.teacher,
+    try {
 
-      name,
+      localStorage.removeItem(
+        API.STORAGE_KEY
+      );
 
-      school,
+      if (typeof API.showToast === "function") {
+        API.showToast(
+          "Local data deleted."
+        );
+      }
 
-      county,
+      window.setTimeout(function () {
+        window.location.reload();
+      }, 500);
 
-      role:
-        role ||
-        "CBC MASTER User"
-    };
+    } catch (error) {
 
-    CBC.saveData(data);
-    CBC.refresh();
-
-    CBC.showToast(
-      "Profile saved locally."
-    );
+      if (typeof API.showToast === "function") {
+        API.showToast(
+          "Could not delete local data."
+        );
+      }
+    }
   }
 
   /*
   |--------------------------------------------------------------------------
-  | Save teaching preferences
+  | Export local data
   |--------------------------------------------------------------------------
   */
 
-  function saveProfilePreferences(
-    event
-  ) {
-    event.preventDefault();
+  function exportData() {
 
-    const data = CBC.getData();
+    const data = getData();
 
-    const grade =
-      CBC.cleanDisplayText(
-        $("#profileGrade").value
+    const json =
+      JSON.stringify(data, null, 2);
+
+    const blob =
+      new Blob(
+        [json],
+        {
+          type: "application/json"
+        }
       );
 
-    const term =
-      CBC.cleanDisplayText(
-        $("#profileTerm").value
+    const url =
+      URL.createObjectURL(blob);
+
+    const link =
+      document.createElement("a");
+
+    const date =
+      new Date()
+        .toISOString()
+        .slice(0, 10);
+
+    link.href = url;
+
+    link.download =
+      `cbc-master-backup-${date}.json`;
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    link.remove();
+
+    URL.revokeObjectURL(url);
+
+    if (typeof API.showToast === "function") {
+      API.showToast(
+        "Backup exported."
       );
-
-    const academicYear =
-      CBC.cleanDisplayText(
-        $("#profileAcademicYear").value
-      );
-
-    data.preferences = {
-      ...data.preferences,
-
-      grade:
-        grade || "Grade 5",
-
-      term:
-        term || "Term 1",
-
-      academicYear:
-        academicYear || "2026"
-    };
-
-    CBC.saveData(data);
-    CBC.refresh();
-
-    CBC.showToast(
-      "Teaching preferences saved."
-    );
+    }
   }
 
   /*
   |--------------------------------------------------------------------------
-  | Reset profile form
+  | Event binding
   |--------------------------------------------------------------------------
   */
 
-  function resetProfileForm() {
-    renderProfilePage();
+  function bindEvents() {
 
-    CBC.showToast(
-      "Unsaved profile changes cleared."
-    );
-  }
-
-  /*
-  |--------------------------------------------------------------------------
-  | Bind controls
-  |--------------------------------------------------------------------------
-  */
-
-  function bindProfileControls() {
     const profileForm =
-      $("#profileForm");
-
-    const preferencesForm =
-      $("#profilePreferencesForm");
-
-    const resetButton =
-      $("#resetProfileButton");
+      $("profileForm");
 
     if (profileForm) {
       profileForm.addEventListener(
@@ -363,30 +477,96 @@
       );
     }
 
-    if (preferencesForm) {
-      preferencesForm.addEventListener(
-        "submit",
-        saveProfilePreferences
+    const saveProfileButton =
+      $("saveProfileBtn");
+
+    if (saveProfileButton) {
+      saveProfileButton.addEventListener(
+        "click",
+        saveProfile
       );
     }
 
-    if (resetButton) {
-      resetButton.addEventListener(
+    const savePreferencesButton =
+      $("savePreferencesBtn");
+
+    if (savePreferencesButton) {
+      savePreferencesButton.addEventListener(
         "click",
-        resetProfileForm
+        savePreferences
+      );
+    }
+
+    const lowDataMode =
+      $("lowDataMode");
+
+    if (lowDataMode) {
+      lowDataMode.addEventListener(
+        "change",
+        savePreferences
+      );
+    }
+
+    const exportButton =
+      $("exportDataBtn");
+
+    if (exportButton) {
+      exportButton.addEventListener(
+        "click",
+        exportData
+      );
+    }
+
+    const deleteButton =
+      $("deleteDataBtn");
+
+    if (deleteButton) {
+      deleteButton.addEventListener(
+        "click",
+        deleteLocalData
       );
     }
   }
 
   /*
   |--------------------------------------------------------------------------
-  | Initialize
+  | Open / close
   |--------------------------------------------------------------------------
   */
 
-  function initProfileModule() {
-    bindProfileControls();
-    renderProfilePage();
+  function open() {
+
+    if (typeof API.navigate === "function") {
+      API.navigate("profile");
+    }
+
+    render();
+  }
+
+  function close() {
+    // Navigation is handled by CBC MASTER core.
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | Initialise
+  |--------------------------------------------------------------------------
+  */
+
+  function init() {
+    bindEvents();
+    render();
+  }
+
+  if (document.readyState === "loading") {
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      init
+    );
+
+  } else {
+    init();
   }
 
   /*
@@ -395,14 +575,14 @@
   |--------------------------------------------------------------------------
   */
 
-  window.CBCMasterProfile =
-    Object.freeze({
-      render:
-        renderProfilePage
-    });
+  window.CBCMasterProfile = {
+    render,
+    open,
+    close,
+    saveProfile,
+    savePreferences,
+    exportData,
+    deleteLocalData
+  };
 
-  document.addEventListener(
-    "DOMContentLoaded",
-    initProfileModule
-  );
 })();
