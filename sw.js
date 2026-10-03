@@ -17,8 +17,18 @@
 */
 
 const CACHE_NAME =
-  "cbc-master-v2-cache-v10";
+  "cbc-master-v2-cache-v11";
 
+
+/*
+|--------------------------------------------------------------------------
+| Application shell
+|--------------------------------------------------------------------------
+|
+| Keep all core application files available
+| for offline use.
+|
+*/
 
 const APP_SHELL = [
 
@@ -26,27 +36,94 @@ const APP_SHELL = [
 
   "./index.html",
 
+  "./manifest.json",
+
   "./css/app.css",
+
+
+  /*
+   * Core application engine
+   */
 
   "./js/app.js",
 
+
+  /*
+   * Students
+   */
+
   "./js/students.js",
+
+
+  /*
+   * Report Books
+   */
 
   "./js/report-books.js",
 
+
+  /*
+   * Schemes of Work
+   */
+
   "./js/schemes.js",
+
+
+  /*
+   * Lesson Plans
+   */
 
   "./js/lesson-plans.js",
 
+
+  /*
+   * Rubrics
+   */
+
   "./js/rubrics.js",
+
+
+  /*
+   * Documents
+   */
 
   "./js/documents.js",
 
+  "./js/document-storage.js",
+
+
+  /*
+   * Timetable
+   */
+
+  "./js/timetable.js",
+
+  "./js/timetable-loader.js",
+
+  "./js/timetable-clock.js",
+
+  "./js/timetable-storage.js",
+
+  "./components/timetable.html",
+
+
+  /*
+   * Analytics
+   */
+
   "./js/analytics.js",
+
+
+  /*
+   * Profile
+   */
 
   "./js/profile.js",
 
-  "./manifest.json",
+
+  /*
+   * PWA icons
+   */
 
   "./icons/icon-192.png",
 
