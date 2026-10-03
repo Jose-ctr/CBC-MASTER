@@ -2,946 +2,904 @@
 
 /*
 |--------------------------------------------------------------------------
-| CBC MASTER V2
-| Report Books Module
+| CBC MASTER V2 — Report Books Module
 |--------------------------------------------------------------------------
-| Handles:
-| - Create report book
-| - Edit report book
-| - Delete report book
-| - Search report books
-| - Local persistence
-|--------------------------------------------------------------------------
-*/
-
-
-/*
-|--------------------------------------------------------------------------
-| Module state
+| Local-first report book management.
+|
+| Privacy:
+| - Report-book records stay in localStorage.
+| - No third-party analytics.
+| - No external requests.
+| - Activity logs contain generic actions only.
 |--------------------------------------------------------------------------
 */
 
-let reportBookSearchQuery = "";
-
-
-/*
-|--------------------------------------------------------------------------
-| DOM helper
-|--------------------------------------------------------------------------
-*/
-
-function reportBook$(selector) {
-
-  return document.querySelector(
-    selector
-  );
-
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Create Report Book form
-|--------------------------------------------------------------------------
-*/
-
-function openReportBookForm(
-  reportBook = null
-) {
-
-  const card =
-    reportBook$("#reportBookFormCard");
-
-  const title =
-    reportBook$("#reportBookFormTitle");
-
-  const id =
-    reportBook$("#reportBookId");
-
-  const name =
-    reportBook$("#reportBookTitle");
-
-  const grade =
-    reportBook$("#reportBookGrade");
-
-  const term =
-    reportBook$("#reportBookTerm");
-
-  const notes =
-    reportBook$("#reportBookNotes");
-
-
-  if (!card) {
-
-    return;
-
-  }
-
-
-  card.hidden = false;
-
-
-  if (reportBook) {
-
-    if (title) {
-
-      title.textContent =
-        "Edit Report Book";
-
-    }
-
-
-    if (id) {
-
-      id.value =
-        reportBook.id || "";
-
-    }
-
-
-    if (name) {
-
-      name.value =
-        reportBook.title || "";
-
-    }
-
-
-    if (grade) {
-
-      grade.value =
-        reportBook.grade ||
-        CBCMaster
-          .getData()
-          .preferences
-          .grade ||
-        "Grade 5";
-
-    }
-
-
-    if (term) {
-
-      term.value =
-        reportBook.term ||
-        CBCMaster
-          .getData()
-          .preferences
-          .term ||
-        "Term 1";
-
-    }
-
-
-    if (notes) {
-
-      notes.value =
-        reportBook.notes || "";
-
-    }
-
-  } else {
-
-    if (title) {
-
-      title.textContent =
-        "Create Report Book";
-
-    }
-
-
-    if (id) {
-
-      id.value = "";
-
-    }
-
-
-    if (name) {
-
-      name.value = "";
-
-    }
-
-
-    if (grade) {
-
-      grade.value =
-        CBCMaster
-          .getData()
-          .preferences
-          .grade ||
-        "Grade 5";
-
-    }
-
-
-    if (term) {
-
-      term.value =
-        CBCMaster
-          .getData()
-          .preferences
-          .term ||
-        "Term 1";
-
-    }
-
-
-    if (notes) {
-
-      notes.value = "";
-
-    }
-
-  }
-
-
-  if (name) {
-
-    name.focus();
-
-  }
-
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Close Report Book form
-|--------------------------------------------------------------------------
-*/
-
-function closeReportBookForm() {
-
-  const card =
-    reportBook$("#reportBookFormCard");
-
-  const form =
-    reportBook$("#reportBookForm");
-
-
-  if (form) {
-
-    form.reset();
-
-  }
-
-
-  if (card) {
-
-    card.hidden = true;
-
-  }
-
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Save Report Book
-|--------------------------------------------------------------------------
-*/
-
-function saveReportBookFromForm(
-  event
-) {
-
-  event.preventDefault();
-
-
-  const data =
-    CBCMaster.getData();
-
-
-  const id =
-    CBCMaster.cleanDisplayText(
-      reportBook$("#reportBookId")?.value
-    );
-
-
-  const title =
-    CBCMaster.cleanDisplayText(
-      reportBook$("#reportBookTitle")?.value
-    );
-
-
-  const grade =
-    CBCMaster.cleanDisplayText(
-      reportBook$("#reportBookGrade")?.value,
-      data.preferences.grade ||
-        "Grade 5"
-    );
-
-
-  const term =
-    CBCMaster.cleanDisplayText(
-      reportBook$("#reportBookTerm")?.value,
-      data.preferences.term ||
-        "Term 1"
-    );
-
-
-  const notes =
-    CBCMaster.cleanDisplayText(
-      reportBook$("#reportBookNotes")?.value
-    );
-
-
-  if (!title) {
-
-    CBCMaster.showToast(
-      "Report book title is required.",
-      "error"
-    );
-
-    return;
-
-  }
-
+(() => {
+  let reportBookSearchQuery = "";
+  let reportBooksInitialized = false;
 
   /*
-   * Edit
-   */
+  |--------------------------------------------------------------------------
+  | Helpers
+  |--------------------------------------------------------------------------
+  */
 
-  if (id) {
+  function reportBook$(selector) {
+    return document.querySelector(selector);
+  }
 
-    const record =
-      data.reportBooks.find(
-        (item) =>
-          item.id === id
+  function getReportBooks() {
+    const data = CBCMaster.getData();
+
+    if (!Array.isArray(data.reportBooks)) {
+      data.reportBooks = [];
+    }
+
+    return data.reportBooks;
+  }
+
+  function getStudents() {
+    const data = CBCMaster.getData();
+
+    return Array.isArray(data.students)
+      ? data.students
+      : [];
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | Form Helpers
+  |--------------------------------------------------------------------------
+  */
+
+  function findField(...selectors) {
+    for (const selector of selectors) {
+      const element = reportBook$(selector);
+
+      if (element) {
+        return element;
+      }
+    }
+
+    return null;
+  }
+
+  function setFieldValue(element, value) {
+    if (!element) {
+      return;
+    }
+
+    element.value = value ?? "";
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | Open Form
+  |--------------------------------------------------------------------------
+  */
+
+  function openReportBookForm(reportBook = null) {
+    const card = findField(
+      "#reportBookFormCard"
+    );
+
+    const form = findField(
+      "#reportBookForm"
+    );
+
+    if (!card || !form) {
+      return;
+    }
+
+    const title = findField(
+      "#reportBookFormTitle"
+    );
+
+    const idField = findField(
+      "#reportBookId"
+    );
+
+    const studentField = findField(
+      "#reportBookStudent",
+      "#reportBookStudentId"
+    );
+
+    const subjectField = findField(
+      "#reportBookSubject"
+    );
+
+    const termField = findField(
+      "#reportBookTerm"
+    );
+
+    const yearField = findField(
+      "#reportBookAcademicYear"
+    );
+
+    const scoreField = findField(
+      "#reportBookScore",
+      "#reportBookMarks"
+    );
+
+    const gradeField = findField(
+      "#reportBookGrade"
+    );
+
+    const commentField = findField(
+      "#reportBookComment",
+      "#reportBookRemarks"
+    );
+
+    if (reportBook) {
+      if (title) {
+        title.textContent = "Edit Report Book";
+      }
+
+      setFieldValue(idField, reportBook.id);
+      setFieldValue(
+        studentField,
+        reportBook.studentId
+      );
+      setFieldValue(
+        subjectField,
+        reportBook.subject
+      );
+      setFieldValue(
+        termField,
+        reportBook.term
+      );
+      setFieldValue(
+        yearField,
+        reportBook.academicYear
+      );
+      setFieldValue(
+        scoreField,
+        reportBook.score
+      );
+      setFieldValue(
+        gradeField,
+        reportBook.grade
+      );
+      setFieldValue(
+        commentField,
+        reportBook.comment
+      );
+    } else {
+      if (title) {
+        title.textContent = "Add Report Book";
+      }
+
+      form.reset();
+
+      setFieldValue(idField, "");
+
+      const data = CBCMaster.getData();
+
+      setFieldValue(
+        termField,
+        data.preferences?.term || "Term 1"
       );
 
+      setFieldValue(
+        yearField,
+        data.preferences?.academicYear || "2026"
+      );
+    }
 
-    if (!record) {
+    populateStudentSelect();
+
+    if (reportBook) {
+      setFieldValue(
+        studentField,
+        reportBook.studentId
+      );
+    }
+
+    card.hidden = false;
+    card.removeAttribute("hidden");
+
+    const firstInput = findField(
+      "#reportBookStudent",
+      "#reportBookStudentId",
+      "#reportBookSubject"
+    );
+
+    window.setTimeout(() => {
+      firstInput?.focus();
+    }, 50);
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | Close Form
+  |--------------------------------------------------------------------------
+  */
+
+  function closeReportBookForm() {
+    const card = findField(
+      "#reportBookFormCard"
+    );
+
+    const form = findField(
+      "#reportBookForm"
+    );
+
+    if (form) {
+      form.reset();
+    }
+
+    if (card) {
+      card.hidden = true;
+      card.setAttribute("hidden", "");
+    }
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | Student Select
+  |--------------------------------------------------------------------------
+  */
+
+  function populateStudentSelect() {
+    const select = findField(
+      "#reportBookStudent",
+      "#reportBookStudentId"
+    );
+
+    if (!select || select.tagName !== "SELECT") {
+      return;
+    }
+
+    const currentValue = select.value;
+    const students = getStudents();
+
+    const placeholder = document.createElement(
+      "option"
+    );
+
+    placeholder.value = "";
+    placeholder.textContent = "Select student";
+
+    select.replaceChildren(placeholder);
+
+    students
+      .slice()
+      .sort((a, b) =>
+        String(a.name || "").localeCompare(
+          String(b.name || ""),
+          undefined,
+          { sensitivity: "base" }
+        )
+      )
+      .forEach((student) => {
+        const option = document.createElement(
+          "option"
+        );
+
+        option.value = student.id;
+        option.textContent =
+          student.admissionNumber
+            ? `${student.name} — ${student.admissionNumber}`
+            : student.name;
+
+        select.appendChild(option);
+      });
+
+    if (currentValue) {
+      select.value = currentValue;
+    }
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | Save
+  |--------------------------------------------------------------------------
+  */
+
+  function saveReportBookFromForm(event) {
+    event.preventDefault();
+
+    const data = CBCMaster.getData();
+
+    if (!Array.isArray(data.reportBooks)) {
+      data.reportBooks = [];
+    }
+
+    const idField = findField(
+      "#reportBookId"
+    );
+
+    const studentField = findField(
+      "#reportBookStudent",
+      "#reportBookStudentId"
+    );
+
+    const subjectField = findField(
+      "#reportBookSubject"
+    );
+
+    const termField = findField(
+      "#reportBookTerm"
+    );
+
+    const yearField = findField(
+      "#reportBookAcademicYear"
+    );
+
+    const scoreField = findField(
+      "#reportBookScore",
+      "#reportBookMarks"
+    );
+
+    const gradeField = findField(
+      "#reportBookGrade"
+    );
+
+    const commentField = findField(
+      "#reportBookComment",
+      "#reportBookRemarks"
+    );
+
+    const id = CBCMaster.cleanDisplayText(
+      idField?.value || ""
+    );
+
+    const studentId = CBCMaster.cleanDisplayText(
+      studentField?.value || ""
+    );
+
+    const subject = CBCMaster.cleanDisplayText(
+      subjectField?.value || ""
+    );
+
+    const term = CBCMaster.cleanDisplayText(
+      termField?.value || ""
+    );
+
+    const academicYear = CBCMaster.cleanDisplayText(
+      yearField?.value || ""
+    );
+
+    const score = CBCMaster.cleanDisplayText(
+      scoreField?.value || ""
+    );
+
+    const grade = CBCMaster.cleanDisplayText(
+      gradeField?.value || ""
+    );
+
+    const comment = CBCMaster.cleanDisplayText(
+      commentField?.value || ""
+    );
+
+    if (!studentId) {
+      CBCMaster.showToast(
+        "Please select a student.",
+        true
+      );
+
+      studentField?.focus();
+      return;
+    }
+
+    if (!subject) {
+      CBCMaster.showToast(
+        "Please enter the subject.",
+        true
+      );
+
+      subjectField?.focus();
+      return;
+    }
+
+    const now = new Date().toISOString();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Edit
+    |--------------------------------------------------------------------------
+    */
+
+    if (id) {
+      const index = data.reportBooks.findIndex(
+        (item) => item.id === id
+      );
+
+      if (index === -1) {
+        CBCMaster.showToast(
+          "Report-book record could not be found.",
+          true
+        );
+
+        return;
+      }
+
+      const existing =
+        data.reportBooks[index];
+
+      data.reportBooks[index] = {
+        ...existing,
+        studentId,
+        subject,
+        term,
+        academicYear,
+        score,
+        grade,
+        comment,
+        updatedAt: now
+      };
+
+      if (!CBCMaster.saveData(data)) {
+        return;
+      }
+
+      CBCMaster.addActivity(
+        "Updated report-book record"
+      );
+
+      closeReportBookForm();
+      CBCMaster.refresh();
 
       CBCMaster.showToast(
-        "Report book could not be found.",
-        "error"
+        "Report book updated successfully."
       );
 
       return;
-
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Add
+    |--------------------------------------------------------------------------
+    */
 
-    record.title =
-      title;
+    const reportBook = {
+      id: CBCMaster.createId(
+        "report-book"
+      ),
+      studentId,
+      subject,
+      term,
+      academicYear,
+      score,
+      grade,
+      comment,
+      createdAt: now,
+      updatedAt: now
+    };
 
+    data.reportBooks.push(reportBook);
 
-    record.grade =
-      grade;
+    if (!CBCMaster.saveData(data)) {
+      return;
+    }
 
-
-    record.term =
-      term;
-
-
-    record.notes =
-      notes;
-
-
-    record.updatedAt =
-      new Date().toISOString();
-
-
-    CBCMaster.saveData();
+    CBCMaster.addActivity(
+      "Added report-book record"
+    );
 
     closeReportBookForm();
+    CBCMaster.refresh();
+
+    CBCMaster.showToast(
+      "Report book added successfully."
+    );
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | Search
+  |--------------------------------------------------------------------------
+  */
+
+  function matchesSearch(reportBook) {
+    if (!reportBookSearchQuery) {
+      return true;
+    }
+
+    const student = getStudents().find(
+      (item) =>
+        item.id === reportBook.studentId
+    );
+
+    const searchableText = [
+      student?.name,
+      student?.admissionNumber,
+      reportBook.subject,
+      reportBook.term,
+      reportBook.academicYear,
+      reportBook.grade
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+
+    return searchableText.includes(
+      reportBookSearchQuery.toLowerCase()
+    );
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | Student Name
+  |--------------------------------------------------------------------------
+  */
+
+  function getStudentName(studentId) {
+    const student = getStudents().find(
+      (item) => item.id === studentId
+    );
+
+    return student?.name || "Unknown student";
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | Render
+  |--------------------------------------------------------------------------
+  */
+
+  function renderReportBooksPage() {
+    const list = findField(
+      "#reportBooksList"
+    );
+
+    const emptyState = findField(
+      "#reportBooksEmptyState"
+    );
+
+    const count = findField(
+      "#reportBookCount"
+    );
+
+    if (!list) {
+      return;
+    }
+
+    const reportBooks = getReportBooks()
+      .filter(matchesSearch)
+      .sort((a, b) =>
+        String(b.updatedAt || "")
+          .localeCompare(
+            String(a.updatedAt || "")
+          )
+      );
+
+    list.replaceChildren();
+
+    if (count) {
+      count.textContent =
+        String(reportBooks.length);
+    }
+
+    if (reportBooks.length === 0) {
+      if (emptyState) {
+        emptyState.hidden = false;
+        emptyState.removeAttribute(
+          "hidden"
+        );
+      }
+
+      return;
+    }
+
+    if (emptyState) {
+      emptyState.hidden = true;
+      emptyState.setAttribute(
+        "hidden",
+        ""
+      );
+    }
+
+    const fragment =
+      document.createDocumentFragment();
+
+    reportBooks.forEach((reportBook) => {
+      fragment.appendChild(
+        createReportBookCard(reportBook)
+      );
+    });
+
+    list.appendChild(fragment);
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | Card
+  |--------------------------------------------------------------------------
+  */
+
+  function createReportBookCard(reportBook) {
+    const card =
+      document.createElement("article");
+
+    card.className = "stat-card";
+    card.dataset.reportBookId =
+      reportBook.id || "";
+
+    const header =
+      document.createElement("div");
+
+    header.className =
+      "stat-card-header";
+
+    const title =
+      document.createElement("h3");
+
+    title.textContent =
+      getStudentName(
+        reportBook.studentId
+      );
+
+    header.appendChild(title);
+
+    if (reportBook.grade) {
+      const badge =
+        document.createElement("span");
+
+      badge.className = "badge";
+      badge.textContent =
+        reportBook.grade;
+
+      header.appendChild(badge);
+    }
+
+    const details =
+      document.createElement("div");
+
+    details.className =
+      "stat-card-details";
+
+    const subject =
+      document.createElement("p");
+
+    subject.textContent =
+      `Subject: ${reportBook.subject || "—"}`;
+
+    const term =
+      document.createElement("p");
+
+    term.textContent =
+      `${reportBook.term || "—"} • ${
+        reportBook.academicYear || "—"
+      }`;
+
+    details.append(
+      subject,
+      term
+    );
+
+    if (reportBook.score !== "") {
+      const score =
+        document.createElement("p");
+
+      score.textContent =
+        `Score: ${reportBook.score}`;
+
+      details.appendChild(score);
+    }
+
+    if (reportBook.comment) {
+      const comment =
+        document.createElement("p");
+
+      comment.textContent =
+        `Comment: ${reportBook.comment}`;
+
+      details.appendChild(comment);
+    }
+
+    const actions =
+      document.createElement("div");
+
+    actions.className =
+      "card-actions";
+
+    const editButton =
+      document.createElement("button");
+
+    editButton.type = "button";
+    editButton.className =
+      "button secondary";
+    editButton.textContent =
+      "Edit";
+
+    editButton.addEventListener(
+      "click",
+      () => openReportBookForm(
+        reportBook
+      )
+    );
+
+    const deleteButton =
+      document.createElement("button");
+
+    deleteButton.type = "button";
+    deleteButton.className =
+      "button danger";
+    deleteButton.textContent =
+      "Delete";
+
+    deleteButton.addEventListener(
+      "click",
+      () => deleteReportBook(
+        reportBook.id
+      )
+    );
+
+    actions.append(
+      editButton,
+      deleteButton
+    );
+
+    card.append(
+      header,
+      details,
+      actions
+    );
+
+    return card;
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | Delete
+  |--------------------------------------------------------------------------
+  */
+
+  function deleteReportBook(reportBookId) {
+    const data =
+      CBCMaster.getData();
+
+    if (!Array.isArray(
+      data.reportBooks
+    )) {
+      return;
+    }
+
+    const reportBook =
+      data.reportBooks.find(
+        (item) =>
+          item.id === reportBookId
+      );
+
+    if (!reportBook) {
+      CBCMaster.showToast(
+        "Report-book record not found.",
+        true
+      );
+
+      return;
+    }
+
+    const confirmed =
+      window.confirm(
+        "Delete this report-book record?"
+      );
+
+    if (!confirmed) {
+      return;
+    }
+
+    data.reportBooks =
+      data.reportBooks.filter(
+        (item) =>
+          item.id !== reportBookId
+      );
+
+    if (!CBCMaster.saveData(data)) {
+      return;
+    }
+
+    CBCMaster.addActivity(
+      "Deleted report-book record"
+    );
 
     CBCMaster.refresh();
 
-    renderReportBooksPage();
-
-
     CBCMaster.showToast(
-      "Report book updated."
+      "Report-book record deleted."
     );
-
-
-    return;
-
   }
-
 
   /*
-   * Create
-   */
+  |--------------------------------------------------------------------------
+  | Controls
+  |--------------------------------------------------------------------------
+  */
 
-  const reportBook = {
-
-    id:
-      CBCMaster.createId(),
-
-    title,
-
-    grade,
-
-    term,
-
-    notes,
-
-    createdAt:
-      new Date().toISOString(),
-
-    updatedAt:
-      new Date().toISOString()
-
-  };
-
-
-  data.reportBooks.push(
-    reportBook
-  );
-
-
-  CBCMaster.saveData();
-
-  closeReportBookForm();
-
-  CBCMaster.refresh();
-
-  renderReportBooksPage();
-
-
-  CBCMaster.showToast(
-    "Report book created successfully."
-  );
-
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Render Report Books
-|--------------------------------------------------------------------------
-*/
-
-function renderReportBooksPage() {
-
-  const list =
-    reportBook$("#reportBooksList");
-
-  const emptyState =
-    reportBook$("#reportBooksEmptyState");
-
-  const count =
-    reportBook$("#reportBookCount");
-
-
-  if (!list) {
-
-    return;
-
-  }
-
-
-  const data =
-    CBCMaster.getData();
-
-
-  const records =
-    Array.isArray(
-      data.reportBooks
-    )
-      ? data.reportBooks
-      : [];
-
-
-  const filtered =
-    records.filter(
-      (record) => {
-
-        if (!reportBookSearchQuery) {
-
-          return true;
-
-        }
-
-
-        const searchable = [
-
-          record.title,
-
-          record.grade,
-
-          record.term,
-
-          record.notes
-
-        ]
-          .map(
-            (value) =>
-              CBCMaster
-                .cleanDisplayText(
-                  value
-                )
-                .toLowerCase()
-          )
-          .join(" ");
-
-
-        return searchable.includes(
-          reportBookSearchQuery
-        );
-
-      }
+  function bindReportBookControls() {
+    const addButton = findField(
+      "#addReportBookBtn"
     );
 
-
-  list.replaceChildren();
-
-
-  if (count) {
-
-    count.textContent =
-      String(
-        filtered.length
-      );
-
-  }
-
-
-  if (!filtered.length) {
-
-    if (emptyState) {
-
-      emptyState.hidden =
-        false;
-
-    }
-
-
-    return;
-
-  }
-
-
-  if (emptyState) {
-
-    emptyState.hidden =
-      true;
-
-  }
-
-
-  filtered.forEach(
-    (record) => {
-
-      list.appendChild(
-        createReportBookCard(
-          record
-        )
-      );
-
-    }
-  );
-
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Report Book card
-|--------------------------------------------------------------------------
-*/
-
-function createReportBookCard(
-  reportBook
-) {
-
-  const card =
-    document.createElement(
-      "article"
+    const cancelButton = findField(
+      "#cancelReportBookButton",
+      "#cancelReportBookBtn"
     );
 
-
-  card.className =
-    "stat-card";
-
-
-  const title =
-    document.createElement(
-      "strong"
+    const form = findField(
+      "#reportBookForm"
     );
 
-
-  title.textContent =
-    CBCMaster.cleanDisplayText(
-      reportBook.title,
-      "Untitled report book"
+    const search = findField(
+      "#reportBookSearch"
     );
 
-
-  const details =
-    document.createElement(
-      "small"
-    );
-
-
-  const detailsParts = [];
-
-
-  if (reportBook.grade) {
-
-    detailsParts.push(
-      CBCMaster.cleanDisplayText(
-        reportBook.grade
-      )
-    );
-
-  }
-
-
-  if (reportBook.term) {
-
-    detailsParts.push(
-      CBCMaster.cleanDisplayText(
-        reportBook.term
-      )
-    );
-
-  }
-
-
-  details.textContent =
-    detailsParts.join(
-      " • "
-    );
-
-
-  const notes =
-    document.createElement(
-      "p"
-    );
-
-
-  notes.textContent =
-    CBCMaster.cleanDisplayText(
-      reportBook.notes
-    );
-
-
-  if (!reportBook.notes) {
-
-    notes.hidden = true;
-
-  }
-
-
-  const actions =
-    document.createElement(
-      "div"
-    );
-
-
-  actions.className =
-    "form-actions";
-
-
-  const editButton =
-    document.createElement(
-      "button"
-    );
-
-
-  editButton.type =
-    "button";
-
-
-  editButton.className =
-    "btn btn-secondary";
-
-
-  editButton.textContent =
-    "Edit";
-
-
-  editButton.addEventListener(
-    "click",
-    () => {
-
-      openReportBookForm(
-        reportBook
-      );
-
-    }
-  );
-
-
-  const deleteButton =
-    document.createElement(
-      "button"
-    );
-
-
-  deleteButton.type =
-    "button";
-
-
-  deleteButton.className =
-    "btn btn-danger";
-
-
-  deleteButton.textContent =
-    "Delete";
-
-
-  deleteButton.addEventListener(
-    "click",
-    () => {
-
-      deleteReportBook(
-        reportBook.id
-      );
-
-    }
-  );
-
-
-  actions.append(
-    editButton,
-    deleteButton
-  );
-
-
-  card.append(
-    title,
-    details,
-    notes,
-    actions
-  );
-
-
-  return card;
-
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Delete Report Book
-|--------------------------------------------------------------------------
-*/
-
-function deleteReportBook(
-  reportBookId
-) {
-
-  const data =
-    CBCMaster.getData();
-
-
-  const record =
-    data.reportBooks.find(
-      (item) =>
-        item.id === reportBookId
-    );
-
-
-  if (!record) {
-
-    return;
-
-  }
-
-
-  const title =
-    CBCMaster.cleanDisplayText(
-      record.title,
-      "this report book"
-    );
-
-
-  const confirmed =
-    window.confirm(
-      `Delete ${title}?`
-    );
-
-
-  if (!confirmed) {
-
-    return;
-
-  }
-
-
-  data.reportBooks =
-    data.reportBooks.filter(
-      (item) =>
-        item.id !== reportBookId
-    );
-
-
-  CBCMaster.saveData();
-
-  CBCMaster.refresh();
-
-  renderReportBooksPage();
-
-
-  CBCMaster.showToast(
-    "Report book deleted."
-  );
-
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Bind Report Book controls
-|--------------------------------------------------------------------------
-*/
-
-function bindReportBookControls() {
-
-  const addButton =
-    reportBook$("#addReportBookBtn");
-
-
-  if (addButton) {
-
-    addButton.addEventListener(
+    addButton?.addEventListener(
       "click",
-      () => {
-
-        openReportBookForm();
-
-      }
+      () => openReportBookForm()
     );
 
-  }
-
-
-  const cancelButton =
-    reportBook$("#cancelReportBookButton");
-
-
-  if (cancelButton) {
-
-    cancelButton.addEventListener(
+    cancelButton?.addEventListener(
       "click",
       closeReportBookForm
     );
 
-  }
-
-
-  const form =
-    reportBook$("#reportBookForm");
-
-
-  if (form) {
-
-    form.addEventListener(
+    form?.addEventListener(
       "submit",
       saveReportBookFromForm
     );
 
-  }
-
-
-  const search =
-    reportBook$("#reportBookSearch");
-
-
-  if (search) {
-
-    search.addEventListener(
+    search?.addEventListener(
       "input",
-      () => {
-
+      (event) => {
         reportBookSearchQuery =
-          CBCMaster
-            .cleanDisplayText(
-              search.value
-            )
-            .toLowerCase();
-
+          CBCMaster.cleanDisplayText(
+            event.target.value || ""
+          );
 
         renderReportBooksPage();
-
       }
     );
-
   }
 
-}
+  /*
+  |--------------------------------------------------------------------------
+  | Initialization
+  |--------------------------------------------------------------------------
+  */
 
-
-/*
-|--------------------------------------------------------------------------
-| Quick action integration
-|--------------------------------------------------------------------------
-*/
-
-function bindReportBookQuickAction() {
-
-  document
-    .querySelectorAll(
-      '[data-action="create-report-book"]'
-    )
-    .forEach(
-      (button) => {
-
-        button.addEventListener(
-          "click",
-          () => {
-
-            CBCMaster.navigate(
-              "report-books"
-            );
-
-
-            openReportBookForm();
-
-          }
-        );
-
-      }
-    );
-
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Module initialisation
-|--------------------------------------------------------------------------
-*/
-
-function initReportBooksModule() {
-
-  bindReportBookControls();
-
-  bindReportBookQuickAction();
-
-  renderReportBooksPage();
-
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Start module
-|--------------------------------------------------------------------------
-*/
-
-if (
-  document.readyState ===
-  "loading"
-) {
-
-  document.addEventListener(
-    "DOMContentLoaded",
-    initReportBooksModule,
-    {
-      once: true
+  function initReportBooksModule() {
+    if (reportBooksInitialized) {
+      return;
     }
-  );
 
-} else {
+    reportBooksInitialized = true;
 
-  initReportBooksModule();
+    bindReportBookControls();
+    renderReportBooksPage();
+  }
 
-}
+  /*
+  |--------------------------------------------------------------------------
+  | Public API
+  |--------------------------------------------------------------------------
+  */
+
+  window.CBCMasterReportBooks =
+    Object.freeze({
+      render: renderReportBooksPage,
+      open: openReportBookForm,
+      close: closeReportBookForm,
+      delete: deleteReportBook
+    });
+
+  /*
+  |--------------------------------------------------------------------------
+  | Start
+  |--------------------------------------------------------------------------
+  */
+
+  if (
+    document.readyState === "loading"
+  ) {
+    document.addEventListener(
+      "DOMContentLoaded",
+      initReportBooksModule,
+      { once: true }
+    );
+  } else {
+    initReportBooksModule();
+  }
+})();
