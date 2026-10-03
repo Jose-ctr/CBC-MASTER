@@ -2,552 +2,406 @@
 
 /*
 |--------------------------------------------------------------------------
-| CBC MASTER V2
-| Schemes of Work Module
+| CBC MASTER V2 — Schemes of Work
 |--------------------------------------------------------------------------
-| Local-first
-| No external requests
-| No personal-data logging
+| Local-first scheme management.
+| No third-party tracking or external requests.
 |--------------------------------------------------------------------------
 */
 
 (() => {
-  const CBC = window.CBCMaster;
+  let schemeSearchQuery = "";
+  let schemesInitialized = false;
 
-  if (!CBC) {
-    return;
+  const $ = (selector) =>
+    document.querySelector(selector);
+
+  const clean = (value) =>
+    CBCMaster.cleanDisplayText(value || "");
+
+  function getSchemes() {
+    const data = CBCMaster.getData();
+    return Array.isArray(data.schemes)
+      ? data.schemes
+      : [];
   }
 
-  let schemeSearchQuery = "";
-
-  const $ = (selector) => document.querySelector(selector);
-
-  /*
-  |--------------------------------------------------------------------------
-  | Open form
-  |--------------------------------------------------------------------------
-  */
-
-  function openSchemeForm(record = null) {
-    const formCard = $("#schemeFormCard");
-    const formTitle = $("#schemeFormTitle");
+  function openSchemeForm(scheme = null) {
+    const card = $("#schemeFormCard");
     const form = $("#schemeForm");
 
-    if (!formCard || !form) {
-      return;
-    }
-
-    form.reset();
-
-    $("#schemeId").value = "";
-    $("#schemeGrade").value =
-      CBC.getData().preferences.grade || "Grade 5";
-    $("#schemeTerm").value =
-      CBC.getData().preferences.term || "Term 1";
-    $("#schemeSubject").value = "";
-    $("#schemeWeek").value = "";
-    $("#schemeTopic").value = "";
-    $("#schemeObjectives").value = "";
-    $("#schemeActivities").value = "";
-    $("#schemeResources").value = "";
-    $("#schemeAssessment").value = "";
-
-    if (record) {
-      formTitle.textContent = "Edit Scheme of Work";
-
-      $("#schemeId").value = record.id;
-      $("#schemeGrade").value = record.grade || "";
-      $("#schemeTerm").value = record.term || "";
-      $("#schemeSubject").value = record.subject || "";
-      $("#schemeWeek").value = record.week || "";
-      $("#schemeTopic").value = record.topic || "";
-      $("#schemeObjectives").value = record.objectives || "";
-      $("#schemeActivities").value = record.activities || "";
-      $("#schemeResources").value = record.resources || "";
-      $("#schemeAssessment").value = record.assessment || "";
-    } else {
-      formTitle.textContent = "Create Scheme of Work";
-    }
-
-    formCard.hidden = false;
-
-    formCard.scrollIntoView({
-      behavior: "smooth",
-      block: "start"
-    });
-
-    const subject = $("#schemeSubject");
-
-    if (subject) {
-      setTimeout(() => subject.focus(), 100);
-    }
-  }
-
-  /*
-  |--------------------------------------------------------------------------
-  | Close form
-  |--------------------------------------------------------------------------
-  */
-
-  function closeSchemeForm() {
-    const formCard = $("#schemeFormCard");
-
-    if (formCard) {
-      formCard.hidden = true;
-    }
-  }
-
-  /*
-  |--------------------------------------------------------------------------
-  | Save scheme
-  |--------------------------------------------------------------------------
-  */
-
-  function saveSchemeFromForm(event) {
-    event.preventDefault();
-
-    const data = CBC.getData();
-
-    const id = $("#schemeId").value.trim();
-
-    const record = {
-      id: id || CBC.createId("scheme"),
-      grade: CBC.cleanDisplayText(
-        $("#schemeGrade").value
-      ),
-      term: CBC.cleanDisplayText(
-        $("#schemeTerm").value
-      ),
-      subject: CBC.cleanDisplayText(
-        $("#schemeSubject").value
-      ),
-      week: CBC.cleanDisplayText(
-        $("#schemeWeek").value
-      ),
-      topic: CBC.cleanDisplayText(
-        $("#schemeTopic").value
-      ),
-      objectives: CBC.cleanDisplayText(
-        $("#schemeObjectives").value
-      ),
-      activities: CBC.cleanDisplayText(
-        $("#schemeActivities").value
-      ),
-      resources: CBC.cleanDisplayText(
-        $("#schemeResources").value
-      ),
-      assessment: CBC.cleanDisplayText(
-        $("#schemeAssessment").value
-      ),
-      updatedAt: new Date().toISOString()
-    };
-
-    if (!record.subject || !record.topic) {
-      CBC.showToast(
-        "Subject and topic are required.",
+    if (!card || !form) {
+      CBCMaster.showToast(
+        "Scheme form is not available.",
         true
       );
       return;
     }
 
-    if (id) {
-      const index = data.schemes.findIndex(
-        (item) => item.id === id
-      );
+    const fields = {
+      id: $("#schemeId"),
+      title: $("#schemeTitle"),
+      grade: $("#schemeGrade"),
+      subject: $("#schemeSubject"),
+      term: $("#schemeTerm"),
+      year: $("#schemeAcademicYear"),
+      strands: $("#schemeStrands"),
+      weeks: $("#schemeWeeks"),
+      content: $("#schemeContent")
+    };
 
-      if (index !== -1) {
-        data.schemes[index] = {
-          ...data.schemes[index],
-          ...record
-        };
+    const title = $("#schemeFormTitle");
+
+    if (scheme) {
+      if (title) {
+        title.textContent = "Edit Scheme of Work";
       }
+
+      Object.entries(fields).forEach(([key, field]) => {
+        if (field) {
+          field.value = scheme[key] ?? "";
+        }
+      });
     } else {
-      record.createdAt = new Date().toISOString();
-      data.schemes.unshift(record);
+      form.reset();
+
+      if (title) {
+        title.textContent = "Create Scheme of Work";
+      }
+
+      const data = CBCMaster.getData();
+
+      if (fields.id) fields.id.value = "";
+      if (fields.grade) {
+        fields.grade.value =
+          data.preferences?.grade || "Grade 5";
+      }
+      if (fields.term) {
+        fields.term.value =
+          data.preferences?.term || "Term 1";
+      }
+      if (fields.year) {
+        fields.year.value =
+          data.preferences?.academicYear || "2026";
+      }
     }
 
-    CBC.saveData(data);
-    CBC.refresh();
+    card.hidden = false;
+    card.removeAttribute("hidden");
+
+    fields.title?.focus();
+  }
+
+  function closeSchemeForm() {
+    const card = $("#schemeFormCard");
+    const form = $("#schemeForm");
+
+    form?.reset();
+
+    if (card) {
+      card.hidden = true;
+      card.setAttribute("hidden", "");
+    }
+  }
+
+  function saveScheme(event) {
+    event.preventDefault();
+
+    const data = CBCMaster.getData();
+
+    if (!Array.isArray(data.schemes)) {
+      data.schemes = [];
+    }
+
+    const scheme = {
+      id: clean($("#schemeId")?.value),
+      title: clean($("#schemeTitle")?.value),
+      grade: clean($("#schemeGrade")?.value),
+      subject: clean($("#schemeSubject")?.value),
+      term: clean($("#schemeTerm")?.value),
+      year: clean($("#schemeAcademicYear")?.value),
+      strands: clean($("#schemeStrands")?.value),
+      weeks: clean($("#schemeWeeks")?.value),
+      content: clean($("#schemeContent")?.value)
+    };
+
+    if (!scheme.title) {
+      CBCMaster.showToast(
+        "Enter a scheme title.",
+        true
+      );
+      $("#schemeTitle")?.focus();
+      return;
+    }
+
+    if (!scheme.subject) {
+      CBCMaster.showToast(
+        "Enter a subject.",
+        true
+      );
+      $("#schemeSubject")?.focus();
+      return;
+    }
+
+    const now = new Date().toISOString();
+
+    if (scheme.id) {
+      const index = data.schemes.findIndex(
+        (item) => item.id === scheme.id
+      );
+
+      if (index === -1) {
+        CBCMaster.showToast(
+          "Scheme could not be found.",
+          true
+        );
+        return;
+      }
+
+      data.schemes[index] = {
+        ...data.schemes[index],
+        ...scheme,
+        updatedAt: now
+      };
+    } else {
+      scheme.id = CBCMaster.createId("scheme");
+      scheme.createdAt = now;
+      scheme.updatedAt = now;
+
+      data.schemes.push(scheme);
+    }
+
+    if (!CBCMaster.saveData(data)) {
+      return;
+    }
+
+    CBCMaster.addActivity(
+      scheme.id && data.schemes.some(
+        (item) => item.id === scheme.id &&
+          item.createdAt !== now
+      )
+        ? "Updated scheme of work"
+        : "Saved scheme of work"
+    );
 
     closeSchemeForm();
+    CBCMaster.refresh();
 
-    CBC.showToast(
-      id
-        ? "Scheme of Work updated."
-        : "Scheme of Work saved."
+    CBCMaster.showToast(
+      "Scheme saved successfully."
     );
   }
 
-  /*
-  |--------------------------------------------------------------------------
-  | Render page
-  |--------------------------------------------------------------------------
-  */
-
-  function renderSchemesPage() {
-    const list = $("#schemesList");
-    const emptyState = $("#schemesEmptyState");
-    const count = $("#schemeCount");
-
-    if (!list) {
-      return;
+  function matchesSearch(scheme) {
+    if (!schemeSearchQuery) {
+      return true;
     }
 
-    const data = CBC.getData();
-
-    let records = Array.isArray(data.schemes)
-      ? data.schemes
-      : [];
-
-    const query = schemeSearchQuery
-      .trim()
+    const text = [
+      scheme.title,
+      scheme.grade,
+      scheme.subject,
+      scheme.term,
+      scheme.year,
+      scheme.strands
+    ]
+      .filter(Boolean)
+      .join(" ")
       .toLowerCase();
 
-    if (query) {
-      records = records.filter((record) => {
-        return [
-          record.subject,
-          record.topic,
-          record.grade,
-          record.term,
-          record.week
-        ]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase()
-          .includes(query);
-      });
-    }
-
-    list.innerHTML = "";
-
-    if (count) {
-      count.textContent = String(records.length);
-    }
-
-    if (!records.length) {
-      if (emptyState) {
-        emptyState.hidden = false;
-      }
-
-      return;
-    }
-
-    if (emptyState) {
-      emptyState.hidden = true;
-    }
-
-    records.forEach((record) => {
-      list.appendChild(
-        createSchemeCard(record)
-      );
-    });
+    return text.includes(
+      schemeSearchQuery.toLowerCase()
+    );
   }
 
-  /*
-  |--------------------------------------------------------------------------
-  | Scheme card
-  |--------------------------------------------------------------------------
-  */
-
-  function createSchemeCard(record) {
+  function createSchemeCard(scheme) {
     const card = document.createElement("article");
+    card.className = "stat-card";
 
-    card.className = "module-record-card";
+    const header = document.createElement("div");
+    header.className = "stat-card-header";
 
-    const title = CBC.cleanDisplayText(
-      record.topic || "Untitled Topic"
-    );
+    const heading = document.createElement("h3");
+    heading.textContent =
+      scheme.title || "Untitled Scheme";
 
-    const subject = CBC.cleanDisplayText(
-      record.subject || "Subject"
-    );
+    header.appendChild(heading);
 
-    const grade = CBC.cleanDisplayText(
-      record.grade || ""
-    );
+    const details = document.createElement("div");
+    details.className = "stat-card-details";
 
-    const term = CBC.cleanDisplayText(
-      record.term || ""
-    );
+    [
+      ["Grade", scheme.grade],
+      ["Subject", scheme.subject],
+      ["Term", scheme.term],
+      ["Academic year", scheme.year],
+      ["Strands", scheme.strands],
+      ["Weeks", scheme.weeks]
+    ].forEach(([label, value]) => {
+      if (!value) return;
 
-    const week = CBC.cleanDisplayText(
-      record.week || ""
-    );
+      const paragraph = document.createElement("p");
+      paragraph.textContent = `${label}: ${value}`;
+      details.appendChild(paragraph);
+    });
 
-    const objectives = CBC.cleanDisplayText(
-      record.objectives || ""
-    );
+    if (scheme.content) {
+      const content = document.createElement("p");
+      content.textContent = scheme.content;
+      details.appendChild(content);
+    }
 
-    const activities = CBC.cleanDisplayText(
-      record.activities || ""
-    );
+    const actions = document.createElement("div");
+    actions.className = "card-actions";
 
-    const resources = CBC.cleanDisplayText(
-      record.resources || ""
-    );
+    const edit = document.createElement("button");
+    edit.type = "button";
+    edit.className = "button secondary";
+    edit.textContent = "Edit";
+    edit.addEventListener("click", () => {
+      openSchemeForm(scheme);
+    });
 
-    const assessment = CBC.cleanDisplayText(
-      record.assessment || ""
-    );
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "button danger";
+    remove.textContent = "Delete";
+    remove.addEventListener("click", () => {
+      deleteScheme(scheme.id);
+    });
 
-    card.innerHTML = `
-      <div class="module-record-header">
-        <div>
-          <span class="record-kicker">
-            ${subject}
-          </span>
-
-          <h3>
-            ${title}
-          </h3>
-        </div>
-
-        <span class="record-badge">
-          ${week || "Week"}
-        </span>
-      </div>
-
-      <div class="record-meta">
-        <span>${grade}</span>
-        <span>${term}</span>
-      </div>
-
-      ${
-        objectives
-          ? `
-            <div class="module-record-preview">
-              <strong>Learning Objectives</strong>
-              <p>${objectives}</p>
-            </div>
-          `
-          : ""
-      }
-
-      ${
-        activities
-          ? `
-            <div class="module-record-preview">
-              <strong>Learning Activities</strong>
-              <p>${activities}</p>
-            </div>
-          `
-          : ""
-      }
-
-      ${
-        resources
-          ? `
-            <div class="module-record-preview">
-              <strong>Resources</strong>
-              <p>${resources}</p>
-            </div>
-          `
-          : ""
-      }
-
-      ${
-        assessment
-          ? `
-            <div class="module-record-preview">
-              <strong>Assessment</strong>
-              <p>${assessment}</p>
-            </div>
-          `
-          : ""
-      }
-
-      <div class="form-actions">
-        <button
-          type="button"
-          class="btn btn-secondary"
-          data-edit-scheme="${record.id}">
-          Edit
-        </button>
-
-        <button
-          type="button"
-          class="btn btn-danger"
-          data-delete-scheme="${record.id}">
-          Delete
-        </button>
-      </div>
-    `;
+    actions.append(edit, remove);
+    card.append(header, details, actions);
 
     return card;
   }
 
-  /*
-  |--------------------------------------------------------------------------
-  | Delete scheme
-  |--------------------------------------------------------------------------
-  */
+  function renderSchemesPage() {
+    const list = $("#schemesList");
+    const empty = $("#schemesEmptyState");
+    const count = $("#schemeCount");
+
+    if (!list) return;
+
+    const schemes = getSchemes()
+      .filter(matchesSearch)
+      .sort((a, b) =>
+        String(b.updatedAt || "")
+          .localeCompare(String(a.updatedAt || ""))
+      );
+
+    list.replaceChildren();
+
+    if (count) {
+      count.textContent = String(schemes.length);
+    }
+
+    if (empty) {
+      empty.hidden = schemes.length > 0;
+    }
+
+    const fragment = document.createDocumentFragment();
+
+    schemes.forEach((scheme) => {
+      fragment.appendChild(
+        createSchemeCard(scheme)
+      );
+    });
+
+    list.appendChild(fragment);
+  }
 
   function deleteScheme(id) {
-    const data = CBC.getData();
+    const data = CBCMaster.getData();
 
-    const record = data.schemes.find(
-      (item) => item.id === id
+    const exists = data.schemes.some(
+      (scheme) => scheme.id === id
     );
 
-    if (!record) {
+    if (!exists) {
+      CBCMaster.showToast(
+        "Scheme not found.",
+        true
+      );
       return;
     }
 
-    const confirmed = window.confirm(
-      `Delete the scheme for "${record.topic || "this topic"}"?`
-    );
-
-    if (!confirmed) {
+    if (!window.confirm(
+      "Delete this scheme of work?"
+    )) {
       return;
     }
 
     data.schemes = data.schemes.filter(
-      (item) => item.id !== id
+      (scheme) => scheme.id !== id
     );
 
-    CBC.saveData(data);
-    CBC.refresh();
+    if (!CBCMaster.saveData(data)) {
+      return;
+    }
 
-    CBC.showToast(
-      "Scheme of Work deleted."
+    CBCMaster.addActivity(
+      "Deleted scheme of work"
     );
+
+    CBCMaster.refresh();
+    CBCMaster.showToast("Scheme deleted.");
   }
 
-  /*
-  |--------------------------------------------------------------------------
-  | Bind controls
-  |--------------------------------------------------------------------------
-  */
-
-  function bindSchemeControls() {
-    const addButton = $("#addSchemeBtn");
-    const cancelButton = $("#cancelSchemeButton");
-    const form = $("#schemeForm");
-    const search = $("#schemeSearch");
-
-    if (addButton) {
-      addButton.addEventListener(
-        "click",
-        () => openSchemeForm()
-      );
-    }
-
-    if (cancelButton) {
-      cancelButton.addEventListener(
-        "click",
-        closeSchemeForm
-      );
-    }
-
-    if (form) {
-      form.addEventListener(
-        "submit",
-        saveSchemeFromForm
-      );
-    }
-
-    if (search) {
-      search.addEventListener(
-        "input",
-        (event) => {
-          schemeSearchQuery =
-            event.target.value || "";
-
-          renderSchemesPage();
-        }
-      );
-    }
-
-    document.addEventListener(
+  function bindControls() {
+    $("#addSchemeBtn")?.addEventListener(
       "click",
+      () => openSchemeForm()
+    );
+
+    $("#cancelSchemeButton")?.addEventListener(
+      "click",
+      closeSchemeForm
+    );
+
+    $("#cancelSchemeBtn")?.addEventListener(
+      "click",
+      closeSchemeForm
+    );
+
+    $("#schemeForm")?.addEventListener(
+      "submit",
+      saveScheme
+    );
+
+    $("#schemeSearch")?.addEventListener(
+      "input",
       (event) => {
-        const editButton =
-          event.target.closest(
-            "[data-edit-scheme]"
-          );
-
-        if (editButton) {
-          const id =
-            editButton.dataset.editScheme;
-
-          const record =
-            CBC.getData().schemes.find(
-              (item) => item.id === id
-            );
-
-          if (record) {
-            openSchemeForm(record);
-          }
-
-          return;
-        }
-
-        const deleteButton =
-          event.target.closest(
-            "[data-delete-scheme]"
-          );
-
-        if (deleteButton) {
-          deleteScheme(
-            deleteButton.dataset.deleteScheme
-          );
-        }
+        schemeSearchQuery = clean(
+          event.target.value
+        );
+        renderSchemesPage();
       }
     );
   }
-
-  /*
-  |--------------------------------------------------------------------------
-  | Quick action
-  |--------------------------------------------------------------------------
-  */
-
-  function bindSchemeQuickAction() {
-    document.addEventListener(
-      "click",
-      (event) => {
-        const button =
-          event.target.closest(
-            '[data-action="create-scheme"]'
-          );
-
-        if (!button) {
-          return;
-        }
-
-        CBC.navigate("schemes");
-        openSchemeForm();
-      }
-    );
-  }
-
-  /*
-  |--------------------------------------------------------------------------
-  | Initialize
-  |--------------------------------------------------------------------------
-  */
 
   function initSchemesModule() {
-    bindSchemeControls();
-    bindSchemeQuickAction();
+    if (schemesInitialized) return;
+
+    schemesInitialized = true;
+    bindControls();
     renderSchemesPage();
   }
 
-  /*
-  |--------------------------------------------------------------------------
-  | Public module API
-  |--------------------------------------------------------------------------
-  */
-
   window.CBCMasterSchemes = Object.freeze({
+    render: renderSchemesPage,
     open: openSchemeForm,
     close: closeSchemeForm,
-    render: renderSchemesPage
+    delete: deleteScheme
   });
 
-  document.addEventListener(
-    "DOMContentLoaded",
-    initSchemesModule
-  );
+  if (document.readyState === "loading") {
+    document.addEventListener(
+      "DOMContentLoaded",
+      initSchemesModule,
+      { once: true }
+    );
+  } else {
+    initSchemesModule();
+  }
 })();
