@@ -1,1 +1,295 @@
+<section
+  id="timetablePage"
+  class="page-section"
+  data-page-section="timetable"
+  hidden
+>
+  <div class="page-content">
 
+    <div class="section-heading">
+
+      <div>
+        <p class="eyebrow">LIVE SCHOOL SCHEDULE</p>
+
+        <h2>Timetable</h2>
+
+        <p>
+          Manage your weekly school timetable and follow
+          the current lesson in real time.
+        </p>
+      </div>
+
+      <button
+        id="addTimetableEntryBtn"
+        class="btn btn-primary"
+        type="button"
+      >
+        + Add Period
+      </button>
+
+    </div>
+
+    <!-- Live timetable -->
+
+    <section
+      id="timetableLiveCard"
+      class="settings-card"
+    >
+
+      <div class="settings-card-header">
+
+        <div>
+          <p class="eyebrow">LIVE NOW</p>
+
+          <h2 id="timetableCurrentLesson">
+            No lesson scheduled
+          </h2>
+        </div>
+
+        <strong id="timetableLiveClock">
+          --:--
+        </strong>
+
+      </div>
+
+      <p id="timetableCurrentDetails">
+        Add your school timetable to begin.
+      </p>
+
+      <div
+        id="timetableCountdown"
+        class="stat-value"
+      >
+        --
+      </div>
+
+    </section>
+
+    <!-- Add / edit period -->
+
+    <section
+      id="timetableFormCard"
+      class="settings-card module-workspace"
+      hidden
+    >
+
+      <div class="settings-card-header">
+
+        <div>
+          <p class="eyebrow">TIMETABLE PERIOD</p>
+
+          <h2 id="timetableFormTitle">
+            Add Period
+          </h2>
+        </div>
+
+      </div>
+
+      <form id="timetableForm">
+
+        <input
+          id="timetableId"
+          type="hidden"
+        >
+
+        <div class="form-grid">
+
+          <div class="form-group">
+
+            <label for="timetableDay">
+              Day
+            </label>
+
+            <select
+              id="timetableDay"
+              class="form-control"
+              required
+            >
+              <option value="Monday">Monday</option>
+              <option value="Tuesday">Tuesday</option>
+              <option value="Wednesday">Wednesday</option>
+              <option value="Thursday">Thursday</option>
+              <option value="Friday">Friday</option>
+            </select>
+
+          </div>
+
+          <div class="form-group">
+
+            <label for="timetableSubject">
+              Subject
+            </label>
+
+            <input
+              id="timetableSubject"
+              class="form-control"
+              type="text"
+              maxlength="100"
+              required
+              placeholder="e.g. Mathematics"
+            >
+
+          </div>
+
+          <div class="form-group">
+
+            <label for="timetableGrade">
+              Grade
+            </label>
+
+            <select
+              id="timetableGrade"
+              class="form-control"
+            >
+              <option>PP1</option>
+              <option>PP2</option>
+              <option>Grade 1</option>
+              <option>Grade 2</option>
+              <option>Grade 3</option>
+              <option>Grade 4</option>
+              <option>Grade 5</option>
+              <option>Grade 6</option>
+              <option>Grade 7</option>
+              <option>Grade 8</option>
+              <option>Grade 9</option>
+              <option>Grade 10</option>
+              <option>Grade 11</option>
+              <option>Grade 12</option>
+            </select>
+
+          </div>
+
+          <div class="form-group">
+
+            <label for="timetableStart">
+              Start time
+            </label>
+
+            <input
+              id="timetableStart"
+              class="form-control"
+              type="time"
+              required
+            >
+
+          </div>
+
+          <div class="form-group">
+
+            <label for="timetableEnd">
+              End time
+            </label>
+
+            <input
+              id="timetableEnd"
+              class="form-control"
+              type="time"
+              required
+            >
+
+          </div>
+
+          <div class="form-group">
+
+            <label for="timetableTeacher">
+              Teacher
+            </label>
+
+            <input
+              id="timetableTeacher"
+              class="form-control"
+              type="text"
+              maxlength="120"
+              placeholder="Optional"
+            >
+
+          </div>
+
+          <div class="form-group">
+
+            <label for="timetableRoom">
+              Room
+            </label>
+
+            <input
+              id="timetableRoom"
+              class="form-control"
+              type="text"
+              maxlength="80"
+              placeholder="Optional"
+            >
+
+          </div>
+
+        </div>
+
+        <div class="form-actions">
+
+          <button
+            id="cancelTimetableButton"
+            class="btn btn-secondary"
+            type="button"
+          >
+            Cancel
+          </button>
+
+          <button
+            class="btn btn-primary"
+            type="submit"
+          >
+            Save Period
+          </button>
+
+        </div>
+
+      </form>
+
+    </section>
+
+    <!-- Weekly timetable -->
+
+    <section class="section-block">
+
+      <div class="section-heading">
+
+        <div>
+          <h2>Weekly Timetable</h2>
+
+          <p>
+            Your timetable stays on this device.
+          </p>
+        </div>
+
+      </div>
+
+      <div
+        id="timetableList"
+        class="list-grid"
+      ></div>
+
+      <div
+        id="timetableEmptyState"
+        class="empty-page"
+        hidden
+      >
+
+        <span
+          class="empty-icon"
+          aria-hidden="true"
+        >
+          ◷
+        </span>
+
+        <h2>No timetable periods yet</h2>
+
+        <p>
+          Add your first school period to activate
+          the live timetable.
+        </p>
+
+      </div>
+
+    </section>
+
+  </div>
+</section>
