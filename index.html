@@ -5,9 +5,8 @@
 
   <!-- =========================================================
        CBC MASTER V2
-       Kenyan CBC Teacher Toolkit
-       PP1 to Grade 12
-       Privacy-first • Offline-first • PWA
+       Kenyan CBC Toolkit • PP1 to Grade 12
+       Local-first • Offline-first • Privacy-first
        ========================================================= -->
 
   <meta charset="utf-8">
@@ -24,7 +23,7 @@
 
   <meta
     name="description"
-    content="Private, offline-first Kenyan CBC teacher toolkit for PP1 to Grade 12."
+    content="Kenyan CBC Toolkit for PP1 to Grade 12"
   >
 
   <meta
@@ -33,7 +32,7 @@
   >
 
   <!-- =========================================================
-       CONTENT SECURITY POLICY
+       SECURITY POLICY
        ========================================================= -->
 
   <meta
@@ -80,10 +79,9 @@
 
 <div id="app">
 
-
-  <!-- =======================================================
+  <!-- =========================================================
        SIDEBAR
-       ======================================================= -->
+       ========================================================= -->
 
   <aside class="sidebar">
 
@@ -112,7 +110,10 @@
       aria-label="Main navigation"
     >
 
-      <p class="nav-label">Workspace</p>
+      <p class="nav-label">
+        Workspace
+      </p>
+
 
       <button
         type="button"
@@ -120,7 +121,11 @@
         data-page="dashboard"
         aria-current="page"
       >
-        <span class="nav-icon" aria-hidden="true">⌂</span>
+        <span
+          class="nav-icon"
+          aria-hidden="true"
+        >⌂</span>
+
         <span>Dashboard</span>
       </button>
 
@@ -130,7 +135,11 @@
         class="nav-item"
         data-page="report-books"
       >
-        <span class="nav-icon" aria-hidden="true">▣</span>
+        <span
+          class="nav-icon"
+          aria-hidden="true"
+        >▣</span>
+
         <span>Report Books</span>
       </button>
 
@@ -140,7 +149,11 @@
         class="nav-item"
         data-page="schemes"
       >
-        <span class="nav-icon" aria-hidden="true">▤</span>
+        <span
+          class="nav-icon"
+          aria-hidden="true"
+        >▤</span>
+
         <span>Schemes of Work</span>
       </button>
 
@@ -150,7 +163,11 @@
         class="nav-item"
         data-page="lesson-plans"
       >
-        <span class="nav-icon" aria-hidden="true">▥</span>
+        <span
+          class="nav-icon"
+          aria-hidden="true"
+        >▥</span>
+
         <span>Lesson Plans</span>
       </button>
 
@@ -160,7 +177,11 @@
         class="nav-item"
         data-page="rubrics"
       >
-        <span class="nav-icon" aria-hidden="true">✓</span>
+        <span
+          class="nav-icon"
+          aria-hidden="true"
+        >✓</span>
+
         <span>Assessment Rubrics</span>
       </button>
 
@@ -170,12 +191,32 @@
         class="nav-item"
         data-page="students"
       >
-        <span class="nav-icon" aria-hidden="true">♙</span>
+        <span
+          class="nav-icon"
+          aria-hidden="true"
+        >♙</span>
+
         <span>Students</span>
       </button>
 
 
-      <p class="nav-label">Documents</p>
+      <button
+        type="button"
+        class="nav-item"
+        data-page="timetable"
+      >
+        <span
+          class="nav-icon"
+          aria-hidden="true"
+        >◷</span>
+
+        <span>Timetable</span>
+      </button>
+
+
+      <p class="nav-label">
+        Documents
+      </p>
 
 
       <button
@@ -183,7 +224,11 @@
         class="nav-item"
         data-page="documents"
       >
-        <span class="nav-icon" aria-hidden="true">□</span>
+        <span
+          class="nav-icon"
+          aria-hidden="true"
+        >□</span>
+
         <span>Saved Documents</span>
       </button>
 
@@ -193,12 +238,18 @@
         class="nav-item"
         data-page="analytics"
       >
-        <span class="nav-icon" aria-hidden="true">◒</span>
+        <span
+          class="nav-icon"
+          aria-hidden="true"
+        >◒</span>
+
         <span>Analytics</span>
       </button>
 
 
-      <p class="nav-label">Account</p>
+      <p class="nav-label">
+        Account
+      </p>
 
 
       <button
@@ -206,7 +257,11 @@
         class="nav-item"
         data-page="profile"
       >
-        <span class="nav-icon" aria-hidden="true">○</span>
+        <span
+          class="nav-icon"
+          aria-hidden="true"
+        >○</span>
+
         <span>Profile</span>
       </button>
 
@@ -216,7 +271,11 @@
         class="nav-item"
         data-page="settings"
       >
-        <span class="nav-icon" aria-hidden="true">⚙</span>
+        <span
+          class="nav-icon"
+          aria-hidden="true"
+        >⚙</span>
+
         <span>Settings</span>
       </button>
 
@@ -250,16 +309,16 @@
   </aside>
 
 
-  <!-- =======================================================
-       MAIN
-       ======================================================= -->
+  <!-- =========================================================
+       MAIN CONTENT
+       ========================================================= -->
 
   <main class="main-content">
 
 
-    <!-- =====================================================
+    <!-- =======================================================
          TOPBAR
-         ===================================================== -->
+         ======================================================= -->
 
     <header class="topbar">
 
@@ -281,9 +340,11 @@
 
         </div>
 
+
         <h1 id="pageTitle">
           Dashboard
         </h1>
+
 
         <p id="pageSubtitle">
           Your CBC teaching workspace
@@ -321,16 +382,24 @@
     </header>
 
 
-    <!-- =====================================================
-         CONTENT
-         ===================================================== -->
+    <!-- =======================================================
+         PAGE CONTENT
+         ======================================================= -->
 
     <div class="content-container">
 
 
-      <!-- ===================================================
+      <!-- =====================================================
+           TIMETABLE COMPONENT CONTAINER
+           Only ONE timetable container
+           ===================================================== -->
+
+      <div id="timetable-container"></div>
+
+
+      <!-- =====================================================
            DASHBOARD
-           =================================================== -->
+           ===================================================== -->
 
       <section
         id="dashboardPage"
@@ -341,37 +410,56 @@
         <div class="page-content">
 
 
+          <!-- Welcome -->
+
           <section class="welcome-card">
 
             <p class="eyebrow">
               TEACHER WORKSPACE
             </p>
 
+
             <h2 id="welcomeTitle">
               Good morning, Teacher
             </h2>
+
 
             <p id="welcomeText">
               Your Grade 5 • Term 1 teaching workspace.
             </p>
 
+
             <div class="welcome-badges">
 
-              <span>Offline-first</span>
-              <span>Local data</span>
-              <span>PP1–Grade 12</span>
+              <span>
+                Offline-first
+              </span>
+
+              <span>
+                Local data
+              </span>
+
+              <span>
+                PP1–Grade 12
+              </span>
 
             </div>
 
           </section>
 
 
+          <!-- Teaching Tools -->
+
           <section class="section-block">
 
             <div class="section-heading">
 
               <div>
-                <h2>Teaching Tools</h2>
+
+                <h2>
+                  Teaching Tools
+                </h2>
+
               </div>
 
             </div>
@@ -379,19 +467,41 @@
 
             <div class="module-grid">
 
+
               <button
                 type="button"
                 class="module-card"
                 data-module="report-books"
               >
-                <span class="module-icon" aria-hidden="true">▣</span>
 
-                <span class="module-content">
-                  <strong>Report Books</strong>
-                  <small>Learner assessment records</small>
+                <span
+                  class="module-icon"
+                  aria-hidden="true"
+                >
+                  ▣
                 </span>
 
-                <span class="module-arrow" aria-hidden="true">→</span>
+
+                <span class="module-content">
+
+                  <strong>
+                    Report Books
+                  </strong>
+
+                  <small>
+                    Learner assessment records
+                  </small>
+
+                </span>
+
+
+                <span
+                  class="module-arrow"
+                  aria-hidden="true"
+                >
+                  →
+                </span>
+
               </button>
 
 
@@ -400,14 +510,35 @@
                 class="module-card"
                 data-module="schemes"
               >
-                <span class="module-icon" aria-hidden="true">▤</span>
 
-                <span class="module-content">
-                  <strong>Schemes of Work</strong>
-                  <small>Plan CBC teaching activities</small>
+                <span
+                  class="module-icon"
+                  aria-hidden="true"
+                >
+                  ▤
                 </span>
 
-                <span class="module-arrow" aria-hidden="true">→</span>
+
+                <span class="module-content">
+
+                  <strong>
+                    Schemes of Work
+                  </strong>
+
+                  <small>
+                    Plan CBC teaching activities
+                  </small>
+
+                </span>
+
+
+                <span
+                  class="module-arrow"
+                  aria-hidden="true"
+                >
+                  →
+                </span>
+
               </button>
 
 
@@ -416,14 +547,35 @@
                 class="module-card"
                 data-module="lesson-plans"
               >
-                <span class="module-icon" aria-hidden="true">▥</span>
 
-                <span class="module-content">
-                  <strong>Lesson Plans</strong>
-                  <small>Prepare daily lessons</small>
+                <span
+                  class="module-icon"
+                  aria-hidden="true"
+                >
+                  ▥
                 </span>
 
-                <span class="module-arrow" aria-hidden="true">→</span>
+
+                <span class="module-content">
+
+                  <strong>
+                    Lesson Plans
+                  </strong>
+
+                  <small>
+                    Prepare daily lessons
+                  </small>
+
+                </span>
+
+
+                <span
+                  class="module-arrow"
+                  aria-hidden="true"
+                >
+                  →
+                </span>
+
               </button>
 
 
@@ -432,14 +584,35 @@
                 class="module-card"
                 data-module="rubrics"
               >
-                <span class="module-icon" aria-hidden="true">✓</span>
 
-                <span class="module-content">
-                  <strong>Assessment Rubrics</strong>
-                  <small>Reusable assessment criteria</small>
+                <span
+                  class="module-icon"
+                  aria-hidden="true"
+                >
+                  ✓
                 </span>
 
-                <span class="module-arrow" aria-hidden="true">→</span>
+
+                <span class="module-content">
+
+                  <strong>
+                    Assessment Rubrics
+                  </strong>
+
+                  <small>
+                    Reusable assessment criteria
+                  </small>
+
+                </span>
+
+
+                <span
+                  class="module-arrow"
+                  aria-hidden="true"
+                >
+                  →
+                </span>
+
               </button>
 
             </div>
@@ -447,17 +620,27 @@
           </section>
 
 
+          <!-- Workspace -->
+
           <section class="section-block">
 
             <div class="section-heading">
-              <h2>Workspace</h2>
+
+              <h2>
+                Workspace
+              </h2>
+
             </div>
 
 
             <div class="stats-grid">
 
+
               <article class="stat-card">
-                <span class="stat-label">Students</span>
+
+                <span class="stat-label">
+                  Students
+                </span>
 
                 <strong
                   class="stat-value"
@@ -466,12 +649,18 @@
                   0
                 </strong>
 
-                <small>Learner records</small>
+                <small>
+                  Learner records
+                </small>
+
               </article>
 
 
               <article class="stat-card">
-                <span class="stat-label">Report Books</span>
+
+                <span class="stat-label">
+                  Report Books
+                </span>
 
                 <strong
                   class="stat-value"
@@ -480,12 +669,18 @@
                   0
                 </strong>
 
-                <small>Assessment records</small>
+                <small>
+                  Assessment records
+                </small>
+
               </article>
 
 
               <article class="stat-card">
-                <span class="stat-label">Schemes</span>
+
+                <span class="stat-label">
+                  Schemes
+                </span>
 
                 <strong
                   class="stat-value"
@@ -494,12 +689,18 @@
                   0
                 </strong>
 
-                <small>Teaching schemes</small>
+                <small>
+                  Teaching schemes
+                </small>
+
               </article>
 
 
               <article class="stat-card">
-                <span class="stat-label">Documents</span>
+
+                <span class="stat-label">
+                  Documents
+                </span>
 
                 <strong
                   class="stat-value"
@@ -508,7 +709,10 @@
                   0
                 </strong>
 
-                <small>Saved documents</small>
+                <small>
+                  Saved documents
+                </small>
+
               </article>
 
             </div>
@@ -516,56 +720,123 @@
           </section>
 
 
+          <!-- Quick Actions -->
+
           <section class="section-block">
 
             <div class="section-heading">
-              <h2>Quick Actions</h2>
+
+              <h2>
+                Quick Actions
+              </h2>
+
             </div>
 
 
             <div class="quick-actions">
 
+
+              <!-- ADD LEARNER -->
+
               <button
                 type="button"
                 class="quick-action"
                 data-action="add-student"
+                onclick="
+                  document
+                    .querySelector('[data-page=&quot;students&quot;]')
+                    ?.click();
+
+                  setTimeout(
+                    () => document
+                      .getElementById('addStudentBtn')
+                      ?.click(),
+                    100
+                  );
+                "
               >
-                <span aria-hidden="true">♙</span>
-                <strong>Add Learner</strong>
-                <small>Create a learner record</small>
+
+                <span aria-hidden="true">
+                  ♙
+                </span>
+
+                <strong>
+                  Add Learner
+                </strong>
+
+                <small>
+                  Create a learner record
+                </small>
+
               </button>
 
+
+              <!-- REPORT BOOK -->
 
               <button
                 type="button"
                 class="quick-action"
                 data-action="create-report-book"
               >
-                <span aria-hidden="true">▣</span>
-                <strong>Report Book</strong>
-                <small>Start an assessment record</small>
+
+                <span aria-hidden="true">
+                  ▣
+                </span>
+
+                <strong>
+                  Report Book
+                </strong>
+
+                <small>
+                  Start an assessment record
+                </small>
+
               </button>
 
+
+              <!-- SCHEME -->
 
               <button
                 type="button"
                 class="quick-action"
                 data-action="create-scheme"
               >
-                <span aria-hidden="true">▤</span>
-                <strong>Create Scheme</strong>
-                <small>Plan your teaching work</small>
+
+                <span aria-hidden="true">
+                  ▤
+                </span>
+
+                <strong>
+                  Create Scheme
+                </strong>
+
+                <small>
+                  Plan your teaching work
+                </small>
+
               </button>
 
+
+              <!-- LESSON PLAN -->
 
               <button
                 type="button"
                 class="quick-action"
                 data-action="create-lesson-plan"
               >
-                <span aria-hidden="true">▥</span>
-                <strong>Lesson Plan</strong>
-                <small>Prepare a daily lesson</small>
+
+                <span aria-hidden="true">
+                  ▥
+                </span>
+
+                <strong>
+                  Lesson Plan
+                </strong>
+
+                <small>
+                  Prepare a daily lesson
+                </small>
+
               </button>
 
             </div>
@@ -577,9 +848,9 @@
       </section>
 
 
-      <!-- ===================================================
+      <!-- =====================================================
            REPORT BOOKS
-           =================================================== -->
+           ===================================================== -->
 
       <section
         id="reportBooksPage"
@@ -593,14 +864,21 @@
           <div class="section-heading">
 
             <div>
-              <p class="eyebrow">ASSESSMENT RECORDS</p>
 
-              <h2>Report Books</h2>
+              <p class="eyebrow">
+                ASSESSMENT RECORDS
+              </p>
+
+              <h2>
+                Report Books
+              </h2>
 
               <p>
                 Create and manage local learner assessment records.
               </p>
+
             </div>
+
 
             <button
               id="addReportBookBtn"
@@ -631,9 +909,12 @@
 
             </div>
 
+
             <div class="module-toolbar-count">
 
-              <span>Records</span>
+              <span>
+                Records
+              </span>
 
               <strong id="reportBookCount">
                 0
@@ -653,11 +934,15 @@
             <div class="settings-card-header">
 
               <div>
-                <p class="eyebrow">REPORT BOOK</p>
+
+                <p class="eyebrow">
+                  REPORT BOOK
+                </p>
 
                 <h2 id="reportBookFormTitle">
                   New Report Book
                 </h2>
+
               </div>
 
             </div>
@@ -700,6 +985,7 @@
                     id="reportBookGrade"
                     class="form-control"
                   >
+
                     <option>PP1</option>
                     <option>PP2</option>
                     <option>Grade 1</option>
@@ -714,6 +1000,7 @@
                     <option>Grade 10</option>
                     <option>Grade 11</option>
                     <option>Grade 12</option>
+
                   </select>
 
                 </div>
@@ -729,9 +1016,11 @@
                     id="reportBookTerm"
                     class="form-control"
                   >
+
                     <option>Term 1</option>
                     <option>Term 2</option>
                     <option>Term 3</option>
+
                   </select>
 
                 </div>
@@ -787,9 +1076,16 @@
               hidden
             >
 
-              <span class="empty-icon" aria-hidden="true">▣</span>
+              <span
+                class="empty-icon"
+                aria-hidden="true"
+              >
+                ▣
+              </span>
 
-              <h2>No report books yet</h2>
+              <h2>
+                No report books yet
+              </h2>
 
               <p>
                 Create your first local report book.
@@ -810,9 +1106,9 @@
       </section>
 
 
-      <!-- ===================================================
+      <!-- =====================================================
            SCHEMES
-           =================================================== -->
+           ===================================================== -->
 
       <section
         id="schemesPage"
@@ -826,14 +1122,21 @@
           <div class="section-heading">
 
             <div>
-              <p class="eyebrow">PLANNING</p>
 
-              <h2>Schemes of Work</h2>
+              <p class="eyebrow">
+                PLANNING
+              </p>
+
+              <h2>
+                Schemes of Work
+              </h2>
 
               <p>
                 Plan CBC teaching work by week, topic and activity.
               </p>
+
             </div>
+
 
             <button
               id="addSchemeBtn"
@@ -864,9 +1167,12 @@
 
             </div>
 
+
             <div class="module-toolbar-count">
 
-              <span>Records</span>
+              <span>
+                Records
+              </span>
 
               <strong id="schemeCount">
                 0
@@ -886,11 +1192,15 @@
             <div class="settings-card-header">
 
               <div>
-                <p class="eyebrow">TEACHING PLAN</p>
+
+                <p class="eyebrow">
+                  TEACHING PLAN
+                </p>
 
                 <h2 id="schemeFormTitle">
                   New Scheme
                 </h2>
+
               </div>
 
             </div>
@@ -916,6 +1226,7 @@
                     id="schemeGrade"
                     class="form-control"
                   >
+
                     <option>PP1</option>
                     <option>PP2</option>
                     <option>Grade 1</option>
@@ -930,6 +1241,7 @@
                     <option>Grade 10</option>
                     <option>Grade 11</option>
                     <option>Grade 12</option>
+
                   </select>
 
                 </div>
@@ -945,9 +1257,11 @@
                     id="schemeTerm"
                     class="form-control"
                   >
+
                     <option>Term 1</option>
                     <option>Term 2</option>
                     <option>Term 3</option>
+
                   </select>
 
                 </div>
@@ -1102,9 +1416,16 @@
               hidden
             >
 
-              <span class="empty-icon" aria-hidden="true">▤</span>
+              <span
+                class="empty-icon"
+                aria-hidden="true"
+              >
+                ▤
+              </span>
 
-              <h2>No schemes yet</h2>
+              <h2>
+                No schemes yet
+              </h2>
 
               <p>
                 Create your first scheme of work.
@@ -1125,9 +1446,9 @@
       </section>
 
 
-      <!-- ===================================================
+      <!-- =====================================================
            LESSON PLANS
-           =================================================== -->
+           ===================================================== -->
 
       <section
         id="lessonPlansPage"
@@ -1141,14 +1462,21 @@
           <div class="section-heading">
 
             <div>
-              <p class="eyebrow">DAILY PLANNING</p>
 
-              <h2>Lesson Plans</h2>
+              <p class="eyebrow">
+                DAILY PLANNING
+              </p>
+
+              <h2>
+                Lesson Plans
+              </h2>
 
               <p>
                 Prepare structured CBC lessons locally.
               </p>
+
             </div>
+
 
             <button
               id="addLessonPlanBtn"
@@ -1179,9 +1507,12 @@
 
             </div>
 
+
             <div class="module-toolbar-count">
 
-              <span>Records</span>
+              <span>
+                Records
+              </span>
 
               <strong id="lessonPlanCount">
                 0
@@ -1201,11 +1532,15 @@
             <div class="settings-card-header">
 
               <div>
-                <p class="eyebrow">LESSON PLAN</p>
+
+                <p class="eyebrow">
+                  LESSON PLAN
+                </p>
 
                 <h2 id="lessonPlanFormTitle">
                   New Lesson Plan
                 </h2>
+
               </div>
 
             </div>
@@ -1231,6 +1566,7 @@
                     id="lessonPlanGrade"
                     class="form-control"
                   >
+
                     <option>PP1</option>
                     <option>PP2</option>
                     <option>Grade 1</option>
@@ -1245,6 +1581,7 @@
                     <option>Grade 10</option>
                     <option>Grade 11</option>
                     <option>Grade 12</option>
+
                   </select>
 
                 </div>
@@ -1260,9 +1597,11 @@
                     id="lessonPlanTerm"
                     class="form-control"
                   >
+
                     <option>Term 1</option>
                     <option>Term 2</option>
                     <option>Term 3</option>
+
                   </select>
 
                 </div>
@@ -1464,9 +1803,16 @@
               hidden
             >
 
-              <span class="empty-icon" aria-hidden="true">▥</span>
+              <span
+                class="empty-icon"
+                aria-hidden="true"
+              >
+                ▥
+              </span>
 
-              <h2>No lesson plans yet</h2>
+              <h2>
+                No lesson plans yet
+              </h2>
 
               <p>
                 Create your first lesson plan.
@@ -1487,9 +1833,9 @@
       </section>
 
 
-      <!-- ===================================================
+      <!-- =====================================================
            RUBRICS
-           =================================================== -->
+           ===================================================== -->
 
       <section
         id="rubricsPage"
@@ -1503,14 +1849,21 @@
           <div class="section-heading">
 
             <div>
-              <p class="eyebrow">ASSESSMENT</p>
 
-              <h2>Assessment Rubrics</h2>
+              <p class="eyebrow">
+                ASSESSMENT
+              </p>
+
+              <h2>
+                Assessment Rubrics
+              </h2>
 
               <p>
                 Create reusable CBC assessment criteria.
               </p>
+
             </div>
+
 
             <button
               id="addRubricBtn"
@@ -1541,9 +1894,12 @@
 
             </div>
 
+
             <div class="module-toolbar-count">
 
-              <span>Records</span>
+              <span>
+                Records
+              </span>
 
               <strong id="rubricCount">
                 0
@@ -1563,11 +1919,15 @@
             <div class="settings-card-header">
 
               <div>
-                <p class="eyebrow">RUBRIC</p>
+
+                <p class="eyebrow">
+                  RUBRIC
+                </p>
 
                 <h2 id="rubricFormTitle">
                   New Rubric
                 </h2>
+
               </div>
 
             </div>
@@ -1593,6 +1953,7 @@
                     id="rubricGrade"
                     class="form-control"
                   >
+
                     <option>PP1</option>
                     <option>PP2</option>
                     <option>Grade 1</option>
@@ -1607,6 +1968,7 @@
                     <option>Grade 10</option>
                     <option>Grade 11</option>
                     <option>Grade 12</option>
+
                   </select>
 
                 </div>
@@ -1622,9 +1984,11 @@
                     id="rubricTerm"
                     class="form-control"
                   >
+
                     <option>Term 1</option>
                     <option>Term 2</option>
                     <option>Term 3</option>
+
                   </select>
 
                 </div>
@@ -1794,9 +2158,16 @@
               hidden
             >
 
-              <span class="empty-icon" aria-hidden="true">✓</span>
+              <span
+                class="empty-icon"
+                aria-hidden="true"
+              >
+                ✓
+              </span>
 
-              <h2>No rubrics yet</h2>
+              <h2>
+                No rubrics yet
+              </h2>
 
               <p>
                 Create your first assessment rubric.
@@ -1817,9 +2188,9 @@
       </section>
 
 
-      <!-- ===================================================
+      <!-- =====================================================
            STUDENTS
-           =================================================== -->
+           ===================================================== -->
 
       <section
         id="studentsPage"
@@ -1830,6 +2201,7 @@
 
         <div class="page-content">
 
+
           <div class="section-heading">
 
             <div>
@@ -1838,7 +2210,9 @@
                 LEARNER MANAGEMENT
               </p>
 
-              <h2>Students</h2>
+              <h2>
+                Students
+              </h2>
 
               <p>
                 Manage your local learner records.
@@ -1880,7 +2254,9 @@
 
             <div class="module-toolbar-count">
 
-              <span>Learners</span>
+              <span>
+                Learners
+              </span>
 
               <strong id="studentCount">
                 0
@@ -1923,6 +2299,7 @@
 
 
               <div class="form-grid">
+
 
                 <div class="form-group">
 
@@ -2073,6 +2450,7 @@
                   Cancel
                 </button>
 
+
                 <button
                   class="btn btn-primary"
                   type="submit"
@@ -2102,7 +2480,9 @@
                 ♙
               </span>
 
-              <h2>No learners yet</h2>
+              <h2>
+                No learners yet
+              </h2>
 
               <p>
                 Add your first learner to begin building
@@ -2124,9 +2504,9 @@
       </section>
 
 
-      <!-- ===================================================
+      <!-- =====================================================
            DOCUMENTS
-           =================================================== -->
+           ===================================================== -->
 
       <section
         id="documentsPage"
@@ -2137,13 +2517,18 @@
 
         <div class="page-content">
 
+
           <div class="section-heading">
 
             <div>
 
-              <p class="eyebrow">LOCAL DOCUMENTS</p>
+              <p class="eyebrow">
+                LOCAL DOCUMENTS
+              </p>
 
-              <h2>Saved Documents</h2>
+              <h2>
+                Saved Documents
+              </h2>
 
               <p>
                 Keep reusable teaching documents on this device.
@@ -2184,7 +2569,9 @@
 
             <div class="module-toolbar-count">
 
-              <span>Documents</span>
+              <span>
+                Documents
+              </span>
 
               <strong id="documentCount">
                 0
@@ -2227,6 +2614,7 @@
 
 
               <div class="form-grid">
+
 
                 <div class="form-group form-group-full">
 
@@ -2343,9 +2731,17 @@
                     class="form-control"
                   >
 
-                    <option>Term 1</option>
-                    <option>Term 2</option>
-                    <option>Term 3</option>
+                    <option>
+                      Term 1
+                    </option>
+
+                    <option>
+                      Term 2
+                    </option>
+
+                    <option>
+                      Term 3
+                    </option>
 
                   </select>
 
@@ -2381,6 +2777,7 @@
                   Cancel
                 </button>
 
+
                 <button
                   class="btn btn-primary"
                   type="submit"
@@ -2403,9 +2800,16 @@
               hidden
             >
 
-              <span class="empty-icon" aria-hidden="true">□</span>
+              <span
+                class="empty-icon"
+                aria-hidden="true"
+              >
+                □
+              </span>
 
-              <h2>No saved documents yet</h2>
+              <h2>
+                No saved documents yet
+              </h2>
 
               <p>
                 Save reusable teaching content locally.
@@ -2422,8 +2826,6 @@
           </section>
 
 
-          <!-- Document viewer -->
-
           <section
             id="documentViewer"
             class="settings-card module-workspace"
@@ -2435,6 +2837,7 @@
               <h2 id="documentViewerTitle">
                 Document
               </h2>
+
 
               <button
                 id="closeDocumentViewerButton"
@@ -2459,9 +2862,9 @@
       </section>
 
 
-      <!-- ===================================================
+      <!-- =====================================================
            ANALYTICS
-           =================================================== -->
+           ===================================================== -->
 
       <section
         id="analyticsPage"
@@ -2472,6 +2875,7 @@
 
         <div class="page-content">
 
+
           <div class="section-heading">
 
             <div>
@@ -2480,7 +2884,9 @@
                 LOCAL WORKSPACE INSIGHTS
               </p>
 
-              <h2>Analytics</h2>
+              <h2>
+                Analytics
+              </h2>
 
               <p>
                 These metrics are calculated from your local
@@ -2493,6 +2899,7 @@
 
 
           <div class="stats-grid">
+
 
             <article class="stat-card">
 
@@ -2566,18 +2973,23 @@
 
               <div class="settings-card-header">
 
-                <h2>Workspace Activity</h2>
+                <h2>
+                  Workspace Activity
+                </h2>
 
               </div>
 
 
               <div class="analytics-progress-list">
 
+
                 <div class="analytics-progress-item">
 
                   <div class="analytics-progress-header">
 
-                    <span>Schemes</span>
+                    <span>
+                      Schemes
+                    </span>
 
                     <strong id="analyticsSchemesValue">
                       0
@@ -2586,9 +2998,7 @@
                   </div>
 
                   <div class="analytics-progress">
-
                     <span id="analyticsSchemesBar"></span>
-
                   </div>
 
                 </div>
@@ -2598,7 +3008,9 @@
 
                   <div class="analytics-progress-header">
 
-                    <span>Lesson Plans</span>
+                    <span>
+                      Lesson Plans
+                    </span>
 
                     <strong id="analyticsLessonPlansValue">
                       0
@@ -2607,9 +3019,7 @@
                   </div>
 
                   <div class="analytics-progress">
-
                     <span id="analyticsLessonPlansBar"></span>
-
                   </div>
 
                 </div>
@@ -2619,7 +3029,9 @@
 
                   <div class="analytics-progress-header">
 
-                    <span>Rubrics</span>
+                    <span>
+                      Rubrics
+                    </span>
 
                     <strong id="analyticsRubricsValue">
                       0
@@ -2628,9 +3040,7 @@
                   </div>
 
                   <div class="analytics-progress">
-
                     <span id="analyticsRubricsBar"></span>
-
                   </div>
 
                 </div>
@@ -2640,7 +3050,9 @@
 
                   <div class="analytics-progress-header">
 
-                    <span>Documents</span>
+                    <span>
+                      Documents
+                    </span>
 
                     <strong id="analyticsDocumentsValue">
                       0
@@ -2649,9 +3061,7 @@
                   </div>
 
                   <div class="analytics-progress">
-
                     <span id="analyticsDocumentsBar"></span>
-
                   </div>
 
                 </div>
@@ -2661,7 +3071,9 @@
 
                   <div class="analytics-progress-header">
 
-                    <span>Report Books</span>
+                    <span>
+                      Report Books
+                    </span>
 
                     <strong id="analyticsReportBooksValue">
                       0
@@ -2670,9 +3082,7 @@
                   </div>
 
                   <div class="analytics-progress">
-
                     <span id="analyticsReportBooksBar"></span>
-
                   </div>
 
                 </div>
@@ -2690,9 +3100,12 @@
 
               <div class="settings-card-header">
 
-                <h2>Record Distribution</h2>
+                <h2>
+                  Record Distribution
+                </h2>
 
               </div>
+
 
               <div id="analyticsDistribution"></div>
 
@@ -2707,9 +3120,12 @@
 
               <div class="settings-card-header">
 
-                <h2>Recent Activity</h2>
+                <h2>
+                  Recent Activity
+                </h2>
 
               </div>
+
 
               <div id="analyticsActivityList"></div>
 
@@ -2722,9 +3138,9 @@
       </section>
 
 
-      <!-- ===================================================
+      <!-- =====================================================
            PROFILE
-           =================================================== -->
+           ===================================================== -->
 
       <section
         id="profilePage"
@@ -2735,6 +3151,7 @@
 
         <div class="page-content">
 
+
           <div class="section-heading">
 
             <div>
@@ -2743,7 +3160,9 @@
                 TEACHER PROFILE
               </p>
 
-              <h2>Profile</h2>
+              <h2>
+                Profile
+              </h2>
 
               <p>
                 Manage teacher information stored locally.
@@ -2765,6 +3184,7 @@
               >
                 T
               </div>
+
 
               <div>
 
@@ -2791,7 +3211,9 @@
 
             <div class="settings-card-header">
 
-              <h2>Teacher Information</h2>
+              <h2>
+                Teacher Information
+              </h2>
 
             </div>
 
@@ -2799,6 +3221,7 @@
             <form id="profileForm">
 
               <div class="form-grid">
+
 
                 <div class="form-group">
 
@@ -2887,7 +3310,9 @@
 
             <div class="settings-card-header">
 
-              <h2>Teaching Preferences</h2>
+              <h2>
+                Teaching Preferences
+              </h2>
 
             </div>
 
@@ -2895,6 +3320,7 @@
             <form id="profilePreferencesForm">
 
               <div class="form-grid">
+
 
                 <div class="form-group">
 
@@ -2975,6 +3401,7 @@
                   Save Preferences
                 </button>
 
+
                 <button
                   id="resetProfileButton"
                   class="btn btn-secondary"
@@ -2994,12 +3421,15 @@
 
             <div class="settings-card-header">
 
-              <h2>Current Workspace</h2>
+              <h2>
+                Current Workspace
+              </h2>
 
             </div>
 
 
             <div class="stats-grid">
+
 
               <article class="stat-card">
 
@@ -3057,9 +3487,9 @@
       </section>
 
 
-      <!-- ===================================================
+      <!-- =====================================================
            SETTINGS
-           =================================================== -->
+           ===================================================== -->
 
       <section
         id="settingsPage"
@@ -3075,14 +3505,18 @@
 
             <div class="settings-card-header">
 
-              <h2>Privacy &amp; Security</h2>
+              <h2>
+                Privacy &amp; Security
+              </h2>
 
             </div>
+
 
             <p>
               CBC MASTER is designed to keep your teaching
               workspace on this device.
             </p>
+
 
             <p>
               No advertising trackers, hidden analytics,
@@ -3097,7 +3531,9 @@
 
             <div class="settings-card-header">
 
-              <h2>Teaching Preferences</h2>
+              <h2>
+                Teaching Preferences
+              </h2>
 
             </div>
 
@@ -3105,6 +3541,7 @@
             <form id="settingsForm">
 
               <div class="form-grid">
+
 
                 <div class="form-group">
 
@@ -3217,12 +3654,15 @@
 
             <div class="settings-card-header">
 
-              <h2>Teacher Information</h2>
+              <h2>
+                Teacher Information
+              </h2>
 
             </div>
 
 
             <div class="form-grid">
+
 
               <div class="form-group">
 
@@ -3280,12 +3720,15 @@
 
             <div class="settings-card-header">
 
-              <h2>Local Workspace</h2>
+              <h2>
+                Local Workspace
+              </h2>
 
             </div>
 
 
             <div class="stats-grid">
+
 
               <article class="stat-card">
 
@@ -3412,9 +3855,12 @@
 
             <div class="settings-card-header">
 
-              <h2>Backup &amp; Restore</h2>
+              <h2>
+                Backup &amp; Restore
+              </h2>
 
             </div>
+
 
             <p>
               Export your local workspace as a backup file.
@@ -3440,6 +3886,7 @@
                 Restore Backup
               </label>
 
+
               <input
                 id="importDataInput"
                 type="file"
@@ -3456,9 +3903,12 @@
 
             <div class="settings-card-header">
 
-              <h2>Delete Local Data</h2>
+              <h2>
+                Delete Local Data
+              </h2>
 
             </div>
+
 
             <p>
               Delete the CBC MASTER workspace stored on
@@ -3485,9 +3935,12 @@
 
             <div class="settings-card-header">
 
-              <h2>About CBC MASTER Privacy</h2>
+              <h2>
+                About CBC MASTER Privacy
+              </h2>
 
             </div>
+
 
             <p>
               CBC MASTER follows a local-first approach.
@@ -3496,11 +3949,13 @@
               a backup.
             </p>
 
+
             <p>
               Do not store unnecessary sensitive information.
               Keep your device protected with a secure
               screen lock and avoid sharing exported backups.
             </p>
+
 
             <p>
               CBC MASTER does not require third-party
@@ -3516,14 +3971,15 @@
     </div>
 
 
-    <!-- =====================================================
-         MOBILE NAV
-         ===================================================== -->
+    <!-- =======================================================
+         MOBILE NAVIGATION
+         ======================================================= -->
 
     <nav
       class="bottom-nav"
       aria-label="Mobile navigation"
     >
+
 
       <button
         type="button"
@@ -3531,8 +3987,15 @@
         data-page="dashboard"
         aria-current="page"
       >
-        <span aria-hidden="true">⌂</span>
-        <span>Home</span>
+
+        <span aria-hidden="true">
+          ⌂
+        </span>
+
+        <span>
+          Home
+        </span>
+
       </button>
 
 
@@ -3541,8 +4004,15 @@
         class="bottom-nav-item"
         data-page="documents"
       >
-        <span aria-hidden="true">□</span>
-        <span>Docs</span>
+
+        <span aria-hidden="true">
+          □
+        </span>
+
+        <span>
+          Docs
+        </span>
+
       </button>
 
 
@@ -3551,8 +4021,15 @@
         class="bottom-nav-item"
         data-page="analytics"
       >
-        <span aria-hidden="true">◒</span>
-        <span>Analytics</span>
+
+        <span aria-hidden="true">
+          ◒
+        </span>
+
+        <span>
+          Analytics
+        </span>
+
       </button>
 
 
@@ -3561,16 +4038,23 @@
         class="bottom-nav-item"
         data-page="profile"
       >
-        <span aria-hidden="true">○</span>
-        <span>Profile</span>
+
+        <span aria-hidden="true">
+          ○
+        </span>
+
+        <span>
+          Profile
+        </span>
+
       </button>
 
     </nav>
 
 
-    <!-- =====================================================
+    <!-- =======================================================
          TOAST
-         ===================================================== -->
+         ======================================================= -->
 
     <div
       id="cbcToast"
@@ -3585,17 +4069,18 @@
 
 
 <!-- =========================================================
-     JAVASCRIPT
-     =========================================================
-     Core first.
-     Modules afterwards.
-     All scripts remain same-origin and CSP compatible.
+     CORE APP
      ========================================================= -->
 
 <script
   src="js/app.js"
   defer
 ></script>
+
+
+<!-- =========================================================
+     CBC MASTER MODULES
+     ========================================================= -->
 
 <script
   src="js/students.js"
@@ -3637,6 +4122,31 @@
   defer
 ></script>
 
-</body>
 
+<!-- =========================================================
+     TIMETABLE
+     ========================================================= -->
+
+<script
+  src="js/timetable-storage.js"
+  defer
+></script>
+
+<script
+  src="js/timetable-clock.js"
+  defer
+></script>
+
+<script
+  src="js/timetable.js"
+  defer
+></script>
+
+<script
+  src="js/timetable-loader.js"
+  defer
+></script>
+
+
+</body>
 </html>
