@@ -2,26 +2,56 @@
 
 /*
 |--------------------------------------------------------------------------
-| CBC MASTER V2 — Students Module
+| CBC MASTER V2
+| Students Module
 |--------------------------------------------------------------------------
-| Local-first learner management.
+| Handles:
+| - Add learner
+| - Edit learner
+| - Delete learner
+| - Search learners
+| - Render learner records
 |
-| Privacy:
-| - Learner records remain in localStorage.
-| - No third-party analytics.
-| - No external requests.
-| - No learner names/details in activity logs.
+| Data remains in the local CBC MASTER workspace.
 |--------------------------------------------------------------------------
 */
 
 (function () {
 
+  /*
+  |--------------------------------------------------------------------------
+  | Module state
+  |--------------------------------------------------------------------------
+  */
+
   let studentSearchQuery = "";
   let studentsInitialized = false;
 
+
   /*
   |--------------------------------------------------------------------------
-  | Wait for CBCMaster
+  | DOM helper
+  |--------------------------------------------------------------------------
+  */
+
+  function $(id) {
+
+    const API = window.CBCMaster;
+
+    if (
+      API &&
+      typeof API.$ === "function"
+    ) {
+      return API.$(id);
+    }
+
+    return document.getElementById(id);
+  }
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | API helper
   |--------------------------------------------------------------------------
   */
 
@@ -29,26 +59,21 @@
     return window.CBCMaster || null;
   }
 
+
   /*
   |--------------------------------------------------------------------------
-  | Helpers
+  | Data
   |--------------------------------------------------------------------------
   */
 
-  function $(id) {
-    const API = getAPI();
-
-    if (API && typeof API.$ === "function") {
-      return API.$(id);
-    }
-
-    return document.getElementById(id);
-  }
-
   function getData() {
+
     const API = getAPI();
 
-    if (!API || typeof API.getData !== "function") {
+    if (
+      !API ||
+      typeof API.getData !== "function"
+    ) {
       return {
         students: [],
         preferences: {}
@@ -58,40 +83,35 @@
     return API.getData();
   }
 
+
+  /*
+  |--------------------------------------------------------------------------
+  | Text cleaning
+  |--------------------------------------------------------------------------
+  */
+
   function clean(value) {
+
     const API = getAPI();
 
-    if (API && typeof API.cleanDisplayText === "function") {
+    if (
+      API &&
+      typeof API.cleanDisplayText === "function"
+    ) {
       return API.cleanDisplayText(value);
     }
 
-    return String(value ?? "").trim();
+    return String(value ?? "")
+      .replace(/\s+/g, " ")
+      .trim();
   }
 
-  function getStudents(data) {
 
-    if (!Array.isArray(data.students)) {
-      data.students = [];
-    }
-
-    return data.students;
-  }
-
-  function getAdmissionNumber(student) {
-    return (
-      student.admissionNumber ||
-      student.admNo ||
-      ""
-    );
-  }
-
-  function getStream(student) {
-    return (
-      student.stream ||
-      student.className ||
-      ""
-    );
-  }
+  /*
+  |--------------------------------------------------------------------------
+  | Toast helpers
+  |--------------------------------------------------------------------------
+  */
 
   function showError(message) {
 
@@ -102,10 +122,12 @@
       typeof API.showToast === "function"
     ) {
       API.showToast(message, true);
-    } else {
-      window.alert(message);
+      return;
     }
+
+    window.alert(message);
   }
+
 
   function showSuccess(message) {
 
@@ -119,6 +141,55 @@
     }
   }
 
+
+  /*
+  |--------------------------------------------------------------------------
+  | Student collection
+  |--------------------------------------------------------------------------
+  */
+
+  function getStudents(data) {
+
+    if (!Array.isArray(data.students)) {
+      data.students = [];
+    }
+
+    return data.students;
+  }
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | Admission number
+  |--------------------------------------------------------------------------
+  */
+
+  function getAdmissionNumber(student) {
+
+    return (
+      student.admissionNumber ||
+      student.admNo ||
+      ""
+    );
+  }
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | Stream
+  |--------------------------------------------------------------------------
+  */
+
+  function getStream(student) {
+
+    return (
+      student.stream ||
+      student.className ||
+      ""
+    );
+  }
+
+
   /*
   |--------------------------------------------------------------------------
   | Open Add/Edit Learner Form
@@ -127,36 +198,73 @@
 
   function openStudentForm(student = null) {
 
-    const card = $("studentFormCard");
-    const form = $("studentForm");
+    const card =
+      $("studentFormCard");
+
+    const form =
+      $("studentForm");
 
     if (!card || !form) {
+
+      showError(
+        "Learner form could not be found."
+      );
+
       return false;
     }
 
-    const title = $("studentFormTitle");
-    const idField = $("studentId");
-    const nameField = $("studentName");
-    const admissionField = $("studentAdmNo");
-    const genderField = $("studentGender");
-    const gradeField = $("studentGrade");
-    const streamField = $("studentStream");
-    const notesField = $("studentNotes");
+
+    const title =
+      $("studentFormTitle");
+
+    const idField =
+      $("studentId");
+
+    const nameField =
+      $("studentName");
+
+    const admissionField =
+      $("studentAdmNo");
+
+    const genderField =
+      $("studentGender");
+
+    const gradeField =
+      $("studentGrade");
+
+    const streamField =
+      $("studentStream");
+
+    const notesField =
+      $("studentNotes");
+
+
+    /*
+     * Reset first.
+     */
 
     form.reset();
+
+
+    /*
+     * Editing existing learner.
+     */
 
     if (student) {
 
       if (title) {
-        title.textContent = "Edit Learner";
+        title.textContent =
+          "Edit Learner";
       }
 
       if (idField) {
-        idField.value = student.id || "";
+        idField.value =
+          student.id || "";
       }
 
       if (nameField) {
-        nameField.value = student.name || "";
+        nameField.value =
+          student.name || "";
       }
 
       if (admissionField) {
@@ -186,15 +294,42 @@
 
     } else {
 
+      /*
+       * Adding new learner.
+       */
+
       if (title) {
-        title.textContent = "Add Learner";
+        title.textContent =
+          "Add Learner";
       }
 
       if (idField) {
         idField.value = "";
       }
 
-      const data = getData();
+      if (nameField) {
+        nameField.value = "";
+      }
+
+      if (admissionField) {
+        admissionField.value = "";
+      }
+
+      if (genderField) {
+        genderField.value = "";
+      }
+
+      if (streamField) {
+        streamField.value = "";
+      }
+
+      if (notesField) {
+        notesField.value = "";
+      }
+
+
+      const data =
+        getData();
 
       const defaultGrade =
         data.preferences &&
@@ -203,48 +338,68 @@
           : "Grade 5";
 
       if (gradeField) {
-        gradeField.value = defaultGrade;
+        gradeField.value =
+          defaultGrade;
       }
     }
 
+
     /*
-     * Show the form.
+     * Show form.
      */
+
     card.hidden = false;
     card.removeAttribute("hidden");
 
+
     /*
-     * Scroll the form into view so that
-     * the user can immediately see it.
+     * Scroll into view.
      */
+
     window.setTimeout(() => {
 
       try {
+
         card.scrollIntoView({
           behavior: "smooth",
           block: "start"
         });
-      } catch (_) {}
 
-      nameField?.focus();
+      } catch (_) {
+        /* Ignore scroll errors. */
+      }
+
+
+      if (nameField) {
+        nameField.focus();
+      }
 
     }, 50);
+
 
     return true;
   }
 
+
   /*
   |--------------------------------------------------------------------------
-  | Close Form
+  | Close form
   |--------------------------------------------------------------------------
   */
 
   function closeStudentForm() {
 
-    const card = $("studentFormCard");
-    const form = $("studentForm");
+    const card =
+      $("studentFormCard");
 
-    form?.reset();
+    const form =
+      $("studentForm");
+
+
+    if (form) {
+      form.reset();
+    }
+
 
     if (card) {
 
@@ -257,9 +412,10 @@
     }
   }
 
+
   /*
   |--------------------------------------------------------------------------
-  | Save Learner
+  | Save learner
   |--------------------------------------------------------------------------
   */
 
@@ -267,42 +423,71 @@
 
     event.preventDefault();
 
-    const API = getAPI();
+
+    const API =
+      getAPI();
 
     if (!API) {
+
       showError(
         "CBC MASTER is still loading. Please try again."
       );
+
       return;
     }
 
-    const data = getData();
-    const students = getStudents(data);
 
-    const id =
-      clean($("studentId")?.value);
+    const data =
+      getData();
 
-    const name =
-      clean($("studentName")?.value);
+    const students =
+      getStudents(data);
 
-    const admissionNumber =
-      clean($("studentAdmNo")?.value);
-
-    const gender =
-      clean($("studentGender")?.value);
-
-    const grade =
-      clean($("studentGrade")?.value);
-
-    const stream =
-      clean($("studentStream")?.value);
-
-    const notes =
-      clean($("studentNotes")?.value);
 
     /*
-     * Required learner name.
+     * Read current form.
      */
+
+    const id =
+      clean(
+        $("studentId")?.value
+      );
+
+    const name =
+      clean(
+        $("studentName")?.value
+      );
+
+    const admissionNumber =
+      clean(
+        $("studentAdmNo")?.value
+      );
+
+    const gender =
+      clean(
+        $("studentGender")?.value
+      );
+
+    const grade =
+      clean(
+        $("studentGrade")?.value
+      );
+
+    const stream =
+      clean(
+        $("studentStream")?.value
+      );
+
+    const notes =
+      clean(
+        $("studentNotes")?.value
+      );
+
+
+    /*
+     * Name is required.
+     */
+
     if (!name) {
 
       showError(
@@ -314,16 +499,16 @@
       return;
     }
 
+
     /*
      * Prevent duplicate admission numbers.
      */
+
     if (
       admissionNumber &&
       students.some(
         (student) =>
-
           student.id !== id &&
-
           getAdmissionNumber(student)
             .toLowerCase() ===
           admissionNumber.toLowerCase()
@@ -339,8 +524,10 @@
       return;
     }
 
+
     const now =
       new Date().toISOString();
+
 
     /*
      |--------------------------------------------------------------------------
@@ -356,6 +543,7 @@
             student.id === id
         );
 
+
       if (index === -1) {
 
         showError(
@@ -365,43 +553,55 @@
         return;
       }
 
+
       const existing =
         students[index];
 
+
       students[index] = {
         ...existing,
+
         name,
         admissionNumber,
         gender,
         grade,
         stream,
         notes,
+
         updatedAt: now
       };
 
+
       if (
-        typeof API.saveData !== "function" ||
+        typeof API.saveData !==
+        "function" ||
         !API.saveData(data)
       ) {
         return;
       }
 
+
       if (
         typeof API.addActivity ===
         "function"
       ) {
+
         API.addActivity(
           "Updated learner record"
         );
       }
 
+
       closeStudentForm();
 
+
       if (
-        typeof API.refresh === "function"
+        typeof API.refresh ===
+        "function"
       ) {
         API.refresh();
       }
+
 
       showSuccess(
         "Learner updated successfully."
@@ -410,20 +610,23 @@
       return;
     }
 
+
     /*
      |--------------------------------------------------------------------------
      | Add new learner
      |--------------------------------------------------------------------------
      */
 
-    const createId =
-      typeof API.createId === "function"
+    const idValue =
+      typeof API.createId ===
+      "function"
         ? API.createId("student")
         : `student-${Date.now()}`;
 
+
     students.push({
 
-      id: createId,
+      id: idValue,
 
       name,
 
@@ -443,34 +646,48 @@
 
     });
 
+
+    /*
+     * IMPORTANT:
+     * Pass the modified data object.
+     */
+
     if (
-      typeof API.saveData !== "function" ||
+      typeof API.saveData !==
+      "function" ||
       !API.saveData(data)
     ) {
       return;
     }
 
+
     if (
       typeof API.addActivity ===
       "function"
     ) {
+
       API.addActivity(
         "Added learner record"
       );
     }
 
+
     closeStudentForm();
 
+
     if (
-      typeof API.refresh === "function"
+      typeof API.refresh ===
+      "function"
     ) {
       API.refresh();
     }
+
 
     showSuccess(
       "Learner added successfully."
     );
   }
+
 
   /*
   |--------------------------------------------------------------------------
@@ -484,17 +701,22 @@
       return true;
     }
 
+
     const searchableText = [
 
       student.name,
 
-      getAdmissionNumber(student),
+      getAdmissionNumber(
+        student
+      ),
 
       student.gender,
 
       student.grade,
 
-      getStream(student),
+      getStream(
+        student
+      ),
 
       student.notes
 
@@ -503,21 +725,25 @@
       .join(" ")
       .toLowerCase();
 
+
     return searchableText.includes(
-      studentSearchQuery.toLowerCase()
+      studentSearchQuery
     );
   }
 
+
   /*
   |--------------------------------------------------------------------------
-  | Learner Card
+  | Create learner card
   |--------------------------------------------------------------------------
   */
 
   function createStudentCard(student) {
 
     const card =
-      document.createElement("article");
+      document.createElement(
+        "article"
+      );
 
     card.className =
       "stat-card";
@@ -525,29 +751,45 @@
     card.dataset.studentId =
       student.id || "";
 
+
     /*
-     * Header
+     * Header.
      */
 
     const header =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
 
     header.className =
       "stat-card-header";
 
+
     const title =
-      document.createElement("h3");
+      document.createElement(
+        "h3"
+      );
 
     title.textContent =
       student.name ||
       "Unnamed Learner";
 
-    header.appendChild(title);
+
+    header.appendChild(
+      title
+    );
+
+
+    /*
+     * Grade badge.
+     */
 
     if (student.grade) {
 
       const badge =
-        document.createElement("span");
+        document.createElement(
+          "span"
+        );
 
       badge.className =
         "badge";
@@ -555,18 +797,24 @@
       badge.textContent =
         student.grade;
 
-      header.appendChild(badge);
+      header.appendChild(
+        badge
+      );
     }
 
+
     /*
-     * Details
+     * Details.
      */
 
     const details =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
 
     details.className =
       "stat-card-details";
+
 
     const fields = [
 
@@ -587,6 +835,7 @@
 
     ];
 
+
     fields.forEach(
       ([label, value]) => {
 
@@ -594,11 +843,15 @@
           return;
         }
 
+
         const paragraph =
-          document.createElement("p");
+          document.createElement(
+            "p"
+          );
 
         paragraph.textContent =
           `${label}: ${value}`;
+
 
         details.appendChild(
           paragraph
@@ -606,31 +859,49 @@
       }
     );
 
+
+    /*
+     * Notes.
+     */
+
     if (student.notes) {
 
       const notes =
-        document.createElement("p");
+        document.createElement(
+          "p"
+        );
 
       notes.textContent =
         `Notes: ${student.notes}`;
+
 
       details.appendChild(
         notes
       );
     }
 
+
     /*
-     * Actions
+     * Actions.
      */
 
     const actions =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
 
     actions.className =
       "card-actions";
 
+
+    /*
+     * Edit.
+     */
+
     const editButton =
-      document.createElement("button");
+      document.createElement(
+        "button"
+      );
 
     editButton.type =
       "button";
@@ -641,15 +912,27 @@
     editButton.textContent =
       "Edit";
 
+
     editButton.addEventListener(
       "click",
       () => {
-        openStudentForm(student);
+
+        openStudentForm(
+          student
+        );
+
       }
     );
 
+
+    /*
+     * Delete.
+     */
+
     const deleteButton =
-      document.createElement("button");
+      document.createElement(
+        "button"
+      );
 
     deleteButton.type =
       "button";
@@ -660,17 +943,24 @@
     deleteButton.textContent =
       "Delete";
 
+
     deleteButton.addEventListener(
       "click",
       () => {
-        deleteStudent(student.id);
+
+        deleteStudent(
+          student.id
+        );
+
       }
     );
+
 
     actions.append(
       editButton,
       deleteButton
     );
+
 
     card.append(
       header,
@@ -678,12 +968,14 @@
       actions
     );
 
+
     return card;
   }
 
+
   /*
   |--------------------------------------------------------------------------
-  | Render Students
+  | Render students
   |--------------------------------------------------------------------------
   */
 
@@ -698,18 +990,21 @@
     const count =
       $("studentCount");
 
+
     if (!list) {
       return;
     }
 
+
     const data =
       getData();
 
+
     const students =
       getStudents(data)
-
-        .filter(matchesSearch)
-
+        .filter(
+          matchesSearch
+        )
         .sort(
           (a, b) =>
             String(
@@ -720,27 +1015,36 @@
               ),
               undefined,
               {
-                sensitivity: "base"
+                sensitivity:
+                  "base"
               }
             )
         );
 
+
     list.replaceChildren();
+
 
     /*
      * Count.
      */
 
     if (count) {
+
       count.textContent =
-        String(students.length);
+        String(
+          students.length
+        );
     }
+
 
     /*
      * Empty state.
      */
 
-    if (students.length === 0) {
+    if (
+      students.length === 0
+    ) {
 
       if (emptyState) {
 
@@ -754,6 +1058,7 @@
 
       return;
     }
+
 
     /*
      * Hide empty state.
@@ -770,6 +1075,7 @@
       );
     }
 
+
     /*
      * Render cards.
      */
@@ -777,34 +1083,43 @@
     const fragment =
       document.createDocumentFragment();
 
+
     students.forEach(
       (student) => {
 
         fragment.appendChild(
-          createStudentCard(student)
+          createStudentCard(
+            student
+          )
         );
 
       }
     );
+
 
     list.appendChild(
       fragment
     );
   }
 
+
   /*
   |--------------------------------------------------------------------------
-  | Delete Learner
+  | Delete learner
   |--------------------------------------------------------------------------
   */
 
-  function deleteStudent(studentId) {
+  function deleteStudent(
+    studentId
+  ) {
 
-    const API = getAPI();
+    const API =
+      getAPI();
 
     if (!API) {
       return;
     }
+
 
     const data =
       getData();
@@ -812,11 +1127,14 @@
     const students =
       getStudents(data);
 
+
     const exists =
       students.some(
         (student) =>
-          student.id === studentId
+          student.id ===
+          studentId
       );
+
 
     if (!exists) {
 
@@ -827,37 +1145,45 @@
       return;
     }
 
+
     const confirmed =
       window.confirm(
         "Delete this learner record?"
       );
 
+
     if (!confirmed) {
       return;
     }
 
+
     data.students =
       students.filter(
         (student) =>
-          student.id !== studentId
+          student.id !==
+          studentId
       );
+
 
     if (
       typeof API.saveData !==
-        "function" ||
+      "function" ||
       !API.saveData(data)
     ) {
       return;
     }
 
+
     if (
       typeof API.addActivity ===
       "function"
     ) {
+
       API.addActivity(
         "Deleted learner record"
       );
     }
+
 
     if (
       typeof API.refresh ===
@@ -866,14 +1192,16 @@
       API.refresh();
     }
 
+
     showSuccess(
       "Learner deleted."
     );
   }
 
+
   /*
   |--------------------------------------------------------------------------
-  | Controls
+  | Bind controls
   |--------------------------------------------------------------------------
   */
 
@@ -881,6 +1209,7 @@
 
     const addButton =
       $("addStudentBtn");
+
 
     if (addButton) {
 
@@ -894,8 +1223,10 @@
       );
     }
 
+
     const cancelButton =
       $("cancelStudentButton");
+
 
     if (cancelButton) {
 
@@ -905,8 +1236,10 @@
       );
     }
 
+
     const form =
       $("studentForm");
+
 
     if (form) {
 
@@ -916,8 +1249,10 @@
       );
     }
 
+
     const search =
       $("studentSearch");
+
 
     if (search) {
 
@@ -928,7 +1263,8 @@
           studentSearchQuery =
             clean(
               event.target.value
-            );
+            ).toLowerCase();
+
 
           renderStudentsPage();
 
@@ -936,6 +1272,7 @@
       );
     }
   }
+
 
   /*
   |--------------------------------------------------------------------------
@@ -949,12 +1286,12 @@
       return;
     }
 
-    /*
-     * CBCMaster must exist before
-     * binding the Students module.
-     */
 
-    if (!getAPI()) {
+    const API =
+      getAPI();
+
+
+    if (!API) {
 
       window.setTimeout(
         initStudentsModule,
@@ -964,9 +1301,10 @@
       return;
     }
 
+
     /*
-     * Students HTML must exist before
-     * binding controls.
+     * Wait until the Students HTML
+     * exists.
      */
 
     if (!$("studentsList")) {
@@ -979,39 +1317,44 @@
       return;
     }
 
+
     studentsInitialized =
       true;
+
 
     bindStudentControls();
 
     renderStudentsPage();
   }
 
+
   /*
   |--------------------------------------------------------------------------
-  | Public API
+  | Public Students API
   |--------------------------------------------------------------------------
   */
 
-  window.CBCMasterStudents = {
+  window.CBCMasterStudents =
+    Object.freeze({
 
-    render:
-      renderStudentsPage,
+      render:
+        renderStudentsPage,
 
-    open:
-      openStudentForm,
+      open:
+        openStudentForm,
 
-    close:
-      closeStudentForm,
+      close:
+        closeStudentForm,
 
-    delete:
-      deleteStudent
+      delete:
+        deleteStudent
 
-  };
+    });
+
 
   /*
   |--------------------------------------------------------------------------
-  | Start
+  | Start module
   |--------------------------------------------------------------------------
   */
 
