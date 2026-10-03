@@ -22,6 +22,7 @@
 | - lesson-plans.js
 | - rubrics.js
 | - documents.js
+| - timetable.js
 | - analytics.js
 | - profile.js
 |
@@ -70,6 +71,11 @@ const PAGE_TITLES = {
   "lesson-plans": {
     title: "Lesson Plans",
     subtitle: "Prepare structured classroom lessons"
+  },
+
+  timetable: {
+    title: "Timetable",
+    subtitle: "Follow your live school schedule"
   },
 
   rubrics: {
@@ -133,6 +139,7 @@ const DEFAULT_DATA = {
   lessonPlans: [],
   rubrics: [],
   documents: [],
+  timetable: [],
   activity: []
 };
 
@@ -272,6 +279,8 @@ function normaliseData(input) {
 
     documents: ensureArray(input.documents),
 
+    timetable: ensureArray(input.timetable),
+
     activity: ensureArray(input.activity)
   };
 
@@ -333,7 +342,8 @@ function isValidBackupPayload(input) {
     "schemes" in input ||
     "lessonPlans" in input ||
     "rubrics" in input ||
-    "documents" in input
+    "documents" in input ||
+    "timetable" in input
   );
 }
 
@@ -561,6 +571,14 @@ function addDocument(record) {
 }
 
 
+function addTimetableEntry(record) {
+  return addRecord(
+    "timetable",
+    record
+  );
+}
+
+
 /*
 |--------------------------------------------------------------------------
 | Teacher profile
@@ -758,6 +776,10 @@ function renderPageModule(page) {
       window.CBCMasterLessonPlans?.render();
       break;
 
+    case "timetable":
+      window.CBCMasterTimetable?.render();
+      break;
+
     case "rubrics":
       window.CBCMasterRubrics?.render();
       break;
@@ -808,6 +830,10 @@ function closeInactiveModules(page) {
 
   if (page !== "lesson-plans") {
     window.CBCMasterLessonPlans?.close();
+  }
+
+  if (page !== "timetable") {
+    window.CBCMasterTimetable?.close();
   }
 
   if (page !== "rubrics") {
@@ -1333,7 +1359,10 @@ function renderStorageSummary() {
       data.rubrics.length,
 
     documents:
-      data.documents.length
+      data.documents.length,
+
+    timetable:
+      data.timetable.length
   };
 
   setText(
@@ -1367,10 +1396,15 @@ function renderStorageSummary() {
   );
 
   const total =
-    Object.values(counts)
+    Object.entries(counts)
       .reduce(
-        (sum, value) =>
-          sum + Number(value || 0),
+        (sum, [key, value]) => {
+          /*
+           * Timetable entries are
+           * application records too.
+           */
+          return sum + Number(value || 0);
+        },
         0
       );
 
@@ -1586,7 +1620,7 @@ function deleteLocalData() {
 
   const secondConfirmation =
     window.confirm(
-      "This will remove students, teaching records, documents, preferences and local activity. Continue?"
+      "This will remove students, teaching records, documents, timetable, preferences and local activity. Continue?"
     );
 
   if (!secondConfirmation) {
@@ -1661,6 +1695,7 @@ function refresh() {
   window.CBCMasterReportBooks?.render();
   window.CBCMasterSchemes?.render();
   window.CBCMasterLessonPlans?.render();
+  window.CBCMasterTimetable?.render();
   window.CBCMasterRubrics?.render();
   window.CBCMasterDocuments?.render();
   window.CBCMasterAnalytics?.render();
@@ -1789,6 +1824,7 @@ window.CBCMaster =
     addLessonPlan,
     addRubric,
     addDocument,
+    addTimetableEntry,
 
     updateTeacher,
     updatePreferences,
