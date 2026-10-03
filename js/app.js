@@ -242,7 +242,8 @@ function createId(prefix = "record") {
 */
 
 function normaliseData(input) {
-  const defaults = cloneDefaultData();
+  const defaults =
+    cloneDefaultData();
 
   if (!isObject(input)) {
     return defaults;
@@ -267,21 +268,29 @@ function normaliseData(input) {
         : {})
     },
 
-    students: ensureArray(input.students),
+    students:
+      ensureArray(input.students),
 
-    reportBooks: ensureArray(input.reportBooks),
+    reportBooks:
+      ensureArray(input.reportBooks),
 
-    schemes: ensureArray(input.schemes),
+    schemes:
+      ensureArray(input.schemes),
 
-    lessonPlans: ensureArray(input.lessonPlans),
+    lessonPlans:
+      ensureArray(input.lessonPlans),
 
-    rubrics: ensureArray(input.rubrics),
+    rubrics:
+      ensureArray(input.rubrics),
 
-    documents: ensureArray(input.documents),
+    documents:
+      ensureArray(input.documents),
 
-    timetable: ensureArray(input.timetable),
+    timetable:
+      ensureArray(input.timetable),
 
-    activity: ensureArray(input.activity)
+    activity:
+      ensureArray(input.activity)
   };
 
   /*
@@ -310,7 +319,7 @@ function isValidBackupPayload(input) {
   }
 
   /*
-   * Accept both:
+   * Accept:
    *
    * {
    *   app: "CBC MASTER V2",
@@ -321,9 +330,7 @@ function isValidBackupPayload(input) {
    * and direct data objects.
    */
 
-  if (
-    isObject(input.data)
-  ) {
+  if (isObject(input.data)) {
     return (
       input.app === "CBC MASTER V2" &&
       isObject(input.data)
@@ -357,7 +364,9 @@ function isValidBackupPayload(input) {
 function loadData() {
   try {
     const raw =
-      localStorage.getItem(STORAGE_KEY);
+      localStorage.getItem(
+        STORAGE_KEY
+      );
 
     if (!raw) {
       return cloneDefaultData();
@@ -367,7 +376,9 @@ function loadData() {
       JSON.parse(raw);
 
     return normaliseData(parsed);
+
   } catch (error) {
+
     /*
      * Never log local teaching data.
      */
@@ -394,7 +405,9 @@ function saveData(data) {
     );
 
     return true;
+
   } catch (error) {
+
     showToast(
       "Unable to save local data.",
       true
@@ -440,7 +453,8 @@ function addActivity(
    */
 
   data.activity.push({
-    id: createId("activity"),
+    id:
+      createId("activity"),
 
     action:
       cleanDisplayText(action),
@@ -688,6 +702,7 @@ function navigate(page) {
   $$(
     "[data-page-section]"
   ).forEach((section) => {
+
     const isActive =
       section.dataset.pageSection === page;
 
@@ -707,6 +722,7 @@ function navigate(page) {
   $$(
     "[data-page]"
   ).forEach((button) => {
+
     const active =
       button.dataset.page === page;
 
@@ -716,11 +732,14 @@ function navigate(page) {
     );
 
     if (active) {
+
       button.setAttribute(
         "aria-current",
         "page"
       );
+
     } else {
+
       button.removeAttribute(
         "aria-current"
       );
@@ -759,51 +778,86 @@ function navigate(page) {
 */
 
 function renderPageModule(page) {
+
   switch (page) {
+
     case "students":
+
       window.CBCMasterStudents?.render();
+
       break;
+
 
     case "report-books":
+
       window.CBCMasterReportBooks?.render();
+
       break;
+
 
     case "schemes":
+
       window.CBCMasterSchemes?.render();
+
       break;
+
 
     case "lesson-plans":
+
       window.CBCMasterLessonPlans?.render();
+
       break;
+
 
     case "timetable":
+
       window.CBCMasterTimetable?.render();
+
       break;
+
 
     case "rubrics":
+
       window.CBCMasterRubrics?.render();
+
       break;
+
 
     case "documents":
+
       window.CBCMasterDocuments?.render();
+
       break;
+
 
     case "analytics":
+
       window.CBCMasterAnalytics?.render();
+
       break;
+
 
     case "profile":
+
       window.CBCMasterProfile?.render();
+
       break;
+
 
     case "settings":
+
       renderSettings();
+
       break;
 
+
     case "dashboard":
+
     default:
+
       renderDashboardStats();
       renderSidebarProfile();
+
       break;
   }
 }
@@ -816,6 +870,7 @@ function renderPageModule(page) {
 */
 
 function closeInactiveModules(page) {
+
   if (page !== "students") {
     window.CBCMasterStudents?.close();
   }
@@ -853,17 +908,22 @@ function closeInactiveModules(page) {
 */
 
 function bindNavigation() {
+
   $$(
     "[data-page]"
   ).forEach((button) => {
+
     button.addEventListener(
       "click",
       () => {
+
         navigate(
           button.dataset.page
         );
+
       }
     );
+
   });
 }
 
@@ -875,20 +935,25 @@ function bindNavigation() {
 */
 
 function bindModuleCards() {
+
   $$(
     "[data-module]"
   ).forEach((card) => {
+
     card.addEventListener(
       "click",
       () => {
+
         const page =
           card.dataset.module;
 
         if (PAGE_TITLES[page]) {
           navigate(page);
         }
+
       }
     );
+
 
     /*
      * Keyboard accessibility for
@@ -905,6 +970,7 @@ function bindModuleCards() {
         HTMLAnchorElement
       )
     ) {
+
       card.setAttribute(
         "role",
         "button"
@@ -918,10 +984,12 @@ function bindModuleCards() {
       card.addEventListener(
         "keydown",
         (event) => {
+
           if (
             event.key === "Enter" ||
             event.key === " "
           ) {
+
             event.preventDefault();
 
             const page =
@@ -931,9 +999,11 @@ function bindModuleCards() {
               navigate(page);
             }
           }
+
         }
       );
     }
+
   });
 }
 
@@ -945,42 +1015,85 @@ function bindModuleCards() {
 */
 
 function bindQuickActions() {
+
   $$(
     "[data-action]"
   ).forEach((button) => {
+
     button.addEventListener(
       "click",
       () => {
+
         const action =
           button.dataset.action;
 
+
         switch (action) {
-          case "add-student":
+
+          /*
+           * ADD LEARNER FIX
+           *
+           * First navigate to Students.
+           * Then wait briefly for the Students
+           * module to render before opening
+           * its form.
+           */
+
+          case "add-student": {
+
             navigate("students");
-            window.CBCMasterStudents?.open();
+
+            window.setTimeout(
+              () => {
+
+                window
+                  .CBCMasterStudents
+                  ?.open();
+
+              },
+              50
+            );
+
             break;
+          }
+
 
           case "open-students":
+
             navigate("students");
+
             break;
+
 
           case "open-analytics":
+
             navigate("analytics");
+
             break;
+
 
           case "open-settings":
+
             navigate("settings");
+
             break;
+
 
           case "open-profile":
+
             navigate("profile");
+
             break;
 
+
           default:
+
             break;
         }
+
       }
     );
+
   });
 }
 
@@ -992,30 +1105,41 @@ function bindQuickActions() {
 */
 
 function bindHeaderActions() {
+
   const settingsButton =
     $("#settingsButton");
 
   const notificationButton =
     $("#notificationButton");
 
+
   if (settingsButton) {
+
     settingsButton.addEventListener(
       "click",
       () => {
+
         navigate("settings");
+
       }
     );
+
   }
 
+
   if (notificationButton) {
+
     notificationButton.addEventListener(
       "click",
       () => {
+
         showToast(
           "No new notifications."
         );
+
       }
     );
+
   }
 }
 
@@ -1027,10 +1151,12 @@ function bindHeaderActions() {
 */
 
 function renderDashboardStats() {
+
   const data =
     getData();
 
   const stats = {
+
     students:
       data.students.length,
 
@@ -1050,9 +1176,11 @@ function renderDashboardStats() {
       data.documents.length
   };
 
+
   $$(
     "[data-stat]"
   ).forEach((element) => {
+
     const key =
       element.dataset.stat;
 
@@ -1060,6 +1188,7 @@ function renderDashboardStats() {
       String(
         stats[key] ?? 0
       );
+
   });
 }
 
@@ -1071,16 +1200,20 @@ function renderDashboardStats() {
 */
 
 function renderSidebarProfile() {
+
   const data =
     getData();
 
   const teacher =
     data.teacher || {};
 
+
   const name =
     cleanDisplayText(
-      teacher.name || "Teacher"
+      teacher.name ||
+      "Teacher"
     );
+
 
   const school =
     cleanDisplayText(
@@ -1088,28 +1221,40 @@ function renderSidebarProfile() {
       "CBC MASTER User"
     );
 
+
   const nameElement =
     $("#sidebarTeacherName");
+
 
   const schoolElement =
     $("#sidebarTeacherSchool");
 
+
   const avatar =
     $("#sidebarTeacherAvatar");
 
+
   if (nameElement) {
+
     nameElement.textContent =
       name;
+
   }
+
 
   if (schoolElement) {
+
     schoolElement.textContent =
       school;
+
   }
 
+
   if (avatar) {
+
     avatar.textContent =
       getInitials(name);
+
   }
 }
 
@@ -1121,21 +1266,27 @@ function renderSidebarProfile() {
 */
 
 function getInitials(name) {
+
   const words =
     String(name ?? "")
       .trim()
       .split(/\s+/)
       .filter(Boolean);
 
+
   if (!words.length) {
     return "T";
   }
 
+
   if (words.length === 1) {
+
     return words[0]
       .charAt(0)
       .toUpperCase();
+
   }
+
 
   return (
     words[0].charAt(0) +
@@ -1151,6 +1302,7 @@ function getInitials(name) {
 */
 
 function renderSettings() {
+
   const data =
     getData();
 
@@ -1160,45 +1312,62 @@ function renderSettings() {
   const teacher =
     data.teacher || {};
 
+
   setValue(
     "#settingsGrade",
-    preferences.grade || "Grade 5"
+    preferences.grade ||
+      "Grade 5"
   );
+
 
   setValue(
     "#settingsTerm",
-    preferences.term || "Term 1"
+    preferences.term ||
+      "Term 1"
   );
+
 
   setValue(
     "#settingsAcademicYear",
-    preferences.academicYear || "2026"
+    preferences.academicYear ||
+      "2026"
   );
+
 
   const lowData =
     $("#settingsLowData");
 
+
   if (lowData) {
+
     lowData.checked =
       Boolean(
         preferences.lowDataMode
       );
+
   }
+
 
   setText(
     "#settingsTeacherName",
-    teacher.name || "Teacher"
+    teacher.name ||
+      "Teacher"
   );
+
 
   setText(
     "#settingsSchool",
-    teacher.school || "Not set"
+    teacher.school ||
+      "Not set"
   );
+
 
   setText(
     "#settingsCounty",
-    teacher.county || "Not set"
+    teacher.county ||
+      "Not set"
   );
+
 
   renderStorageSummary();
 }
@@ -1211,83 +1380,115 @@ function renderSettings() {
 */
 
 function bindSettingsControls() {
+
   const form =
     $("#settingsForm");
+
 
   const exportButton =
     $("#exportDataButton");
 
+
   const importInput =
     $("#importDataInput");
+
 
   const deleteButton =
     $("#deleteDataButton");
 
+
   if (form) {
+
     form.addEventListener(
       "submit",
       (event) => {
+
         event.preventDefault();
+
 
         const grade =
           cleanDisplayText(
             $("#settingsGrade")?.value
           ) || "Grade 5";
 
+
         const term =
           cleanDisplayText(
             $("#settingsTerm")?.value
           ) || "Term 1";
+
 
         const academicYear =
           cleanDisplayText(
             $("#settingsAcademicYear")?.value
           ) || "2026";
 
+
         const lowDataElement =
           $("#settingsLowData");
+
 
         const lowDataMode =
           Boolean(
             lowDataElement?.checked
           );
 
+
         const saved =
           updatePreferences({
+
             grade,
+
             term,
+
             academicYear,
+
             lowDataMode
+
           });
 
+
         if (saved) {
+
           showToast(
             "Settings saved locally."
           );
+
         }
+
       }
     );
+
   }
 
+
   if (exportButton) {
+
     exportButton.addEventListener(
       "click",
       exportLocalData
     );
+
   }
 
+
   if (importInput) {
+
     importInput.addEventListener(
       "change",
       handleImportFile
     );
+
   }
 
+
   if (deleteButton) {
+
     deleteButton.addEventListener(
       "click",
       deleteLocalData
     );
+
   }
 }
 
@@ -1302,12 +1503,15 @@ function setValue(
   selector,
   value
 ) {
+
   const element =
     $(selector);
 
   if (element) {
+
     element.value =
       String(value ?? "");
+
   }
 }
 
@@ -1322,12 +1526,15 @@ function setText(
   selector,
   value
 ) {
+
   const element =
     $(selector);
 
   if (element) {
+
     element.textContent =
       cleanDisplayText(value);
+
   }
 }
 
@@ -1339,10 +1546,13 @@ function setText(
 */
 
 function renderStorageSummary() {
+
   const data =
     getData();
 
+
   const counts = {
+
     students:
       data.students.length,
 
@@ -1363,50 +1573,65 @@ function renderStorageSummary() {
 
     timetable:
       data.timetable.length
+
   };
+
 
   setText(
     "#settingsStudentCount",
     counts.students
   );
 
+
   setText(
     "#settingsReportBookCount",
     counts.reportBooks
   );
+
 
   setText(
     "#settingsSchemeCount",
     counts.schemes
   );
 
+
   setText(
     "#settingsLessonPlanCount",
     counts.lessonPlans
   );
+
 
   setText(
     "#settingsRubricCount",
     counts.rubrics
   );
 
+
   setText(
     "#settingsDocumentCount",
     counts.documents
   );
 
+
   const total =
     Object.entries(counts)
       .reduce(
         (sum, [key, value]) => {
+
           /*
            * Timetable entries are
            * application records too.
            */
-          return sum + Number(value || 0);
+
+          return (
+            sum +
+            Number(value || 0)
+          );
+
         },
         0
       );
+
 
   setText(
     "#settingsTotalRecords",
@@ -1422,12 +1647,17 @@ function renderStorageSummary() {
 */
 
 function exportLocalData() {
+
   try {
+
     const data =
       getData();
 
+
     const exportPayload = {
-      app: "CBC MASTER V2",
+
+      app:
+        "CBC MASTER V2",
 
       version:
         STORAGE_VERSION,
@@ -1436,7 +1666,9 @@ function exportLocalData() {
         new Date().toISOString(),
 
       data
+
     };
+
 
     const json =
       JSON.stringify(
@@ -1444,6 +1676,7 @@ function exportLocalData() {
         null,
         2
       );
+
 
     const blob =
       new Blob(
@@ -1454,38 +1687,55 @@ function exportLocalData() {
         }
       );
 
+
     const url =
       URL.createObjectURL(blob);
+
 
     const link =
       document.createElement("a");
 
-    link.href = url;
+
+    link.href =
+      url;
+
 
     link.download =
       `cbc-master-backup-${getDateStamp()}.json`;
 
-    link.style.display = "none";
+
+    link.style.display =
+      "none";
+
 
     document.body.appendChild(link);
 
+
     link.click();
+
 
     link.remove();
 
+
     window.setTimeout(
       () => {
+
         URL.revokeObjectURL(url);
+
       },
       1000
     );
+
 
     showToast(
       "Local backup exported."
     );
 
+
     return true;
+
   } catch (error) {
+
     showToast(
       "Unable to export local backup.",
       true
@@ -1503,12 +1753,15 @@ function exportLocalData() {
 */
 
 function handleImportFile(event) {
+
   const file =
     event.target.files?.[0];
+
 
   if (!file) {
     return;
   }
+
 
   /*
    * Basic file-type check.
@@ -1516,23 +1769,34 @@ function handleImportFile(event) {
 
   if (
     file.type &&
-    file.type !== "application/json" &&
-    !file.name.toLowerCase().endsWith(".json")
+    file.type !==
+      "application/json" &&
+    !file.name
+      .toLowerCase()
+      .endsWith(".json")
   ) {
+
     showToast(
       "Please select a CBC MASTER JSON backup.",
       true
     );
 
-    event.target.value = "";
+
+    event.target.value =
+      "";
+
     return;
   }
+
 
   const reader =
     new FileReader();
 
+
   reader.onload = () => {
+
     try {
+
       const imported =
         JSON.parse(
           String(
@@ -1540,63 +1804,95 @@ function handleImportFile(event) {
           )
         );
 
+
       if (
-        !isValidBackupPayload(imported)
+        !isValidBackupPayload(
+          imported
+        )
       ) {
+
         throw new Error(
           "Invalid backup"
         );
+
       }
+
 
       const source =
         isObject(imported.data)
           ? imported.data
           : imported;
 
+
       const normalized =
         normaliseData(source);
+
 
       const confirmed =
         window.confirm(
           "Import this backup and replace the current local workspace?"
         );
 
+
       if (!confirmed) {
-        event.target.value = "";
+
+        event.target.value =
+          "";
+
         return;
       }
+
 
       const saved =
         saveData(normalized);
 
+
       if (!saved) {
-        event.target.value = "";
+
+        event.target.value =
+          "";
+
         return;
       }
 
+
       refresh();
+
 
       showToast(
         "Local backup restored."
       );
+
+
     } catch (error) {
+
       showToast(
         "The selected backup is not valid.",
         true
       );
+
     }
 
-    event.target.value = "";
+
+    event.target.value =
+      "";
+
   };
 
+
   reader.onerror = () => {
+
     showToast(
       "Unable to read the backup file.",
       true
     );
 
-    event.target.value = "";
+
+    event.target.value =
+      "";
+
   };
+
 
   reader.readAsText(file);
 }
@@ -1609,41 +1905,54 @@ function handleImportFile(event) {
 */
 
 function deleteLocalData() {
+
   const firstConfirmation =
     window.confirm(
       "Delete all CBC MASTER data stored on this device?"
     );
 
+
   if (!firstConfirmation) {
     return;
   }
+
 
   const secondConfirmation =
     window.confirm(
       "This will remove students, teaching records, documents, timetable, preferences and local activity. Continue?"
     );
 
+
   if (!secondConfirmation) {
     return;
   }
 
+
   try {
+
     localStorage.removeItem(
       STORAGE_KEY
     );
 
+
     refresh();
 
+
     navigate("dashboard");
+
 
     showToast(
       "All local data has been deleted."
     );
+
+
   } catch (error) {
+
     showToast(
       "Unable to delete local data.",
       true
     );
+
   }
 }
 
@@ -1655,21 +1964,26 @@ function deleteLocalData() {
 */
 
 function getDateStamp() {
+
   const date =
     new Date();
 
+
   const year =
     date.getFullYear();
+
 
   const month =
     String(
       date.getMonth() + 1
     ).padStart(2, "0");
 
+
   const day =
     String(
       date.getDate()
     ).padStart(2, "0");
+
 
   return `${year}-${month}-${day}`;
 }
@@ -1682,9 +1996,13 @@ function getDateStamp() {
 */
 
 function refresh() {
+
   renderDashboardStats();
+
   renderSidebarProfile();
+
   renderSettings();
+
 
   /*
    * Refresh modules only when
@@ -1692,13 +2010,21 @@ function refresh() {
    */
 
   window.CBCMasterStudents?.render();
+
   window.CBCMasterReportBooks?.render();
+
   window.CBCMasterSchemes?.render();
+
   window.CBCMasterLessonPlans?.render();
+
   window.CBCMasterTimetable?.render();
+
   window.CBCMasterRubrics?.render();
+
   window.CBCMasterDocuments?.render();
+
   window.CBCMasterAnalytics?.render();
+
   window.CBCMasterProfile?.render();
 }
 
@@ -1713,35 +2039,44 @@ function showToast(
   message,
   isError = false
 ) {
+
   const toast =
     $("#cbcToast");
+
 
   if (!toast) {
     return;
   }
 
+
   toast.textContent =
     cleanDisplayText(message);
+
 
   toast.classList.toggle(
     "error",
     Boolean(isError)
   );
 
+
   toast.classList.add(
     "show"
   );
+
 
   window.clearTimeout(
     showToast.timer
   );
 
+
   showToast.timer =
     window.setTimeout(
       () => {
+
         toast.classList.remove(
           "show"
         );
+
       },
       3200
     );
@@ -1755,11 +2090,13 @@ function showToast(
 */
 
 function registerServiceWorker() {
+
   if (
     !("serviceWorker" in navigator)
   ) {
     return;
   }
+
 
   /*
    * Service workers require a secure
@@ -1768,23 +2105,30 @@ function registerServiceWorker() {
 
   if (
     !window.isSecureContext &&
-    location.hostname !== "localhost" &&
-    location.hostname !== "127.0.0.1"
+    location.hostname !==
+      "localhost" &&
+    location.hostname !==
+      "127.0.0.1"
   ) {
     return;
   }
 
+
   window.addEventListener(
     "load",
     () => {
+
       navigator.serviceWorker
         .register("./sw.js")
         .catch(() => {
+
           /*
            * Keep technical service-worker
            * errors out of the UI.
            */
+
         });
+
     },
     {
       once: true
@@ -1801,38 +2145,63 @@ function registerServiceWorker() {
 
 window.CBCMaster =
   Object.freeze({
+
     STORAGE_KEY,
+
     STORAGE_VERSION,
 
+
     $,
+
     $$,
 
+
     cleanDisplayText,
+
     createId,
 
+
     getData,
+
     saveData,
+
     loadData,
+
     normaliseData,
 
+
     addActivity,
+
     addRecord,
 
+
     addStudent,
+
     addReportBook,
+
     addScheme,
+
     addLessonPlan,
+
     addRubric,
+
     addDocument,
+
     addTimetableEntry,
 
+
     updateTeacher,
+
     updatePreferences,
 
+
     navigate,
+
     refresh,
 
+
     showToast
+
   });
 
 
@@ -1842,21 +2211,31 @@ window.CBCMaster =
 |--------------------------------------------------------------------------
 */
 
-let initialized = false;
+let initialized =
+  false;
 
 
 function init() {
+
   if (initialized) {
     return;
   }
 
-  initialized = true;
+
+  initialized =
+    true;
+
 
   bindNavigation();
+
   bindModuleCards();
+
   bindQuickActions();
+
   bindHeaderActions();
+
   bindSettingsControls();
+
 
   /*
    * Establish the application
@@ -1866,7 +2245,9 @@ function init() {
 
   refresh();
 
+
   navigate("dashboard");
+
 
   registerServiceWorker();
 }
