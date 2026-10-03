@@ -3,13 +3,13 @@
 /*
 |--------------------------------------------------------------------------
 | CBC MASTER V2
-| Local Teacher Profile Module
+| Local Profile Module
 |--------------------------------------------------------------------------
 | Privacy:
-| - Teacher profile stays in localStorage
+| - Teacher profile stays on this device
+| - No external requests
 | - No tracking
-| - No third-party analytics
-| - No external profile requests
+| - No personal-data transmission
 |--------------------------------------------------------------------------
 */
 
@@ -18,7 +18,6 @@
   const API = window.CBCMaster;
 
   if (!API) {
-    console.error("CBCMaster core is not available.");
     return;
   }
 
@@ -34,14 +33,34 @@
     return API.getData();
   }
 
-  function clean(value) {
-    return API.cleanDisplayText
-      ? API.cleanDisplayText(value)
-      : String(value ?? "").trim();
+  function setValue(id, value) {
+    const element = $(id);
+
+    if (element) {
+      element.value = value ?? "";
+    }
   }
 
-  function save(data) {
-    API.saveData(data);
+  function setText(id, value) {
+    const element = $(id);
+
+    if (element) {
+      element.textContent = value ?? "";
+    }
+  }
+
+  function getValue(id) {
+    const element = $(id);
+
+    return element
+      ? String(element.value || "").trim()
+      : "";
+  }
+
+  function showToast(message) {
+    if (typeof API.showToast === "function") {
+      API.showToast(message);
+    }
   }
 
   /*
@@ -57,406 +76,277 @@
     const teacher = data.teacher || {};
     const preferences = data.preferences || {};
 
-    /*
-    |--------------------------------------------------------------------------
-    | Teacher name
-    |--------------------------------------------------------------------------
-    */
-
-    const name =
-      clean(teacher.name) ||
+    const teacherName =
+      teacher.name ||
       "Teacher";
 
-    const teacherName = $("profileTeacherName");
+    const school =
+      teacher.school ||
+      "";
 
-    if (teacherName) {
-      teacherName.textContent = name;
-    }
+    const county =
+      teacher.county ||
+      "";
 
-    const profileName = $("teacherName");
+    const role =
+      teacher.role ||
+      "Teacher";
 
-    if (profileName) {
-      profileName.value = teacher.name || "";
-    }
+    const grade =
+      preferences.grade ||
+      "Grade 5";
 
-    /*
-    |--------------------------------------------------------------------------
-    | Email
-    |--------------------------------------------------------------------------
-    */
+    const term =
+      preferences.term ||
+      "Term 1";
 
-    const emailInput = $("teacherEmail");
-
-    if (emailInput) {
-      emailInput.value = teacher.email || "";
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Phone
-    |--------------------------------------------------------------------------
-    */
-
-    const phoneInput = $("teacherPhone");
-
-    if (phoneInput) {
-      phoneInput.value = teacher.phone || "";
-    }
+    const academicYear =
+      preferences.academicYear ||
+      "2026";
 
     /*
     |--------------------------------------------------------------------------
-    | School
+    | Profile summary
     |--------------------------------------------------------------------------
     */
 
-    const schoolInput = $("teacherSchool");
+    setText(
+      "profileDisplayName",
+      teacherName
+    );
 
-    if (schoolInput) {
-      schoolInput.value = teacher.school || "";
-    }
+    setText(
+      "profileDisplaySchool",
+      school || "School not set"
+    );
+
+    setText(
+      "profileDisplayCounty",
+      county || "County not set"
+    );
 
     /*
     |--------------------------------------------------------------------------
-    | Grade
+    | Avatar
     |--------------------------------------------------------------------------
     */
 
-    const gradeInput = $("teacherGrade");
-
-    if (gradeInput) {
-      gradeInput.value =
-        preferences.grade ||
-        teacher.grade ||
-        "Grade 5";
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Term
-    |--------------------------------------------------------------------------
-    */
-
-    const termInput = $("teacherTerm");
-
-    if (termInput) {
-      termInput.value =
-        preferences.term ||
-        teacher.term ||
-        "Term 1";
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Academic year
-    |--------------------------------------------------------------------------
-    */
-
-    const yearInput = $("teacherAcademicYear");
-
-    if (yearInput) {
-      yearInput.value =
-        preferences.academicYear ||
-        teacher.academicYear ||
-        new Date().getFullYear();
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Low-data mode
-    |--------------------------------------------------------------------------
-    */
-
-    const lowDataMode =
-      $("lowDataMode");
-
-    if (lowDataMode) {
-      lowDataMode.checked =
-        Boolean(preferences.lowDataMode);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Profile initials
-    |--------------------------------------------------------------------------
-    */
-
-    const avatar =
-      $("profileAvatar");
+    const avatar = $("profileAvatar");
 
     if (avatar) {
-      avatar.textContent =
-        getInitials(name);
+
+      const initial =
+        teacherName
+          .trim()
+          .charAt(0)
+          .toUpperCase() || "T";
+
+      avatar.textContent = initial;
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Display name elements
+    | Teacher form
     |--------------------------------------------------------------------------
     */
 
-    document
-      .querySelectorAll("[data-profile-name]")
-      .forEach(function (element) {
-        element.textContent = name;
-      });
+    setValue(
+      "profileTeacherName",
+      teacherName === "Teacher"
+        ? ""
+        : teacherName
+    );
+
+    setValue(
+      "profileSchool",
+      school
+    );
+
+    setValue(
+      "profileCounty",
+      county
+    );
+
+    setValue(
+      "profileRole",
+      role
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Preferences form
+    |--------------------------------------------------------------------------
+    */
+
+    setValue(
+      "profileGrade",
+      grade
+    );
+
+    setValue(
+      "profileTerm",
+      term
+    );
+
+    setValue(
+      "profileAcademicYear",
+      academicYear
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Workspace summary
+    |--------------------------------------------------------------------------
+    */
+
+    setText(
+      "profileSummaryGrade",
+      grade
+    );
+
+    setText(
+      "profileSummaryTerm",
+      term
+    );
+
+    setText(
+      "profileSummaryYear",
+      academicYear
+    );
   }
 
   /*
   |--------------------------------------------------------------------------
-  | Initials
+  | Save teacher profile
   |--------------------------------------------------------------------------
   */
 
-  function getInitials(name) {
-
-    const words =
-      clean(name)
-        .split(/\s+/)
-        .filter(Boolean);
-
-    if (!words.length) {
-      return "T";
-    }
-
-    if (words.length === 1) {
-      return words[0]
-        .charAt(0)
-        .toUpperCase();
-    }
-
-    return (
-      words[0].charAt(0) +
-      words[words.length - 1].charAt(0)
-    ).toUpperCase();
-  }
-
-  /*
-  |--------------------------------------------------------------------------
-  | Save profile
-  |--------------------------------------------------------------------------
-  */
-
-  function saveProfile(event) {
+  function saveTeacherProfile(event) {
 
     if (event) {
       event.preventDefault();
     }
 
-    const data = getData();
+    const name = getValue("profileTeacherName");
+    const school = getValue("profileSchool");
+    const county = getValue("profileCounty");
+    const role = getValue("profileRole");
 
-    data.teacher =
-      data.teacher || {};
+    if (!name) {
+      showToast("Please enter your name.");
+      return;
+    }
 
-    const nameInput =
-      $("teacherName");
+    if (typeof API.updateTeacher === "function") {
 
-    const emailInput =
-      $("teacherEmail");
+      API.updateTeacher({
+        name,
+        school,
+        county,
+        role: role || "Teacher"
+      });
 
-    const phoneInput =
-      $("teacherPhone");
+    } else {
 
-    const schoolInput =
-      $("teacherSchool");
+      const data = getData();
 
-    data.teacher.name =
-      nameInput
-        ? clean(nameInput.value)
-        : data.teacher.name || "Teacher";
+      data.teacher = {
+        ...(data.teacher || {}),
+        name,
+        school,
+        county,
+        role: role || "Teacher"
+      };
 
-    data.teacher.email =
-      emailInput
-        ? clean(emailInput.value)
-        : data.teacher.email || "";
-
-    data.teacher.phone =
-      phoneInput
-        ? clean(phoneInput.value)
-        : data.teacher.phone || "";
-
-    data.teacher.school =
-      schoolInput
-        ? clean(schoolInput.value)
-        : data.teacher.school || "";
-
-    save(data);
-
-    if (typeof API.showToast === "function") {
-      API.showToast("Profile saved locally.");
+      API.saveData(data);
     }
 
     render();
+
+    showToast("Profile saved.");
   }
 
   /*
   |--------------------------------------------------------------------------
-  | Save preferences
+  | Save workspace preferences
   |--------------------------------------------------------------------------
   */
 
-  function savePreferences() {
+  function savePreferences(event) {
 
-    const data = getData();
-
-    data.preferences =
-      data.preferences || {};
-
-    const gradeInput =
-      $("teacherGrade");
-
-    const termInput =
-      $("teacherTerm");
-
-    const yearInput =
-      $("teacherAcademicYear");
-
-    const lowDataMode =
-      $("lowDataMode");
-
-    if (gradeInput) {
-      data.preferences.grade =
-        clean(gradeInput.value);
+    if (event) {
+      event.preventDefault();
     }
 
-    if (termInput) {
-      data.preferences.term =
-        clean(termInput.value);
-    }
+    const grade = getValue("profileGrade");
+    const term = getValue("profileTerm");
+    const academicYear =
+      getValue("profileAcademicYear");
 
-    if (yearInput) {
-      data.preferences.academicYear =
-        numberOrCurrentYear(yearInput.value);
-    }
+    if (typeof API.updatePreferences === "function") {
 
-    if (lowDataMode) {
-      data.preferences.lowDataMode =
-        Boolean(lowDataMode.checked);
-    }
+      API.updatePreferences({
+        grade: grade || "Grade 5",
+        term: term || "Term 1",
+        academicYear: academicYear || "2026"
+      });
 
-    save(data);
+    } else {
 
-    if (typeof API.showToast === "function") {
-      API.showToast("Preferences saved locally.");
+      const data = getData();
+
+      data.preferences = {
+        ...(data.preferences || {}),
+        grade: grade || "Grade 5",
+        term: term || "Term 1",
+        academicYear: academicYear || "2026"
+      };
+
+      API.saveData(data);
     }
 
     render();
+
+    showToast("Workspace preferences saved.");
   }
 
   /*
   |--------------------------------------------------------------------------
-  | Year helper
+  | Reset profile
   |--------------------------------------------------------------------------
   */
 
-  function numberOrCurrentYear(value) {
+  function resetProfile() {
 
-    const year =
-      Number.parseInt(value, 10);
-
-    if (
-      Number.isInteger(year) &&
-      year >= 2000 &&
-      year <= 2100
-    ) {
-      return year;
-    }
-
-    return new Date().getFullYear();
-  }
-
-  /*
-  |--------------------------------------------------------------------------
-  | Delete local data
-  |--------------------------------------------------------------------------
-  */
-
-  function deleteLocalData() {
-
-    const confirmed =
-      window.confirm(
-        "Delete all CBC MASTER data stored on this device? This cannot be undone."
-      );
+    const confirmed = window.confirm(
+      "Reset the teacher profile and workspace preferences to their defaults?"
+    );
 
     if (!confirmed) {
       return;
     }
 
-    try {
-
-      localStorage.removeItem(
-        API.STORAGE_KEY
-      );
-
-      if (typeof API.showToast === "function") {
-        API.showToast(
-          "Local data deleted."
-        );
-      }
-
-      window.setTimeout(function () {
-        window.location.reload();
-      }, 500);
-
-    } catch (error) {
-
-      if (typeof API.showToast === "function") {
-        API.showToast(
-          "Could not delete local data."
-        );
-      }
-    }
-  }
-
-  /*
-  |--------------------------------------------------------------------------
-  | Export local data
-  |--------------------------------------------------------------------------
-  */
-
-  function exportData() {
-
     const data = getData();
 
-    const json =
-      JSON.stringify(data, null, 2);
+    data.teacher = {
+      name: "Teacher",
+      school: "",
+      county: "",
+      role: "Teacher"
+    };
 
-    const blob =
-      new Blob(
-        [json],
-        {
-          type: "application/json"
-        }
-      );
+    data.preferences = {
+      ...(data.preferences || {}),
+      grade: "Grade 5",
+      term: "Term 1",
+      academicYear: "2026"
+    };
 
-    const url =
-      URL.createObjectURL(blob);
+    API.saveData(data);
 
-    const link =
-      document.createElement("a");
+    render();
 
-    const date =
-      new Date()
-        .toISOString()
-        .slice(0, 10);
-
-    link.href = url;
-
-    link.download =
-      `cbc-master-backup-${date}.json`;
-
-    document.body.appendChild(link);
-
-    link.click();
-
-    link.remove();
-
-    URL.revokeObjectURL(url);
-
-    if (typeof API.showToast === "function") {
-      API.showToast(
-        "Backup exported."
-      );
-    }
+    showToast("Profile reset.");
   }
 
   /*
@@ -467,63 +357,35 @@
 
   function bindEvents() {
 
-    const profileForm =
-      $("profileForm");
+    const profileForm = $("profileForm");
 
     if (profileForm) {
+
       profileForm.addEventListener(
         "submit",
-        saveProfile
+        saveTeacherProfile
       );
     }
 
-    const saveProfileButton =
-      $("saveProfileBtn");
+    const preferencesForm =
+      $("profilePreferencesForm");
 
-    if (saveProfileButton) {
-      saveProfileButton.addEventListener(
-        "click",
-        saveProfile
-      );
-    }
+    if (preferencesForm) {
 
-    const savePreferencesButton =
-      $("savePreferencesBtn");
-
-    if (savePreferencesButton) {
-      savePreferencesButton.addEventListener(
-        "click",
+      preferencesForm.addEventListener(
+        "submit",
         savePreferences
       );
     }
 
-    const lowDataMode =
-      $("lowDataMode");
+    const resetButton =
+      $("resetProfileButton");
 
-    if (lowDataMode) {
-      lowDataMode.addEventListener(
-        "change",
-        savePreferences
-      );
-    }
+    if (resetButton) {
 
-    const exportButton =
-      $("exportDataBtn");
-
-    if (exportButton) {
-      exportButton.addEventListener(
+      resetButton.addEventListener(
         "click",
-        exportData
-      );
-    }
-
-    const deleteButton =
-      $("deleteDataBtn");
-
-    if (deleteButton) {
-      deleteButton.addEventListener(
-        "click",
-        deleteLocalData
+        resetProfile
       );
     }
   }
@@ -558,17 +420,6 @@
     render();
   }
 
-  if (document.readyState === "loading") {
-
-    document.addEventListener(
-      "DOMContentLoaded",
-      init
-    );
-
-  } else {
-    init();
-  }
-
   /*
   |--------------------------------------------------------------------------
   | Public API
@@ -579,10 +430,17 @@
     render,
     open,
     close,
-    saveProfile,
+    saveTeacherProfile,
     savePreferences,
-    exportData,
-    deleteLocalData
+    resetProfile
   };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init, {
+      once: true
+    });
+  } else {
+    init();
+  }
 
 })();
