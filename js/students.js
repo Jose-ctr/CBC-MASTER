@@ -14,9 +14,15 @@
 |--------------------------------------------------------------------------
 */
 
-(() => {
+(function () {
+  const API = window.CBCMaster;
+
+  if (!API) return;
+
   let studentSearchQuery = "";
   let studentsInitialized = false;
+
+  const $ = API.$;
 
   /*
   |--------------------------------------------------------------------------
@@ -24,18 +30,34 @@
   |--------------------------------------------------------------------------
   */
 
-  function student$(selector) {
-    return document.querySelector(selector);
+  function getData() {
+    return API.getData();
   }
 
-  function getStudents() {
-    const data = CBCMaster.getData();
+  function clean(value) {
+    return API.cleanDisplayText
+      ? API.cleanDisplayText(value)
+      : String(value ?? "").trim();
+  }
 
+  function getStudents(data) {
     if (!Array.isArray(data.students)) {
       data.students = [];
     }
 
     return data.students;
+  }
+
+  function getAdmissionNumber(student) {
+    return student.admissionNumber || student.admNo || "";
+  }
+
+  function getStream(student) {
+    return student.stream || student.className || "";
+  }
+
+  function showError(message) {
+    API.showToast(message, true);
   }
 
   /*
@@ -45,81 +67,57 @@
   */
 
   function openStudentForm(student = null) {
-    const card = student$("#studentFormCard");
-    const form = student$("#studentForm");
+    const card = $("studentFormCard");
+    const form = $("studentForm");
 
-    if (!card || !form) {
-      return;
-    }
+    if (!card || !form) return;
 
-    const title = student$("#studentFormTitle");
-    const idField = student$("#studentId");
-    const nameField = student$("#studentName");
-    const admissionField = student$("#studentAdmissionNumber");
-    const gradeField = student$("#studentGrade");
-    const classField = student$("#studentClass");
+    const title = $("studentFormTitle");
+    const idField = $("studentId");
+    const nameField = $("studentName");
+    const admissionField = $("studentAdmNo");
+    const genderField = $("studentGender");
+    const gradeField = $("studentGrade");
+    const streamField = $("studentStream");
+    const notesField = $("studentNotes");
+
+    form.reset();
 
     if (student) {
-      if (title) {
-        title.textContent = "Edit Student";
-      }
+      if (title) title.textContent = "Edit Learner";
 
-      if (idField) {
-        idField.value = student.id || "";
-      }
-
-      if (nameField) {
-        nameField.value = student.name || "";
-      }
-
+      if (idField) idField.value = student.id || "";
+      if (nameField) nameField.value = student.name || "";
       if (admissionField) {
-        admissionField.value = student.admissionNumber || "";
+        admissionField.value = getAdmissionNumber(student);
       }
-
-      if (gradeField) {
-        gradeField.value = student.grade || "";
-      }
-
-      if (classField) {
-        classField.value = student.className || "";
-      }
+      if (genderField) genderField.value = student.gender || "";
+      if (gradeField) gradeField.value = student.grade || "";
+      if (streamField) streamField.value = getStream(student);
+      if (notesField) notesField.value = student.notes || "";
     } else {
-      if (title) {
-        title.textContent = "Add Student";
-      }
+      if (title) title.textContent = "Add Learner";
 
-      form.reset();
+      if (idField) idField.value = "";
 
-      if (idField) {
-        idField.value = "";
-      }
-
-      const data = CBCMaster.getData();
+      const data = getData();
       const defaultGrade =
         data.preferences?.grade || "Grade 5";
 
-      if (gradeField) {
-        gradeField.value = defaultGrade;
-      }
+      if (gradeField) gradeField.value = defaultGrade;
     }
 
     card.hidden = false;
     card.removeAttribute("hidden");
 
-    if (nameField) {
-      window.setTimeout(() => {
-        nameField.focus();
-      }, 50);
-    }
+    nameField?.focus();
   }
 
   function closeStudentForm() {
-    const card = student$("#studentFormCard");
-    const form = student$("#studentForm");
+    const card = $("studentFormCard");
+    const form = $("studentForm");
 
-    if (form) {
-      form.reset();
-    }
+    form?.reset();
 
     if (card) {
       card.hidden = true;
@@ -129,137 +127,97 @@
 
   /*
   |--------------------------------------------------------------------------
-  | Save Student
+  | Save
   |--------------------------------------------------------------------------
   */
 
   function saveStudentFromForm(event) {
     event.preventDefault();
 
-    const data = CBCMaster.getData();
+    const data = getData();
+    const students = getStudents(data);
 
-    if (!Array.isArray(data.students)) {
-      data.students = [];
-    }
-
-    const idField = student$("#studentId");
-    const nameField = student$("#studentName");
-    const admissionField = student$("#studentAdmissionNumber");
-    const gradeField = student$("#studentGrade");
-    const classField = student$("#studentClass");
-
-    const id = CBCMaster.cleanDisplayText(
-      idField?.value || ""
-    );
-
-    const name = CBCMaster.cleanDisplayText(
-      nameField?.value || ""
-    );
-
-    const admissionNumber = CBCMaster.cleanDisplayText(
-      admissionField?.value || ""
-    );
-
-    const grade = CBCMaster.cleanDisplayText(
-      gradeField?.value || ""
-    );
-
-    const className = CBCMaster.cleanDisplayText(
-      classField?.value || ""
-    );
+    const id = clean($("studentId")?.value);
+    const name = clean($("studentName")?.value);
+    const admissionNumber = clean($("studentAdmNo")?.value);
+    const gender = clean($("studentGender")?.value);
+    const grade = clean($("studentGrade")?.value);
+    const stream = clean($("studentStream")?.value);
+    const notes = clean($("studentNotes")?.value);
 
     if (!name) {
-      CBCMaster.showToast(
-        "Please enter the student's name.",
-        true
-      );
+      showError("Please enter the learner's name.");
+      $("studentName")?.focus();
+      return;
+    }
 
-      nameField?.focus();
+    if (
+      admissionNumber &&
+      students.some((student) =>
+        student.id !== id &&
+        getAdmissionNumber(student).toLowerCase() ===
+          admissionNumber.toLowerCase()
+      )
+    ) {
+      showError("This admission number is already in use.");
+      $("studentAdmNo")?.focus();
       return;
     }
 
     const now = new Date().toISOString();
 
-    /*
-    |--------------------------------------------------------------------------
-    | Edit existing student
-    |--------------------------------------------------------------------------
-    */
-
     if (id) {
-      const index = data.students.findIndex(
+      const index = students.findIndex(
         (student) => student.id === id
       );
 
       if (index === -1) {
-        CBCMaster.showToast(
-          "Student record could not be found.",
-          true
-        );
+        showError("Learner record could not be found.");
         return;
       }
 
-      const existing = data.students[index];
+      const existing = students[index];
 
-      data.students[index] = {
+      students[index] = {
         ...existing,
         name,
         admissionNumber,
+        gender,
         grade,
-        className,
+        stream,
+        notes,
         updatedAt: now
       };
 
-      if (!CBCMaster.saveData(data)) {
-        return;
-      }
+      if (!API.saveData(data)) return;
 
-      CBCMaster.addActivity(
-        "Updated learner record"
-      );
+      API.addActivity("Updated learner record");
 
       closeStudentForm();
-      CBCMaster.refresh();
-
-      CBCMaster.showToast(
-        "Student updated successfully."
-      );
-
+      API.refresh();
+      API.showToast("Learner updated successfully.");
       return;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Add new student
-    |--------------------------------------------------------------------------
-    */
-
-    const student = {
-      id: CBCMaster.createId("student"),
+    students.push({
+      id: API.createId("student"),
       name,
       admissionNumber,
+      gender,
       grade,
-      className,
+      stream,
+      notes,
       createdAt: now,
       updatedAt: now
-    };
+    });
 
-    data.students.push(student);
+    if (!API.saveData(data)) return;
 
-    if (!CBCMaster.saveData(data)) {
-      return;
-    }
-
-    CBCMaster.addActivity(
-      "Added learner record"
-    );
+    API.addActivity("Added learner record");
 
     closeStudentForm();
-    CBCMaster.refresh();
-
-    CBCMaster.showToast(
-      "Student added successfully."
-    );
+    API.refresh();
+    API.showToast("Learner added successfully.");
   }
 
   /*
@@ -269,15 +227,15 @@
   */
 
   function matchesSearch(student) {
-    if (!studentSearchQuery) {
-      return true;
-    }
+    if (!studentSearchQuery) return true;
 
     const searchableText = [
       student.name,
-      student.admissionNumber,
+      getAdmissionNumber(student),
+      student.gender,
       student.grade,
-      student.className
+      getStream(student),
+      student.notes
     ]
       .filter(Boolean)
       .join(" ")
@@ -290,20 +248,92 @@
 
   /*
   |--------------------------------------------------------------------------
+  | Learner card
+  |--------------------------------------------------------------------------
+  */
+
+  function createStudentCard(student) {
+    const card = document.createElement("article");
+    card.className = "stat-card";
+    card.dataset.studentId = student.id || "";
+
+    const header = document.createElement("div");
+    header.className = "stat-card-header";
+
+    const title = document.createElement("h3");
+    title.textContent = student.name || "Unnamed Learner";
+
+    header.appendChild(title);
+
+    if (student.grade) {
+      const badge = document.createElement("span");
+      badge.className = "badge";
+      badge.textContent = student.grade;
+      header.appendChild(badge);
+    }
+
+    const details = document.createElement("div");
+    details.className = "stat-card-details";
+
+    const fields = [
+      ["Admission No.", getAdmissionNumber(student)],
+      ["Gender", student.gender],
+      ["Stream", getStream(student)]
+    ];
+
+    fields.forEach(([label, value]) => {
+      if (!value) return;
+
+      const paragraph = document.createElement("p");
+      paragraph.textContent = `${label}: ${value}`;
+      details.appendChild(paragraph);
+    });
+
+    if (student.notes) {
+      const notes = document.createElement("p");
+      notes.textContent = `Notes: ${student.notes}`;
+      details.appendChild(notes);
+    }
+
+    const actions = document.createElement("div");
+    actions.className = "card-actions";
+
+    const editButton = document.createElement("button");
+    editButton.type = "button";
+    editButton.className = "button secondary";
+    editButton.textContent = "Edit";
+    editButton.addEventListener("click", () => {
+      openStudentForm(student);
+    });
+
+    const deleteButton = document.createElement("button");
+    deleteButton.type = "button";
+    deleteButton.className = "button danger";
+    deleteButton.textContent = "Delete";
+    deleteButton.addEventListener("click", () => {
+      deleteStudent(student.id);
+    });
+
+    actions.append(editButton, deleteButton);
+    card.append(header, details, actions);
+
+    return card;
+  }
+
+  /*
+  |--------------------------------------------------------------------------
   | Render
   |--------------------------------------------------------------------------
   */
 
   function renderStudentsPage() {
-    const list = student$("#studentsList");
-    const emptyState = student$("#studentsEmptyState");
-    const count = student$("#studentCount");
+    const list = $("studentsList");
+    const emptyState = $("studentsEmptyState");
+    const count = $("studentCount");
 
-    if (!list) {
-      return;
-    }
+    if (!list) return;
 
-    const students = getStudents()
+    const students = getStudents(getData())
       .filter(matchesSearch)
       .sort((a, b) =>
         String(a.name || "").localeCompare(
@@ -324,7 +354,6 @@
         emptyState.hidden = false;
         emptyState.removeAttribute("hidden");
       }
-
       return;
     }
 
@@ -336,99 +365,10 @@
     const fragment = document.createDocumentFragment();
 
     students.forEach((student) => {
-      fragment.appendChild(
-        createStudentCard(student)
-      );
+      fragment.appendChild(createStudentCard(student));
     });
 
     list.appendChild(fragment);
-  }
-
-  /*
-  |--------------------------------------------------------------------------
-  | Student Card
-  |--------------------------------------------------------------------------
-  */
-
-  function createStudentCard(student) {
-    const card = document.createElement("article");
-
-    card.className = "stat-card";
-    card.dataset.studentId = student.id || "";
-
-    const header = document.createElement("div");
-    header.className = "stat-card-header";
-
-    const title = document.createElement("h3");
-    title.textContent = student.name || "Unnamed Student";
-
-    header.appendChild(title);
-
-    if (student.grade) {
-      const badge = document.createElement("span");
-
-      badge.className = "badge";
-      badge.textContent = student.grade;
-
-      header.appendChild(badge);
-    }
-
-    const details = document.createElement("div");
-    details.className = "stat-card-details";
-
-    if (student.admissionNumber) {
-      const admission = document.createElement("p");
-
-      admission.textContent =
-        `Admission: ${student.admissionNumber}`;
-
-      details.appendChild(admission);
-    }
-
-    if (student.className) {
-      const classInfo = document.createElement("p");
-
-      classInfo.textContent =
-        `Class: ${student.className}`;
-
-      details.appendChild(classInfo);
-    }
-
-    const actions = document.createElement("div");
-    actions.className = "card-actions";
-
-    const editButton = document.createElement("button");
-
-    editButton.type = "button";
-    editButton.className = "button secondary";
-    editButton.textContent = "Edit";
-
-    editButton.addEventListener("click", () => {
-      openStudentForm(student);
-    });
-
-    const deleteButton = document.createElement("button");
-
-    deleteButton.type = "button";
-    deleteButton.className = "button danger";
-    deleteButton.textContent = "Delete";
-
-    deleteButton.addEventListener("click", () => {
-      deleteStudent(student.id);
-    });
-
-    actions.append(
-      editButton,
-      deleteButton
-    );
-
-    card.append(
-      header,
-      details,
-      actions
-    );
-
-    return card;
   }
 
   /*
@@ -438,49 +378,34 @@
   */
 
   function deleteStudent(studentId) {
-    const data = CBCMaster.getData();
+    const data = getData();
+    const students = getStudents(data);
 
-    if (!Array.isArray(data.students)) {
-      return;
-    }
-
-    const student = data.students.find(
-      (item) => item.id === studentId
+    const exists = students.some(
+      (student) => student.id === studentId
     );
 
-    if (!student) {
-      CBCMaster.showToast(
-        "Student record not found.",
-        true
-      );
+    if (!exists) {
+      showError("Learner record not found.");
       return;
     }
 
     const confirmed = window.confirm(
-      "Delete this student record?"
+      "Delete this learner record?"
     );
 
-    if (!confirmed) {
-      return;
-    }
+    if (!confirmed) return;
 
-    data.students = data.students.filter(
-      (item) => item.id !== studentId
+    data.students = students.filter(
+      (student) => student.id !== studentId
     );
 
-    if (!CBCMaster.saveData(data)) {
-      return;
-    }
+    if (!API.saveData(data)) return;
 
-    CBCMaster.addActivity(
-      "Deleted learner record"
-    );
+    API.addActivity("Deleted learner record");
 
-    CBCMaster.refresh();
-
-    CBCMaster.showToast(
-      "Student deleted."
-    );
+    API.refresh();
+    API.showToast("Learner deleted.");
   }
 
   /*
@@ -490,37 +415,24 @@
   */
 
   function bindStudentControls() {
-    const addButton = student$("#addStudentBtn");
-    const cancelButton = student$("#cancelStudentButton");
-    const form = student$("#studentForm");
-    const search = student$("#studentSearch");
+    $("addStudentBtn")?.addEventListener("click", () => {
+      openStudentForm();
+    });
 
-    addButton?.addEventListener(
-      "click",
-      () => openStudentForm()
-    );
-
-    cancelButton?.addEventListener(
+    $("cancelStudentButton")?.addEventListener(
       "click",
       closeStudentForm
     );
 
-    form?.addEventListener(
+    $("studentForm")?.addEventListener(
       "submit",
       saveStudentFromForm
     );
 
-    search?.addEventListener(
-      "input",
-      (event) => {
-        studentSearchQuery =
-          CBCMaster.cleanDisplayText(
-            event.target.value || ""
-          );
-
-        renderStudentsPage();
-      }
-    );
+    $("studentSearch")?.addEventListener("input", (event) => {
+      studentSearchQuery = clean(event.target.value);
+      renderStudentsPage();
+    });
   }
 
   /*
@@ -530,12 +442,9 @@
   */
 
   function initStudentsModule() {
-    if (studentsInitialized) {
-      return;
-    }
+    if (studentsInitialized) return;
 
     studentsInitialized = true;
-
     bindStudentControls();
     renderStudentsPage();
   }
@@ -552,12 +461,6 @@
     close: closeStudentForm,
     delete: deleteStudent
   });
-
-  /*
-  |--------------------------------------------------------------------------
-  | Start
-  |--------------------------------------------------------------------------
-  */
 
   if (document.readyState === "loading") {
     document.addEventListener(
