@@ -2,695 +2,535 @@
 
 /*
 |--------------------------------------------------------------------------
-| CBC MASTER V2
-| Saved Documents Module
+| CBC MASTER V2 — Documents Module
 |--------------------------------------------------------------------------
-| Local-first
-| No external requests
-| No personal-data logging
+| Local-first document management.
+|
+| Privacy:
+| - Records remain in local browser storage.
+| - No third-party analytics.
+| - No external requests.
 |--------------------------------------------------------------------------
 */
 
 (() => {
-  const CBC = window.CBCMaster;
-
-  if (!CBC) {
-    return;
-  }
-
   let documentSearchQuery = "";
+  let documentsInitialized = false;
 
   const $ = (selector) =>
     document.querySelector(selector);
 
+  const clean = (value) =>
+    CBCMaster.cleanDisplayText(value || "");
+
+  function getDocuments() {
+    const data = CBCMaster.getData();
+
+    return Array.isArray(data.documents)
+      ? data.documents
+      : [];
+  }
+
   /*
   |--------------------------------------------------------------------------
-  | Open form
+  | Form
   |--------------------------------------------------------------------------
   */
 
-  function openDocumentForm(record = null) {
-    const formCard = $("#documentFormCard");
-    const formTitle = $("#documentFormTitle");
+  function openDocumentForm(doc = null) {
+    const card = $("#documentFormCard");
     const form = $("#documentForm");
 
-    if (!formCard || !form) {
-      return;
-    }
-
-    form.reset();
-
-    $("#documentId").value = "";
-    $("#documentType").value = "Other";
-
-    if (record) {
-      formTitle.textContent =
-        "Edit Saved Document";
-
-      $("#documentId").value = record.id;
-      $("#documentTitle").value =
-        record.title || "";
-      $("#documentType").value =
-        record.type || "Other";
-      $("#documentSubject").value =
-        record.subject || "";
-      $("#documentGrade").value =
-        record.grade || "";
-      $("#documentTerm").value =
-        record.term || "";
-      $("#documentContent").value =
-        record.content || "";
-    } else {
-      formTitle.textContent =
-        "Save Document";
-
-      const data = CBC.getData();
-
-      $("#documentGrade").value =
-        data.preferences.grade || "Grade 5";
-
-      $("#documentTerm").value =
-        data.preferences.term || "Term 1";
-    }
-
-    formCard.hidden = false;
-
-    formCard.scrollIntoView({
-      behavior: "smooth",
-      block: "start"
-    });
-
-    const titleInput =
-      $("#documentTitle");
-
-    if (titleInput) {
-      setTimeout(
-        () => titleInput.focus(),
-        100
-      );
-    }
-  }
-
-  /*
-  |--------------------------------------------------------------------------
-  | Close form
-  |--------------------------------------------------------------------------
-  */
-
-  function closeDocumentForm() {
-    const formCard =
-      $("#documentFormCard");
-
-    if (formCard) {
-      formCard.hidden = true;
-    }
-  }
-
-  /*
-  |--------------------------------------------------------------------------
-  | Save document
-  |--------------------------------------------------------------------------
-  */
-
-  function saveDocumentFromForm(event) {
-    event.preventDefault();
-
-    const data = CBC.getData();
-
-    const id =
-      $("#documentId").value.trim();
-
-    const record = {
-      id: id || CBC.createId("document"),
-
-      title: CBC.cleanDisplayText(
-        $("#documentTitle").value
-      ),
-
-      type: CBC.cleanDisplayText(
-        $("#documentType").value
-      ),
-
-      subject: CBC.cleanDisplayText(
-        $("#documentSubject").value
-      ),
-
-      grade: CBC.cleanDisplayText(
-        $("#documentGrade").value
-      ),
-
-      term: CBC.cleanDisplayText(
-        $("#documentTerm").value
-      ),
-
-      content: CBC.cleanDisplayText(
-        $("#documentContent").value
-      ),
-
-      updatedAt:
-        new Date().toISOString()
-    };
-
-    if (!record.title || !record.content) {
-      CBC.showToast(
-        "Document title and content are required.",
+    if (!card || !form) {
+      CBCMaster.showToast(
+        "Document form is unavailable.",
         true
       );
       return;
     }
 
-    if (id) {
-      const index =
-        data.documents.findIndex(
-          (item) => item.id === id
-        );
+    const fields = {
+      id: $("#documentId"),
+      title: $("#documentTitle"),
+      type: $("#documentType"),
+      grade: $("#documentGrade"),
+      subject: $("#documentSubject"),
+      term: $("#documentTerm"),
+      description: $("#documentDescription"),
+      content: $("#documentContent")
+    };
 
-      if (index !== -1) {
-        data.documents[index] = {
-          ...data.documents[index],
-          ...record
-        };
+    const heading = $("#documentFormTitle");
+
+    if (doc) {
+      if (heading) {
+        heading.textContent = "Edit Document";
       }
-    } else {
-      record.createdAt =
-        new Date().toISOString();
 
-      data.documents.unshift(record);
+      Object.entries(fields).forEach(
+        ([key, field]) => {
+          if (field) {
+            field.value = doc[key] ?? "";
+          }
+        }
+      );
+    } else {
+      form.reset();
+
+      if (heading) {
+        heading.textContent = "Create Document";
+      }
+
+      const data = CBCMaster.getData();
+
+      if (fields.id) {
+        fields.id.value = "";
+      }
+
+      if (fields.grade) {
+        fields.grade.value =
+          data.preferences?.grade || "Grade 5";
+      }
+
+      if (fields.term) {
+        fields.term.value =
+          data.preferences?.term || "Term 1";
+      }
     }
 
-    CBC.saveData(data);
-    CBC.refresh();
+    card.hidden = false;
+    card.removeAttribute("hidden");
+
+    fields.title?.focus();
+  }
+
+  function closeDocumentForm() {
+    const card = $("#documentFormCard");
+    const form = $("#documentForm");
+
+    form?.reset();
+
+    if (card) {
+      card.hidden = true;
+      card.setAttribute("hidden", "");
+    }
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | Save
+  |--------------------------------------------------------------------------
+  */
+
+  function saveDocument(event) {
+    event.preventDefault();
+
+    const data = CBCMaster.getData();
+
+    if (!Array.isArray(data.documents)) {
+      data.documents = [];
+    }
+
+    const doc = {
+      id: clean($("#documentId")?.value),
+      title: clean($("#documentTitle")?.value),
+      type: clean($("#documentType")?.value),
+      grade: clean($("#documentGrade")?.value),
+      subject: clean($("#documentSubject")?.value),
+      term: clean($("#documentTerm")?.value),
+      description: clean(
+        $("#documentDescription")?.value
+      ),
+      content: clean($("#documentContent")?.value)
+    };
+
+    if (!doc.title) {
+      CBCMaster.showToast(
+        "Enter a document title.",
+        true
+      );
+      $("#documentTitle")?.focus();
+      return;
+    }
+
+    const isEditing = Boolean(doc.id);
+    const now = new Date().toISOString();
+
+    if (isEditing) {
+      const index = data.documents.findIndex(
+        (item) => item.id === doc.id
+      );
+
+      if (index === -1) {
+        CBCMaster.showToast(
+          "Document not found.",
+          true
+        );
+        return;
+      }
+
+      data.documents[index] = {
+        ...data.documents[index],
+        ...doc,
+        updatedAt: now
+      };
+    } else {
+      doc.id = CBCMaster.createId("document");
+      doc.createdAt = now;
+      doc.updatedAt = now;
+
+      data.documents.push(doc);
+    }
+
+    if (!CBCMaster.saveData(data)) {
+      return;
+    }
+
+    CBCMaster.addActivity(
+      isEditing
+        ? "Updated document"
+        : "Created document"
+    );
 
     closeDocumentForm();
+    CBCMaster.refresh();
 
-    CBC.showToast(
-      id
+    CBCMaster.showToast(
+      isEditing
         ? "Document updated."
-        : "Document saved."
+        : "Document created."
     );
   }
 
   /*
   |--------------------------------------------------------------------------
-  | Render page
+  | Search
   |--------------------------------------------------------------------------
   */
 
-  function renderDocumentsPage() {
-    const list =
-      $("#documentsList");
-
-    const emptyState =
-      $("#documentsEmptyState");
-
-    const count =
-      $("#documentCount");
-
-    if (!list) {
-      return;
+  function matchesSearch(doc) {
+    if (!documentSearchQuery) {
+      return true;
     }
 
-    const data = CBC.getData();
+    const searchable = [
+      doc.title,
+      doc.type,
+      doc.grade,
+      doc.subject,
+      doc.term,
+      doc.description,
+      doc.content
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
 
-    let records =
-      Array.isArray(data.documents)
-        ? data.documents
-        : [];
-
-    const query =
-      documentSearchQuery
-        .trim()
-        .toLowerCase();
-
-    if (query) {
-      records = records.filter(
-        (record) =>
-          [
-            record.title,
-            record.type,
-            record.subject,
-            record.grade,
-            record.term,
-            record.content
-          ]
-            .filter(Boolean)
-            .join(" ")
-            .toLowerCase()
-            .includes(query)
-      );
-    }
-
-    list.innerHTML = "";
-
-    if (count) {
-      count.textContent =
-        String(records.length);
-    }
-
-    if (!records.length) {
-      if (emptyState) {
-        emptyState.hidden = false;
-      }
-
-      return;
-    }
-
-    if (emptyState) {
-      emptyState.hidden = true;
-    }
-
-    records.forEach((record) => {
-      list.appendChild(
-        createDocumentCard(record)
-      );
-    });
+    return searchable.includes(
+      documentSearchQuery.toLowerCase()
+    );
   }
 
   /*
   |--------------------------------------------------------------------------
-  | Document card
+  | Document Card
   |--------------------------------------------------------------------------
   */
 
-  function createDocumentCard(record) {
-    const card =
-      document.createElement("article");
+  function createDocumentCard(doc) {
+    const card = document.createElement("article");
+    card.className = "stat-card";
 
-    card.className =
-      "module-record-card";
+    const header = document.createElement("div");
+    header.className = "stat-card-header";
 
-    const title =
-      CBC.cleanDisplayText(
-        record.title ||
-          "Untitled Document"
-      );
+    const title = document.createElement("h3");
+    title.textContent =
+      doc.title || "Untitled Document";
 
-    const type =
-      CBC.cleanDisplayText(
-        record.type ||
-          "Document"
-      );
+    header.appendChild(title);
 
-    const subject =
-      CBC.cleanDisplayText(
-        record.subject || ""
-      );
+    if (doc.type) {
+      const badge = document.createElement("span");
+      badge.className = "badge";
+      badge.textContent = doc.type;
+      header.appendChild(badge);
+    }
 
-    const grade =
-      CBC.cleanDisplayText(
-        record.grade || ""
-      );
+    const details = document.createElement("div");
+    details.className = "stat-card-details";
 
-    const term =
-      CBC.cleanDisplayText(
-        record.term || ""
-      );
+    [
+      ["Grade", doc.grade],
+      ["Subject", doc.subject],
+      ["Term", doc.term],
+      ["Description", doc.description]
+    ].forEach(([label, value]) => {
+      if (!value) return;
 
-    const content =
-      CBC.cleanDisplayText(
-        record.content || ""
-      );
+      const paragraph = document.createElement("p");
+      paragraph.textContent = `${label}: ${value}`;
+      details.appendChild(paragraph);
+    });
 
-    const preview =
-      content.length > 260
-        ? `${content.slice(0, 260)}…`
-        : content;
+    const actions = document.createElement("div");
+    actions.className = "card-actions";
 
-    card.innerHTML = `
-      <div class="module-record-header">
-        <div>
-          <span class="record-kicker">
-            ${type}
-          </span>
+    const viewButton = document.createElement("button");
+    viewButton.type = "button";
+    viewButton.className = "button secondary";
+    viewButton.textContent = "View";
 
-          <h3>
-            ${title}
-          </h3>
-        </div>
+    viewButton.addEventListener("click", () => {
+      viewDocument(doc);
+    });
 
-        <span class="record-badge">
-          Saved
-        </span>
-      </div>
+    const editButton = document.createElement("button");
+    editButton.type = "button";
+    editButton.className = "button secondary";
+    editButton.textContent = "Edit";
 
-      <div class="record-meta">
-        ${
-          subject
-            ? `<span>${subject}</span>`
-            : ""
-        }
+    editButton.addEventListener("click", () => {
+      openDocumentForm(doc);
+    });
 
-        ${
-          grade
-            ? `<span>${grade}</span>`
-            : ""
-        }
+    const deleteButton = document.createElement("button");
+    deleteButton.type = "button";
+    deleteButton.className = "button danger";
+    deleteButton.textContent = "Delete";
 
-        ${
-          term
-            ? `<span>${term}</span>`
-            : ""
-        }
-      </div>
+    deleteButton.addEventListener("click", () => {
+      deleteDocument(doc.id);
+    });
 
-      <div class="module-record-preview">
-        <strong>Preview</strong>
-        <p>${preview}</p>
-      </div>
+    actions.append(
+      viewButton,
+      editButton,
+      deleteButton
+    );
 
-      <div class="form-actions">
-
-        <button
-          type="button"
-          class="btn btn-secondary"
-          data-view-document="${record.id}">
-          View
-        </button>
-
-        <button
-          type="button"
-          class="btn btn-secondary"
-          data-edit-document="${record.id}">
-          Edit
-        </button>
-
-        <button
-          type="button"
-          class="btn btn-danger"
-          data-delete-document="${record.id}">
-          Delete
-        </button>
-
-      </div>
-    `;
+    card.append(header, details, actions);
 
     return card;
   }
 
   /*
   |--------------------------------------------------------------------------
-  | View document
+  | View
   |--------------------------------------------------------------------------
   */
 
-  function viewDocument(id) {
-    const data = CBC.getData();
+  function viewDocument(doc) {
+    const content = [
+      doc.title,
+      "",
+      doc.description || "",
+      "",
+      doc.content || ""
+    ].join("\n");
 
-    const record =
-      data.documents.find(
-        (item) => item.id === id
-      );
+    const viewer = $("#documentViewer");
+    const viewerTitle = $("#documentViewerTitle");
+    const viewerContent = $("#documentViewerContent");
 
-    if (!record) {
+    if (viewer && viewerContent) {
+      if (viewerTitle) {
+        viewerTitle.textContent = doc.title;
+      }
+
+      viewerContent.textContent = content;
+      viewer.hidden = false;
+      viewer.removeAttribute("hidden");
       return;
     }
 
-    const content =
-      CBC.cleanDisplayText(
-        record.content || ""
-      );
-
-    const title =
-      CBC.cleanDisplayText(
-        record.title ||
-          "Saved Document"
-      );
-
-    const view =
-      $("#documentViewer");
-
-    const viewerTitle =
-      $("#documentViewerTitle");
-
-    const viewerContent =
-      $("#documentViewerContent");
-
-    if (
-      view &&
-      viewerTitle &&
-      viewerContent
-    ) {
-      viewerTitle.textContent =
-        title;
-
-      viewerContent.textContent =
-        content;
-
-      view.hidden = false;
-
-      view.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-      });
-
-      return;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Fallback for layouts without viewer
-    |--------------------------------------------------------------------------
-    */
-
-    CBC.showToast(
-      content
-        ? content.slice(0, 120)
-        : "Document has no content."
+    CBCMaster.showToast(
+      "Document viewer is not available.",
+      true
     );
   }
 
-  /*
-  |--------------------------------------------------------------------------
-  | Close viewer
-  |--------------------------------------------------------------------------
-  */
-
   function closeDocumentViewer() {
-    const viewer =
-      $("#documentViewer");
+    const viewer = $("#documentViewer");
 
     if (viewer) {
       viewer.hidden = true;
+      viewer.setAttribute("hidden", "");
     }
   }
 
   /*
   |--------------------------------------------------------------------------
-  | Delete document
+  | Render
+  |--------------------------------------------------------------------------
+  */
+
+  function renderDocumentsPage() {
+    const list = $("#documentsList");
+    const emptyState = $("#documentsEmptyState");
+    const count = $("#documentCount");
+
+    if (!list) return;
+
+    const documents = getDocuments()
+      .filter(matchesSearch)
+      .sort((a, b) =>
+        String(b.updatedAt || "")
+          .localeCompare(String(a.updatedAt || ""))
+      );
+
+    list.replaceChildren();
+
+    if (count) {
+      count.textContent = String(documents.length);
+    }
+
+    if (emptyState) {
+      emptyState.hidden = documents.length > 0;
+    }
+
+    const fragment = document.createDocumentFragment();
+
+    documents.forEach((doc) => {
+      fragment.appendChild(
+        createDocumentCard(doc)
+      );
+    });
+
+    list.appendChild(fragment);
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | Delete
   |--------------------------------------------------------------------------
   */
 
   function deleteDocument(id) {
-    const data = CBC.getData();
+    const data = CBCMaster.getData();
 
-    const record =
-      data.documents.find(
-        (item) => item.id === id
+    const exists = data.documents.some(
+      (doc) => doc.id === id
+    );
+
+    if (!exists) {
+      CBCMaster.showToast(
+        "Document not found.",
+        true
       );
-
-    if (!record) {
       return;
     }
 
-    const confirmed =
-      window.confirm(
-        `Delete "${record.title || "this document"}"?`
-      );
-
-    if (!confirmed) {
+    if (!window.confirm(
+      "Delete this document?"
+    )) {
       return;
     }
 
-    data.documents =
-      data.documents.filter(
-        (item) => item.id !== id
-      );
+    data.documents = data.documents.filter(
+      (doc) => doc.id !== id
+    );
 
-    CBC.saveData(data);
-    CBC.refresh();
+    if (!CBCMaster.saveData(data)) {
+      return;
+    }
 
-    CBC.showToast(
+    CBCMaster.addActivity(
+      "Deleted document"
+    );
+
+    CBCMaster.refresh();
+
+    CBCMaster.showToast(
       "Document deleted."
     );
   }
 
   /*
   |--------------------------------------------------------------------------
-  | Bind controls
+  | Controls
   |--------------------------------------------------------------------------
   */
 
-  function bindDocumentControls() {
-    const addButton =
-      $("#addDocumentBtn");
-
-    const cancelButton =
-      $("#cancelDocumentButton");
-
-    const form =
-      $("#documentForm");
-
-    const search =
-      $("#documentSearch");
-
-    const closeViewerButton =
-      $("#closeDocumentViewerButton");
-
-    if (addButton) {
-      addButton.addEventListener(
-        "click",
-        () => openDocumentForm()
-      );
-    }
-
-    if (cancelButton) {
-      cancelButton.addEventListener(
-        "click",
-        closeDocumentForm
-      );
-    }
-
-    if (form) {
-      form.addEventListener(
-        "submit",
-        saveDocumentFromForm
-      );
-    }
-
-    if (search) {
-      search.addEventListener(
-        "input",
-        (event) => {
-          documentSearchQuery =
-            event.target.value || "";
-
-          renderDocumentsPage();
-        }
-      );
-    }
-
-    if (closeViewerButton) {
-      closeViewerButton.addEventListener(
-        "click",
-        closeDocumentViewer
-      );
-    }
-
-    document.addEventListener(
+  function bindControls() {
+    $("#addDocumentBtn")?.addEventListener(
       "click",
+      () => openDocumentForm()
+    );
+
+    $("#cancelDocumentButton")?.addEventListener(
+      "click",
+      closeDocumentForm
+    );
+
+    $("#cancelDocumentBtn")?.addEventListener(
+      "click",
+      closeDocumentForm
+    );
+
+    $("#documentForm")?.addEventListener(
+      "submit",
+      saveDocument
+    );
+
+    $("#documentSearch")?.addEventListener(
+      "input",
       (event) => {
-        const viewButton =
-          event.target.closest(
-            "[data-view-document]"
-          );
-
-        if (viewButton) {
-          viewDocument(
-            viewButton.dataset
-              .viewDocument
-          );
-
-          return;
-        }
-
-        const editButton =
-          event.target.closest(
-            "[data-edit-document]"
-          );
-
-        if (editButton) {
-          const id =
-            editButton.dataset
-              .editDocument;
-
-          const record =
-            CBC.getData()
-              .documents
-              .find(
-                (item) =>
-                  item.id === id
-              );
-
-          if (record) {
-            openDocumentForm(
-              record
-            );
-          }
-
-          return;
-        }
-
-        const deleteButton =
-          event.target.closest(
-            "[data-delete-document]"
-          );
-
-        if (deleteButton) {
-          deleteDocument(
-            deleteButton.dataset
-              .deleteDocument
-          );
-        }
+        documentSearchQuery = clean(
+          event.target.value
+        );
+        renderDocumentsPage();
       }
+    );
+
+    $("#closeDocumentViewer")?.addEventListener(
+      "click",
+      closeDocumentViewer
     );
   }
 
   /*
   |--------------------------------------------------------------------------
-  | Quick action
-  |--------------------------------------------------------------------------
-  */
-
-  function bindDocumentQuickAction() {
-    document.addEventListener(
-      "click",
-      (event) => {
-        const button =
-          event.target.closest(
-            '[data-action="save-document"]'
-          );
-
-        if (!button) {
-          return;
-        }
-
-        CBC.navigate("documents");
-        openDocumentForm();
-      }
-    );
-  }
-
-  /*
-  |--------------------------------------------------------------------------
-  | Initialize
+  | Initialization
   |--------------------------------------------------------------------------
   */
 
   function initDocumentsModule() {
-    bindDocumentControls();
-    bindDocumentQuickAction();
+    if (documentsInitialized) return;
+
+    documentsInitialized = true;
+    bindControls();
     renderDocumentsPage();
   }
 
   /*
   |--------------------------------------------------------------------------
-  | Public module API
+  | Public API
   |--------------------------------------------------------------------------
   */
 
-  window.CBCMasterDocuments =
-    Object.freeze({
-      open: openDocumentForm,
-      close: closeDocumentForm,
-      view: viewDocument,
-      closeViewer:
-        closeDocumentViewer,
-      render:
-        renderDocumentsPage
-    });
+  window.CBCMasterDocuments = Object.freeze({
+    render: renderDocumentsPage,
+    open: openDocumentForm,
+    close: closeDocumentForm,
+    view: viewDocument,
+    closeViewer: closeDocumentViewer,
+    delete: deleteDocument
+  });
 
-  document.addEventListener(
-    "DOMContentLoaded",
-    initDocumentsModule
-  );
+  /*
+  |--------------------------------------------------------------------------
+  | Start
+  |--------------------------------------------------------------------------
+  */
+
+  if (document.readyState === "loading") {
+    document.addEventListener(
+      "DOMContentLoaded",
+      initDocumentsModule,
+      { once: true }
+    );
+  } else {
+    initDocumentsModule();
+  }
 })();
