@@ -1,1 +1,543 @@
+<!DOCTYPE html>
+<html lang="en-KE">
+<head>
+  <meta charset="UTF-8">
 
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
+
+  <meta
+    name="theme-color"
+    content="#0B1F33"
+  >
+
+  <meta
+    name="description"
+    content="CBC MASTER — Kenyan CBC Toolkit for PP1 to Grade 12."
+  >
+
+  <meta
+    name="application-name"
+    content="CBC MASTER"
+  >
+
+  <meta
+    name="apple-mobile-web-app-title"
+    content="CBC MASTER"
+  >
+
+  <meta
+    name="apple-mobile-web-app-capable"
+    content="yes"
+  >
+
+  <meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent"
+  >
+
+  <meta
+    name="mobile-web-app-capable"
+    content="yes"
+  >
+
+  <title>CBC MASTER</title>
+
+  <link
+    rel="manifest"
+    href="./manifest.json"
+  >
+
+  <link
+    rel="icon"
+    type="image/png"
+    sizes="192x192"
+    href="./icons/icon-192.png"
+  >
+
+  <link
+    rel="apple-touch-icon"
+    href="./icons/icon-192.png"
+  >
+
+  <link
+    rel="stylesheet"
+    href="./css/app.css"
+  >
+</head>
+
+<body>
+
+  <!-- =====================================================
+       APP
+       ===================================================== -->
+
+  <div id="app">
+
+    <!-- ===================================================
+         APP HEADER
+         =================================================== -->
+
+    <header class="app-header">
+
+      <div class="brand">
+
+        <div
+          class="brand-mark"
+          aria-hidden="true"
+        >
+          <span>CB</span>
+        </div>
+
+        <div class="brand-text">
+          <h1>CBC MASTER</h1>
+          <p>Kenyan CBC Toolkit</p>
+        </div>
+
+      </div>
+
+      <button
+        id="installButton"
+        class="install-button"
+        type="button"
+        hidden
+        aria-label="Install CBC MASTER"
+      >
+        Install
+      </button>
+
+    </header>
+
+
+    <!-- ===================================================
+         MAIN CONTENT
+         =================================================== -->
+
+    <main
+      id="mainContent"
+      class="main-content"
+    >
+
+      <!-- ================================================
+           HOME
+           ================================================ -->
+
+      <section
+        id="page-home"
+        class="page active"
+        data-page="home"
+      >
+
+        <div class="page-heading">
+          <p class="eyebrow">CBC MASTER</p>
+
+          <h2>Your teaching workspace</h2>
+
+          <p>
+            Plan, manage, document and review your CBC teaching work
+            in one private workspace.
+          </p>
+        </div>
+
+
+        <!-- Dashboard cards will be rendered here -->
+        <div
+          id="homeContent"
+          class="page-content"
+        ></div>
+
+      </section>
+
+
+      <!-- ================================================
+           REPORT BOOKS
+           ================================================ -->
+
+      <section
+        id="page-report-books"
+        class="page"
+        data-page="report-books"
+        hidden
+      >
+
+        <div class="page-heading">
+
+          <p class="eyebrow">REPORT BOOKS</p>
+
+          <h2>Report Books</h2>
+
+          <p>
+            Manage learner assessment and report information.
+          </p>
+
+        </div>
+
+        <div
+          id="reportBooksContent"
+          class="page-content"
+        ></div>
+
+      </section>
+
+
+      <!-- ================================================
+           SCHEMES
+           ================================================ -->
+
+      <section
+        id="page-schemes"
+        class="page"
+        data-page="schemes"
+        hidden
+      >
+
+        <div class="page-heading">
+
+          <p class="eyebrow">PLANNING</p>
+
+          <h2>Schemes of Work</h2>
+
+          <p>
+            Organise teaching plans by grade, subject and term.
+          </p>
+
+        </div>
+
+        <div
+          id="schemesContent"
+          class="page-content"
+        ></div>
+
+      </section>
+
+
+      <!-- ================================================
+           LESSON PLANS
+           ================================================ -->
+
+      <section
+        id="page-lesson-plans"
+        class="page"
+        data-page="lesson-plans"
+        hidden
+      >
+
+        <div class="page-heading">
+
+          <p class="eyebrow">PLANNING</p>
+
+          <h2>Lesson Plans</h2>
+
+          <p>
+            Create and organise your daily lesson plans.
+          </p>
+
+        </div>
+
+        <div
+          id="lessonPlansContent"
+          class="page-content"
+        ></div>
+
+      </section>
+
+
+      <!-- ================================================
+           RUBRICS
+           ================================================ -->
+
+      <section
+        id="page-rubrics"
+        class="page"
+        data-page="rubrics"
+        hidden
+      >
+
+        <div class="page-heading">
+
+          <p class="eyebrow">ASSESSMENT</p>
+
+          <h2>Rubrics</h2>
+
+          <p>
+            Create assessment rubrics for CBC learning activities.
+          </p>
+
+        </div>
+
+        <div
+          id="rubricsContent"
+          class="page-content"
+        ></div>
+
+      </section>
+
+
+      <!-- ================================================
+           STUDENTS
+           ================================================ -->
+
+      <section
+        id="page-students"
+        class="page"
+        data-page="students"
+        hidden
+      >
+
+        <div class="page-heading">
+
+          <p class="eyebrow">LEARNERS</p>
+
+          <h2>Students</h2>
+
+          <p>
+            Keep learner information privately on this device.
+          </p>
+
+        </div>
+
+        <div
+          id="studentsContent"
+          class="page-content"
+        ></div>
+
+      </section>
+
+
+      <!-- ================================================
+           DOCUMENTS
+           ================================================ -->
+
+      <section
+        id="page-documents"
+        class="page"
+        data-page="documents"
+        hidden
+      >
+
+        <div class="page-heading">
+
+          <p class="eyebrow">DOCUMENTS</p>
+
+          <h2>Documents</h2>
+
+          <p>
+            Access generated and saved teaching documents.
+          </p>
+
+        </div>
+
+        <div
+          id="documentsContent"
+          class="page-content"
+        ></div>
+
+      </section>
+
+
+      <!-- ================================================
+           ANALYTICS
+           ================================================ -->
+
+      <section
+        id="page-analytics"
+        class="page"
+        data-page="analytics"
+        hidden
+      >
+
+        <div class="page-heading">
+
+          <p class="eyebrow">OVERVIEW</p>
+
+          <h2>Analytics</h2>
+
+          <p>
+            Review your teaching workspace activity.
+          </p>
+
+        </div>
+
+        <div
+          id="analyticsContent"
+          class="page-content"
+        ></div>
+
+      </section>
+
+
+      <!-- ================================================
+           PROFILE
+           ================================================ -->
+
+      <section
+        id="page-profile"
+        class="page"
+        data-page="profile"
+        hidden
+      >
+
+        <div class="page-heading">
+
+          <p class="eyebrow">ACCOUNT</p>
+
+          <h2>Profile</h2>
+
+          <p>
+            Manage your CBC MASTER teacher profile.
+          </p>
+
+        </div>
+
+        <div
+          id="profileContent"
+          class="page-content"
+        ></div>
+
+      </section>
+
+
+      <!-- ================================================
+           SETTINGS
+           ================================================ -->
+
+      <section
+        id="page-settings"
+        class="page"
+        data-page="settings"
+        hidden
+      >
+
+        <div class="page-heading">
+
+          <p class="eyebrow">PREFERENCES</p>
+
+          <h2>Settings</h2>
+
+          <p>
+            Control your app preferences, privacy and local data.
+          </p>
+
+        </div>
+
+        <div
+          id="settingsContent"
+          class="page-content"
+        ></div>
+
+      </section>
+
+    </main>
+
+
+    <!-- ===================================================
+         BOTTOM NAVIGATION
+         =================================================== -->
+
+    <nav
+      class="bottom-nav"
+      aria-label="Main navigation"
+    >
+
+      <button
+        class="nav-item active"
+        type="button"
+        data-page-target="home"
+      >
+        <span
+          class="nav-icon"
+          aria-hidden="true"
+        >⌂</span>
+
+        <span>Home</span>
+      </button>
+
+
+      <button
+        class="nav-item"
+        type="button"
+        data-page-target="documents"
+      >
+        <span
+          class="nav-icon"
+          aria-hidden="true"
+        >▣</span>
+
+        <span>Docs</span>
+      </button>
+
+
+      <button
+        class="nav-item"
+        type="button"
+        data-page-target="analytics"
+      >
+        <span
+          class="nav-icon"
+          aria-hidden="true"
+        >◫</span>
+
+        <span>Analytics</span>
+      </button>
+
+
+      <button
+        class="nav-item"
+        type="button"
+        data-page-target="profile"
+      >
+        <span
+          class="nav-icon"
+          aria-hidden="true"
+        >○</span>
+
+        <span>Profile</span>
+      </button>
+
+
+      <button
+        class="nav-item"
+        type="button"
+        data-page-target="settings"
+      >
+        <span
+          class="nav-icon"
+          aria-hidden="true"
+        >⚙</span>
+
+        <span>Settings</span>
+      </button>
+
+    </nav>
+
+  </div>
+
+
+  <!-- =====================================================
+       OFFLINE / APP STATUS
+       ===================================================== -->
+
+  <div
+    id="offlineStatus"
+    class="offline-status"
+    role="status"
+    aria-live="polite"
+    hidden
+  >
+    Offline mode
+  </div>
+
+
+  <!-- =====================================================
+       JAVASCRIPT
+       ===================================================== -->
+
+  <script
+    src="./js/app.js"
+    defer
+  ></script>
+
+</body>
+</html>
